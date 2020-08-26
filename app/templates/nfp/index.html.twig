@@ -1,0 +1,344 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ country }}{% endblock %}
+{% block stylesheets %}
+
+    <!-- Data Table CSS -->
+
+    <link href="{{ asset('assets/plugins/datatables/jquery.dataTables.min.css') }}" rel="stylesheet" type="text/css"/>
+
+    <link href="{{ asset('assets/plugins/datatables/buttons.bootstrap4.min.css') }}" rel="stylesheet" type="text/css"/>
+    <link href="{{ asset('assets/plugins/datatables/fixedHeader.bootstrap4.min.css') }}" rel="stylesheet"
+          type="text/css"/>
+    <link href="{{ asset('assets/plugins/datatables/responsive.bootstrap4.min.css') }}" rel="stylesheet"
+          type="text/css"/>
+    <link href="{{ asset('assets/plugins/datatables/scroller.bootstrap4.min.css') }}" rel="stylesheet" type="text/css"/>
+    <link href="{{ asset('assets/plugins/datatables/dataTables.colVis.css') }}" rel="stylesheet" type="text/css"/>
+    <link href="{{ asset('assets/plugins/datatables/dataTables.bootstrap4.min.css') }}" rel="stylesheet"
+          type="text/css"/>
+    <link href="{{ asset('assets/plugins/datatables/fixedColumns.dataTables.min.css') }}" rel="stylesheet"
+          type="text/css"/>
+    <link href="{{ asset('assets/plugins/jquery.filer/css/jquery.filer.css') }}" rel="stylesheet"
+          type="text/css"/>
+    <link href="{{ asset('assets/plugins/jquery.filer/css/themes/jquery.filer-dragdropbox-theme.css') }}"
+          rel="stylesheet"
+          type="text/css"/>
+
+
+{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="btn-group m-b-10 float-right">
+                <a href="{{ path('nat',{'country' :  country  }) }}"
+                   class="btn btn-custom waves-light waves-effect float-right"><i
+                            class="fa fa-plus-circle m-r-5">
+                    </i>National Dashboard</a>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-4 col-md-6">
+            <div class="card-box widget-box-two widget-two-info">
+                <i class="mdi mdi-database widget-two-icon"></i>
+                <div class="wigdet-two-content text-white">
+                    <p class="m-0 text-uppercase font-600 font-secondary text-overflow" title="Statistics">Total Species
+                        introduced</p>
+                    <h2 class="text-white"><span data-plugin="counterup">
+                            {% if n1 is empty %}
+                                0
+                            {% else %}
+                                {{ n1 }}
+                            {% endif %}
+                        </span>
+
+                    </h2>
+
+                </div>
+            </div>
+        </div><!-- end col -->
+        <div class="col-lg-4 col-md-6">
+            <div class="card-box widget-box-two widget-two-orange">
+                <i class="mdi mdi-layers widget-two-icon"></i>
+                <div class="wigdet-two-content text-white">
+                    <p class="m-0 text-uppercase font-600 font-secondary text-overflow">
+                        Total Species Established</p>
+                    <h2 class="text-white"><span data-plugin="counterup">
+
+                             {% if n1 is empty %}
+                                 0
+                             {% else %}
+                                 {{ n2 }}
+                             {% endif %}
+
+                        </span>
+
+                    </h2>
+
+                </div>
+            </div>
+        </div><!-- end col -->
+        <div class="col-lg-4 col-md-6">
+            <div class="card-box widget-box-two widget-two-danger">
+                <i class="mdi mdi-clipboard-alert widget-two-icon"></i>
+                <div class="wigdet-two-content text-white">
+                    <p class="m-0 text-uppercase font-600 font-secondary text-overflow">
+                        Toatl Species invasive</p>
+                    <h2 class="text-white"><span data-plugin="counterup">
+                            {% if n1 is empty %}
+                                0
+                            {% else %}
+                                {{ n3 }}
+                            {% endif %}
+
+                        </span>
+
+                    </h2>
+
+                </div>
+            </div>
+        </div><!-- end col -->
+    </div>
+    <!-- end row -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="property-card table-responsive">
+                <div class="property-content">
+                    <h4 class="header-title m-t-0 m-b-30">List of NIS - {{ country }}</h4>
+                    <table id="datatable-buttons"
+                           class="table table-striped table-bordered table-hover table-condensed nowrap "
+                           style="border:solid 1px #0179C2;border-collapse: collapse; border-spacing: 0; width: 100%;">
+
+                        <thead>
+                        <tr>
+                            <th>Species Name</th>
+                            <th>EcoFunctional Group</th>
+                            <th>Origin</th>
+                            <th>Establishment/Sucess</th>
+                            <th>Med. Fisrt Sighting</th>
+                            <th>Impact</th>
+
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for item in species %}
+                            <tr>
+
+                                <td><a href="{{ path('species_fiche', {'id':item.id}) }}"
+                                       target="_blank"><i>{{ item.relation }}</i></a></td>
+                                <td>{{ item.Ecofunctional }}</td>
+                                <td>{{ item.Origin }}</td>
+                                <td>{{ item.Success }}</td>
+                                {% if not item.firstMedSighting %}
+                                    <td><p>Unknown</p></td>
+
+                                {% elseif item.firstMedSighting %}
+                                    <td>{{ item.firstMedSighting }}</td>
+                                {% endif %}
+                                <td>{{ item.invasive }}</td>
+
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+
+                </div>
+            </div> <!-- end col -->
+        </div>
+
+    </div>
+        <!--<div class="row">
+        <div class="col-md-6">
+            <div class="property-card table-responsive">
+                <div class="property-content">
+                    <h4 class="header-title m-t-0 m-b-20">Registred Users :  {{ country }}</h4>
+
+                    <table class="table table-centered m-b-0">
+                        <tbody>
+                        <tr>
+                            {% for user in  national_expert %}
+                            <td>
+                                <a class="user" href="#">
+                                    <img src="resources/logo/avatarb.png" alt=""
+                                         class="img-circle img-thumbnail thumb-md">
+                                </a>
+                            </td>
+                            <td class="hide-phone">
+                                {% if user.firstname is defined and user.lastname %}
+                                    <h3 class="m-0"><small>{{ user.firstname|e }} {{ user.lastname|e }}</small></h3>
+                                {% else %}
+                                    <h3 class="m-0"><small>{{ user.username|e }}</small></h3>
+                                {% endif %}
+                            </td>-->
+
+    <!--<td class="text-right">
+                                <a href="{{ path('fos_user_profile_show') }}"
+                                   class="btn btn-sm btn-bordered waves-effect waves-light btn-primary">See Profile</a>
+                                <a href="#"
+                                   class="btn btn-sm btn-bordered waves-effect waves-light btn-danger">Remove</a>
+                            </td>
+
+                        </tr>
+                        {% endfor %}
+
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div> -->
+    <!-- end col -->
+
+    <!--<div class="col-md-6">
+            <div class="property-card table-responsive">
+                <div class="property-content">
+                    <h4 class="header-title m-t-0 m-b-5">National reporting</h4>
+
+
+                    <div class="slimscroll"
+                         style="position: relative; overflow: hidden; width: auto; height: 550px;">
+
+
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="timeline timeline-left">
+                                    <article class="timeline-item alt">
+                                        <div class="text-left">
+                                            <div class="time-show first">
+                                                <a href="#" class="btn btn-danger w-lg">{{ "now"|date("Y") }}</a>
+                                            </div>
+                                        </div>
+                                    </article>
+                                    <article class="timeline-item">
+                                        <div class="timeline-desk">
+                                            <div class="panel">
+                                                <div class="timeline-box">
+                                                    <span class="arrow"></span>
+                                                    <span class="timeline-icon"><i
+                                                            class="mdi mdi-checkbox-blank-circle-outline"></i></span>
+                                                    <h4 class="">1 hour ago</h4>
+                                                    <p class="timeline-date text-muted"><small>08:25 am</small></p>
+                                                    <p>Dolorum provident rerum aut hic quasi placeat iure tempora
+                                                        laudantium ipsa ad debitis unde? </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </article>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>-->
+    <!-- end row -->
+{% endblock %}
+{% block javascripts %}
+    <!-- Data Table JavaScript -->
+    <script src="{{ asset('assets/plugins/datatables/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('assets/plugins/datatables/dataTables.bootstrap.js') }}"></script>
+
+    <script src="{{ asset('assets/plugins/datatables/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('assets/plugins/datatables/dataTables.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('assets/plugins/datatables/dataTables.buttons.min.js') }}"></script>
+    <script src="{{ asset('assets/plugins/datatables/buttons.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('assets/plugins/datatables/jszip.min.js') }}"></script>
+    <script src="{{ asset('assets/plugins/datatables/pdfmake.min.js') }}"></script>
+    <script src="{{ asset('assets/plugins/datatables/vfs_fonts.js') }}"></script>
+    <script src="{{ asset('assets/plugins/datatables/buttons.html5.min.js') }}"></script>
+    <script src="{{ asset('assets/plugins/datatables/buttons.print.min.js') }}"></script>
+    <script src="{{ asset('assets/plugins/datatables/dataTables.fixedHeader.min.js') }}"></script>
+    <script src="{{ asset('assets/plugins/datatables/dataTables.keyTable.min.js') }}"></script>
+    <script src="{{ asset('assets/plugins/datatables/dataTables.responsive.min.js') }}"></script>
+    <script src="{{ asset('assets/plugins/datatables/responsive.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('assets/plugins/datatables/dataTables.scroller.min.js') }}"></script>
+    <script src="{{ asset('assets/plugins/datatables/dataTables.colVis.js') }}"></script>
+    <script src="{{ asset('assets/plugins/datatables/dataTables.fixedColumns.min.js') }}"></script>
+
+    <!-- Select2 JavaScript -->
+    <script src="{{ asset('assets/plugins/bootstrap-tagsinput/js/bootstrap-tagsinput.min.js') }}"></script>
+    <script src="{{ asset('assets/plugins/multiselect/js/jquery.multi-select.js') }}"></script>
+    <script src="{{ asset('assets/plugins/jquery-quicksearch/jquery.quicksearch.js') }}"></script>
+    <script src="{{ asset('assets/plugins/select2/js/select2.full.js') }}"></script>
+    <script src="{{ asset('assets/plugins/bootstrap-select/js/bootstrap-select.min.js') }}"></script>
+    <script src="{{ asset('assets/plugins/switchery/switchery.min.js') }}"></script>
+    <script src="{{ asset('assets/plugins/jquery.filer/js/jquery.filer.min.js') }}"></script>
+
+    <script type="text/javascript">
+        "use strict";
+
+        jQuery(document).ready(function () {
+
+            //Buttons examples
+            var currentDate = new Date();
+            var day = currentDate.getDate();
+            var month = currentDate.getMonth() + 1;
+            var year = currentDate.getFullYear();
+            var d = day + "-" + month + "-" + year;
+
+            var table = $('#datatable-buttons').DataTable({
+                {% if is_granted('ROLE_REGSITREDUSER') %}
+                dom: 'Bltip',
+                "responsive": true,
+                "autoWidth": false,
+                "lengthChange": true,
+                "searching": false,
+
+                "pageLength": 10,
+                "ordering": true,
+                "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+                "buttons": [
+                    {
+                        extend: 'excelHtml5', className: 'btn-sm btn-custom waves-effect w-md waves-light',
+                        //extension: 'xlsx',
+                        title: 'MAMIAS_Export_' + d,
+                        download: 'open',
+                        header: 'Marine Mediterranean Invasive Alien Species (MAMIAS) Database',
+                        footer: 'http://www.mamias.org accessed ' + d,
+                        sheetName: 'NIS LIST',
+                    },
+
+                ],
+                {% else %}
+
+                "dom": 'ltip',
+                "responsive": true,
+                "autoWidth": false,
+                "lengthChange": true,
+                "searching": false,
+                "pageLength": 10,
+                "ordering": true,
+                "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+
+                {% endif %}
+            });
+
+            $(".dataTables_length").css('clear', 'none');
+            $(".dataTables_length").css('float', 'right');
+
+            //info -> reset clear and padding
+            $(".dataTables_info").css('clear', 'none');
+            $(".dataTables_info").css('padding', '0');
+
+
+            table.buttons().container()
+                .appendTo('#datatable-buttons_wrapper .col-md-6:eq(0)');
+            // Select2
+            $(".select2").select2();
+
+        });
+        $('.slimscroll').slimScroll();
+
+        $('#filer_input').filer();
+
+
+    </script>
+
+
+{% endblock %}

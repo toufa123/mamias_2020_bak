@@ -1,0 +1,35 @@
+{#
+
+/*
+ * This file is part of the Sonata package.
+ *
+ * (c) Thomas Rabaix <thomas.rabaix@sonata-project.org>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+#}
+
+
+    {% for comment in pager.results %}
+        <ul class="media-list">
+
+            <li class="media">
+                <a class="pull-left" href="#">
+                    <img class="media-object img-circle"
+                         src="resources/images/users/avatar-2.jpg" alt="img">
+                </a>
+                <div class="media-body">
+                    <h5 class="media-heading"><a href="{{ comment.url }}" target="new"
+                                                 rel="nofollow">{{ comment.name }}</a></h5>
+                    <h6 class="text-muted"> {{ comment.createdAt | format_date }}</h6>
+                    <p> {{ comment.message }}</p>
+
+                </div>
+            </li>
+        </ul>
+    {% else %}
+        <li>{{ 'no_comments_available'|trans({}, 'SonataNewsBundle') }}</li>
+    {% endfor %}
+

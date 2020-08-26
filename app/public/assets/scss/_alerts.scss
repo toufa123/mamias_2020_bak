@@ -1,0 +1,49 @@
+/* =============
+   Alerts
+============= */
+.alert {
+    position: relative;
+    color: $white;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.16), 0 2px 10px rgba(0, 0, 0, 0.12);
+
+    .alert-link {
+        font-weight: 600;
+        font-family: $font-secondary;
+        color: $white;
+    }
+}
+
+.alert-icon {
+    padding-left: 50px;
+
+    i {
+        position: absolute;
+        left: 0;
+        height: 50px;
+        width: 50px;
+        text-align: center;
+        top: 0;
+        line-height: 50px;
+        font-size: 22px;
+    }
+}
+
+.alert-success {
+    background-color: $success;
+    border-color: $success;
+}
+
+.alert-info {
+    background-color: $info;
+    border-color: $info;
+}
+
+.alert-warning {
+    background-color: $warning;
+    border-color: $warning;
+}
+
+.alert-danger {
+    background-color: $danger;
+    border-color: $danger;
+}

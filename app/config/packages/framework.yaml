@@ -1,0 +1,44 @@
+framework:
+    secret: '%env(APP_SECRET)%'
+    default_locale: en
+    csrf_protection: true
+    translator: { fallbacks: ["en"] }
+    http_method_override: true
+    esi: { enabled: true }
+    serializer:
+        enabled: true
+    # Enables session support. Note that the session will ONLY be started if you read or write from it.
+    # Remove or comment this section to explicitly disable session support.
+    session:
+        handler_id: ~
+        cookie_secure: auto
+        cookie_samesite: 'strict'
+
+    #esi: true
+    #fragments: true
+    php_errors:
+        log: true
+    templating:
+        engines: ['twig', 'php']
+        form:
+            resources:
+                - 'SonataFormatterBundle:Form:formatter.html.twig'
+                - 'SonataMediaBundle:Form:media_widgets.html.twig'
+                - 'SonataCoreBundle:Form:datepicker.html.twig'
+                - '@SonataMedia/Form/media_widgets.html.twig'
+
+    #eu_cookie_law:
+    #    response_injection: true # default true
+    #cookie_expiry_time : '1'
+#    template: EuCookieLawBundle::cookie_law_bar.html.twig # twig template name, default: EuCookieLawBundle::cookie_law_bar.html.twig
+
+white_october_breadcrumbs:
+    #separator:          '/'
+    #separatorClass:     'separator'
+    listId:             'wo-breadcrumbs'
+    listClass:          'breadcrumb hide-phone float-right p-0 m-0'
+    itemClass:          'breadcrumb-item'
+    linkRel:            'breadcrumb-item active'
+    locale:             ~ # defaults to null, so the default locale is used
+    translation_domain: ~ # defaults to null, so the default domain is used
+    #viewTemplate:       'App/templates/WhiteOctoberBreadcrumbsBundle/views/microdata.html.twig'

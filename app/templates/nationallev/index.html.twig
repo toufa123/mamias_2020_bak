@@ -1,0 +1,189 @@
+{% extends 'base.html.twig' %}
+{% block title %}Dashboard
+    {% if name is empty %}
+    {% else %}
+        : {{ name }}
+    {% endif %}
+{% endblock %}
+{% block stylesheets %}
+    <link href="{{ asset('assets/plugins/bootstrap-tagsinput/css/bootstrap-tagsinput.css') }}" rel="stylesheet"/>
+    <link href="{{ asset('assets/plugins/bootstrap-select/css/bootstrap-select.min.css') }}" rel="stylesheet"/>
+    <link href="{{ asset('assets/plugins/select2/css/select2.css') }}" rel="stylesheet"/>
+    <link href="{{ asset('assets/plugins/switchery/switchery.min.css') }}" rel="stylesheet"/>
+    <link href="{{ asset('assets/plugins/bootstrap-sweetalert/sweet-alert.css') }}" rel="stylesheet"/>
+{% endblock %}
+{% block body %}
+    <div class="row">
+        <div class="col-3">
+            {{ form_start(form1, {attr: {novalidate: 'novalidate'}}) }}
+            {{ form_errors(form1) }}
+            <div class="form-row ">
+                <div class="form-group col-lg-6 col-md-6 ">
+                    {{ form_errors(form1.country ) }}
+                    {{ form_widget(form1.country) }}
+                </div>
+                <div class="form-group col-md-6 "><input type="submit" value="submit" class="btn btn-primary"/>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+    <!-- end page title end breadcrumb -->
+    {% if form1.vars.submitted and form1.country.vars.value !='Select A country' %}
+        <div class="row">
+            <div class="col-lg-4 col-md-6">
+                <div class="card-box widget-box-two widget-two-info">
+                    <i class="mdi mdi-database widget-two-icon"></i>
+                    <div class="wigdet-two-content text-white">
+                        <p class="m-0 text-uppercase font-600 font-secondary text-overflow" title="Statistics">Total
+                            Species
+                            introduced</p>
+                        <h2 class="text-white"><span data-plugin="counterup">
+                            {% if n1 is empty %}
+                                0
+                            {% else %}
+                                {{ n1 }}
+                            {% endif %}
+                        </span>
+
+                        </h2>
+
+                    </div>
+                </div>
+            </div><!-- end col -->
+
+            <div class="col-lg-4 col-md-6">
+                <div class="card-box widget-box-two widget-two-orange">
+                    <i class="mdi mdi-layers widget-two-icon"></i>
+                    <div class="wigdet-two-content text-white">
+                        <p class="m-0 text-uppercase font-600 font-secondary text-overflow">
+                            Total Species Established</p>
+                        <h2 class="text-white"><span data-plugin="counterup">
+
+                             {% if n1 is empty %}
+                                 0
+                             {% else %}
+                                 {{ n2 }}
+                             {% endif %}
+
+                        </span>
+
+                        </h2>
+
+                    </div>
+                </div>
+            </div><!-- end col -->
+
+            <div class="col-lg-4 col-md-6">
+                <div class="card-box widget-box-two widget-two-danger">
+                    <i class="mdi mdi-clipboard-alert widget-two-icon"></i>
+                    <div class="wigdet-two-content text-white">
+                        <p class="m-0 text-uppercase font-600 font-secondary text-overflow">
+                            Toatl Species invasive</p>
+                        <h2 class="text-white"><span data-plugin="counterup">
+                            {% if n1 is empty %}
+                                0
+                            {% else %}
+                                {{ n3 }}
+                            {% endif %}
+
+                        </span>
+
+                        </h2>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="property-card bg-white">
+                    <div class="property-content">
+                        <div id="linechart"
+                             style="min-width: 500px; max-width: 100%;height: 500px; margin: 0 auto; "></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="property-card bg-white">
+                    <div class="property-content">
+                        <div id="piechart"
+                             style="min-width: 500px; max-width: 100%;height: 500px; margin: 0 auto; "></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="property-card bg-white">
+                    <div class="property-content">
+                        <div id="barchart1"
+                             style="min-width: 500px; max-width: 100%;height: 500px; margin: 0 auto; "></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="property-card bg-white">
+                    <div class="property-content">
+                        <div id="barchart2"
+                             style="min-width: 500px; max-width: 100%;height: 500px; margin: 0 auto; "></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <!--<div class="row">
+            <div class="col-lg-12">
+                <div class="property-card">
+                    <div class="property-content">
+                        Please Choose a country
+                    </div>
+                </div>
+            </div>
+        </div>-->
+    {% endif %}
+
+    <!--<div id="pdf" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h4 class="modal-title" id="myModalLabel">Enter your email address where to send the PDF when ready</h4>
+                </div>
+                <div class="modal-body">
+                    {#{{ form(form2) }}#}
+                    <hr>
+                    <p>* The email is only used for the purpose of sending the PDF. We do not store it for any other use.</p>
+                </div>-->
+
+    </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+{% endblock %}
+{% block javascripts %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.3.6/proj4.js"></script>
+    <script src="{{ asset('assets/highcharts/highcharts.js') }}"></script>
+    <script src="{{ asset('assets/highcharts/modules/data.js') }}"></script>
+    {% if is_granted('ROLE_REGSITREDUSER') %}
+        <script src="{{ asset('assets/highcharts/modules/exporting.js') }}"></script>
+        <script src="{{ asset('assets/highcharts/modules/offline-exporting.js') }}"></script>
+    {% endif %}
+    <script src="{{ asset('assets/highcharts/modules/no-data-to-display.js') }}"></script>
+    <script src="{{ asset('assets/highcharts/modules/series-label.js') }}"></script>
+    <script src="{{ asset('assets/plugins/select2/js/select2.js') }}"></script>
+    <script src="{{ asset('assets/plugins/bootstrap-select/js/bootstrap-select.js') }}"></script>
+    <script src="{{ asset('assets/plugins/bootstrap-maxlength/bootstrap-maxlength.js') }}"></script>
+    <script src="{{ asset('assets/plugins/bootstrap-sweetalert/sweet-alert.min.js') }}"></script>
+    <script src="{{ asset('assets/plugins/toastr/toastr.min.js') }}"></script>
+    <script src="{{ asset('assets/highcharts/highcharts-3d.js') }}"></script>
+    <script>
+        {{ chart(linechart) }}
+        {{ chart(piechart) }}
+        {{ chart(barchart1) }}
+        {{ chart(barchart2) }}
+    </script>
+
+{% endblock %}

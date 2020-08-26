@@ -1,0 +1,52 @@
+fos_user:
+    db_driver:      orm # can be orm or odm
+    firewall_name:  admin
+    user_class:     App\Application\Sonata\UserBundle\Entity\User
+    profile:
+        # Authentication Form
+        form:
+            type:               App\Form\ProfileFormType
+            name:               fos_user_profile
+            validation_groups:  [Authentication] # Please note : this is not the default value
+
+    group:
+        group_class:    App\Application\Sonata\UserBundle\Entity\Group
+        group_manager: sonata.user.orm.group_manager # If you're using doctrine orm (use sonata.user.mongodb.group_manager for mongodb)
+
+    service:
+        user_manager: sonata.user.orm.user_manager
+        mailer: fos_user.mailer.twig_swift
+        #email_canonicalizer:    fos_user.util.canonicalizer.default
+        #username_canonicalizer: fos_user.util.canonicalizer.default
+        #token_generator:        fos_user.util.token_generator.default
+
+        #mailer : fos_user.mailer.default
+    from_email:
+        address: "no-reply@mamias.org"
+        sender_name: "MAMIAS Admin Team"
+
+    registration:
+        confirmation:
+            enabled: true
+            from_email:
+                address:        "no-reply@mamias.org"
+                sender_name:    "MAMIAS Admin Team"
+            template: bundles/FOSUserBundle/Registration/email.txt.twig
+        form:
+            type: App\Form\RegistrationFormType
+            name: fos_user_registration_form
+            validation_groups:  [Registration, Default]
+
+    resetting:
+        token_ttl: 0
+        email:
+            from_email:
+                address:        no-reply@mamias.org
+                sender_name:    Resetting Password
+            template: bundles/FOSUserBundle/Resetting/email.txt.twig
+        form:
+            type: App\Form\RestFormType
+            name: fos_user_reset_form
+
+
+

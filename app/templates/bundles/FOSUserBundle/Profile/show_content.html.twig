@@ -1,0 +1,166 @@
+{% extends "one.html.twig" %}
+{% block title %} {{ user.username }} Profile {% endblock %}
+{% trans_default_domain 'FOSUserBundle' %}
+{% block body %}
+
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="property-card">
+                <div class="property-content">
+                    <div class="row">
+                        <div class="col-lg-3 col-md-4">
+
+                            <div class="text-center card-box">
+                                <div class="member-card">
+                                    <div class="thumb-xl member-thumb m-b-10 center-block">
+                                        <img src="{{ asset('resources/logo/avatar.png') }}"
+                                             class="img-circle img-thumbnail"
+                                             alt="profile-image">
+                                        <i class="mdi mdi-star-circle member-star text-success"
+                                           title="verified user"></i>
+                                    </div>
+
+                                    <div class="">
+                                        <h4 class="centre m-b-5">{{ user.firstname }} {{ user.lastname }} </h4>
+                                        <p class="text-muted">{{ user.username }}</p>
+                                    </div>
+
+                                    <!--<button type="button"
+                                            class="btn btn-success btn-sm w-sm waves-effect m-t-10 waves-light">Follow
+                                    </button>
+                                    <button type="button"
+                                            class="btn btn-danger btn-sm w-sm waves-effect m-t-10 waves-light">Message
+                                    </button>-->
+
+                                    <p class="text-muted font-13 m-t-20">
+                                        {{ user.biography }}
+                                    </p>
+
+                                    <hr/>
+
+                                    <div class="text-left">
+                                        <p class="text-custom font-13"><strong>Full Name :</strong> <span
+                                                    class="text-muted m-l-15">{{ user.firstname }} {{ user.lastname }}</span>
+                                        </p>
+
+                                        <p class="text-custom font-13"><strong>Mobile :</strong><span
+                                                    class=" text-muted m-l-15">{{ user.phone }}</span></p>
+
+                                        <p class="text-custom font-13"><strong>Email :</strong> <span
+                                                    class=" text-muted m-l-15">{{ user.email }}</span></p>
+
+                                        <p class="text-custom font-13"><strong>Location :</strong> <span
+                                                    class=" text-muted m-l-15">{{ user.country }}</span></p>
+                                    </div>
+
+                                    <ul class="social-links list-inline m-t-30">
+                                        <li>
+                                            <a title="" data-placement="top" data-toggle="tooltip" class="tooltips"
+                                               href="https://www.facebook.com/{{ user.facebookUid }}" target="_blank"
+                                               data-original-title="Facebook"><i
+                                                        class="fa fa-facebook"></i></a>
+                                        </li>
+                                        <li>
+                                            <a title="" data-placement="top" data-toggle="tooltip" class="tooltips"
+                                               href="https://twitter.com/{{ user.twitterUid }} " target="_blank"
+                                               data-original-title="Twitter"><i
+                                                        class="fa fa-twitter"></i></a>
+                                        </li>
+                                        <li>
+
+                                            <a title="" data-placement="top" data-toggle="tooltip" class="tooltips"
+                                               href="callto://{{ user.skype }}"
+                                               data-original-title="Skype"><i class="fa fa-skype"></i></a>
+                                        </li>
+                                    </ul>
+
+                                </div>
+
+
+                            </div> <!-- end card-box -->
+
+                        </div> <!-- end col -->
+
+                        <div class="col-md-8 col-lg-9">
+                            <h4>Contribution to MAMIAS</h4>
+
+                            <div class="row m-t-20">
+                                <div class="col-md-6 col-sm-6 ">
+                                    <div class="p-t-10">
+                                        <div class="card-box widget-box-two widget-two-primary">
+                                            <i class="mdi mdi-map-marker-circle widget-two-icon"></i>
+                                            <div class="wigdet-two-content text-white">
+                                                <p class="m-0 text-uppercase font-600 font-secondary text-overflow"
+                                                   title="Statistics">Reported Geo-refrenced observation</p>
+                                                <h2 class="text-white"><span data-plugin="counterup"></span> <small><i
+                                                                class="mdi mdi-arrow-up text-success"></i></small></h2>
+                                                <p class="m-0"><b>Last:</b></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div><!-- end col-->
+
+                                <div class="col-md-6 col-sm-6">
+                                    <div class="p-t-10">
+                                        <div class="card-box widget-box-two widget-two-success">
+                                            <i class="mdi mdi-google-maps widget-two-icon "></i>
+                                            <div class="wigdet-two-content text-white">
+                                                <p class="m-0 text-uppercase font-600 font-secondary text-overflow"
+                                                   title="Statistics">Validated Observation</p>
+                                                <h2 class="text-white"><span data-plugin="counterup"></span> <small><i
+                                                                class="mdi mdi-arrow-up text-success"></i></small></h2>
+                                                <p class="m-0"><b>Last:</b></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div><!-- end col-->
+
+
+                            </div> <!-- end row -->
+
+                            <hr/>
+                            <div class="row">
+                                <div class="col-md-5 col-sm-6">
+                                    <h4>Ecofunctional Group of Interest</h4>
+                                    <hr/>
+                                    {% for item in user.Eco %}
+                                        <span class="label label-primary">{{ item.Ecofunctional }}</span>
+                                    {% endfor %}
+
+                                </div> <!-- end col -->
+                                <div class="col-md-7 col-sm-6">
+                                    <h4>NIS of Interest</h4>
+                                    <hr/>
+                                    {% for az in user.soi %}
+                                        <span class="label label-primary"><i>{{ az.species }}</i></span>
+                                    {% endfor %}
+
+                                </div> <!-- end col -->
+                            </div> <!-- end row -->
+                        </div>
+                        <!-- end col -->
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End row -->
+    <!-- end col -->
+    <div class="row">
+        <div class="col-md-4 col-sm-6 ">
+            <a href="{{ path('fos_user_profile_edit') }}" type="button"
+               class="btn btn-primary waves-effect w-md waves-light m-b-5">Edit profile</a>
+            <a href="{{ path('fos_user_change_password') }}" type="button"
+               class="btn btn-primary waves-effect w-md waves-light m-b-5">Change Password</a>
+        </div>
+
+    </div>
+
+    </div>
+
+    {% block javascripts %}
+
+    {% endblock %}
+{% endblock %}

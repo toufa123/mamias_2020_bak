@@ -1,0 +1,24 @@
+vich_uploader:
+    db_driver: orm
+    mappings:
+        GeoOccurence_image:
+            uri_prefix: /resources/upload/GeoOccurence/images
+            upload_destination: '%kernel.project_dir%/public/resources/upload/GeoOccurence/images'
+            namer: vich_uploader.namer_origname
+            inject_on_load: false
+            delete_on_update: true
+            delete_on_remove: true
+        blog_image:
+            uri_prefix: /resources/upload/blog/images
+            upload_destination: '%kernel.project_dir%/public/resources/upload/blog/images'
+            namer: vich_uploader.namer_origname
+            inject_on_load: false
+            delete_on_update: true
+            delete_on_remove: true
+        users_file:
+            uri_prefix:         /resources/upload/files
+            upload_destination: '%kernel.root_dir%/public/resources/upload/files'
+            namer:              vich_uploader.namer_origname
+            inject_on_load:     false
+            delete_on_update:   true
+            delete_on_remove:   true

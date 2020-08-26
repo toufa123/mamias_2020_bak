@@ -1,0 +1,32 @@
+sonata_news:
+    title:        MAMIAS News
+    link:         https://mamias.org
+    description:  News about MAMIAS and NIS in the Mediterranean
+    salt:         'secureToken'
+    permalink_generator: sonata.news.permalink.collection #sonata.news.permalink.date # sonata.news.permalink.collection
+    permalink:
+        date:     '%%3$02d/%%2$02d/%%1$04d/%%4$s' # => 2012/02/01/slug
+
+    comment:
+        notification:
+            emails:   [mamias@mamias.org]
+            from:     no-reply@mamias.org
+            template: '@SonataNews/Mail/comment_notification.txt.twig'
+
+    class:
+        post:       App\Application\Sonata\NewsBundle\Entity\Post
+        comment:    App\Application\Sonata\NewsBundle\Entity\Comment
+        media:      App\Application\Sonata\MediaBundle\Entity\Media
+        user:       App\Application\Sonata\UserBundle\Entity\User
+        tag:        App\Application\Sonata\ClassificationBundle\Entity\Tag
+        collection: App\Application\Sonata\ClassificationBundle\Entity\Collection
+
+    admin:
+        post:
+            class:       Sonata\NewsBundle\Admin\PostAdmin
+            controller:  SonataAdminBundle:CRUD
+            translation: SonataNewsBundle
+        comment:
+            class:       Sonata\NewsBundle\Admin\CommentAdmin
+            controller:  SonataNewsBundle:CommentAdmin
+            translation: SonataNewsBundle

@@ -1,0 +1,72 @@
+{% extends 'auth.html.twig' %}
+{% trans_default_domain 'FOSUserBundle' %}
+{% block title %}Authentification{% endblock %}
+
+{% block body %}
+
+    <section>
+        <div class="container-alt">
+            <div class="row">
+                <div class="col-sm-12">
+
+                    <div class="wrapper-page">
+
+                        <div class="m-t-40 account-pages">
+                            <div class="text-center account-logo-box">
+                                <h2 class="text-uppercase">
+                                    <a href="{{ path('home') }}" class="text-success">
+                                <span><img src="{{ asset('resources/logo/Logo-Mamias-web.png') }}" alt="MAMIAS 3.0"
+                                           height="36"></span>
+                                    </a>
+                                </h2>
+                                <!--<h4 class="text-uppercase font-bold m-b-0">Sign In</h4>-->
+                            </div>
+
+                            <div class="account-content">
+
+                                <p>{{ 'resetting.check_email'|trans({'%tokenLifetime%': tokenLifetime}, 'FOSUserBundle')|nl2br }}</p>
+
+
+                                <div class="clearfix"></div>
+
+                                <div class="form-group text-center m-t-5">
+                                    <div class="col-sm-12">
+                                        <a class="text-custom m-l-5"
+                                           href="{{ path('sonata_user_admin_security_login') }} "><i
+                                                    class="fa fa-login m-r-5"></i>
+                                            {{ 'title_user_authentication'|trans({}, 'SonataUserBundle') }}
+                                        </a>
+
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <!-- end card-box-->
+
+
+                        <div class="row m-t-50">
+                            <div class="col-sm-12 text-center">
+                                <p class="text-muted">Don't have an account? <a
+                                            href="{{ path('fos_user_registration_register') }}"
+                                            class="text-custom m-l-5"><b>Register</b></a>
+                                </p>
+                            </div>
+                        </div>
+
+                    </div>
+                    <!-- end wrapper -->
+
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- END HOME -->
+
+{% endblock %}
+{% block javascripts %}
+    <script>
+        var resizefunc = [];
+    </script>
+
+{% endblock %}

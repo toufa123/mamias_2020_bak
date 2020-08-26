@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>jQuery validation plug-in - requirejs demo</title>
+
+	<link href="../css/screen.css" rel="stylesheet">
+
+	<style type="text/css">
+		#commentForm {
+			width: 500px;
+		}
+
+		#commentForm label {
+			width: 250px;
+		}
+
+		#commentForm label.error, #commentForm input.submit {
+			margin-left: 253px;
+		}
+	</style>
+</head>
+<body>
+
+<h1 id="banner"><a href="https://jqueryvalidation.org/">jQuery Validation Plugin</a> Demo</h1>
+<div id="main">
+
+	<p>Default submitHandler is set to display an alert into of submitting the form</p>
+	<form action="" class="cmxform" id="commentForm" method="get">
+		<fieldset>
+			<legend>Please provide your name, email address (won't be published) and a comment</legend>
+			<p>
+				<label for="cname">Name (required, at least 2 characters)</label>
+				<input id="cname" minlength="2" name="name" required type="text">
+			</p>
+			<p>
+				<label for="cemail">E-Mail (required)</label>
+				<input id="cemail" name="email" required type="email">
+			</p>
+			<p>
+				<label for="curl">URL (optional)</label>
+				<input id="curl" name="url" type="url">
+			</p>
+			<p>
+				<label for="ccomment">Your comment (required)</label>
+				<textarea id="ccomment" name="comment" required></textarea>
+			</p>
+			<p>
+				<input class="submit" type="submit" value="Submit">
+			</p>
+		</fieldset>
+	</form>
+
+	<script>
+		var require = {
+			paths: {
+				"jquery": "../../lib/jquery-3.1.1"
+			}
+		};
+	</script>
+	<script data-main="app.js" src="../../lib/require.js"></script>
+</div>
+</body>
+</html>

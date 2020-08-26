@@ -1,0 +1,129 @@
+{% extends "one.html.twig" %}
+{% block title %} Profile {% endblock %}
+{% trans_default_domain 'FOSUserBundle' %}
+
+{% block stylesheets %}
+    <!-- select2 -->
+
+    <link href="{{ asset('assets/plugins/bootstrap-tagsinput/css/bootstrap-tagsinput.css') }}" rel="stylesheet"
+          type="text/css"/>
+    <link href="{{ asset('assets/plugins/multiselect/css/multi-select.css') }}" rel="stylesheet"
+          type="text/css"/>
+    <link href="{{ asset('assets/plugins/select2/css/select2.css') }}" rel="stylesheet" type="text/css"/>
+    <link href="{{ asset('assets/plugins/bootstrap-select/css/bootstrap-select.min.css') }}" rel="stylesheet"
+          type="text/css"/>
+    <link href="{{ asset('assets/plugins/bootstrap-touchspin/css/jquery.bootstrap-touchspin.min.css') }}"
+          rel="stylesheet" type="text/css"/>
+{% endblock %}
+
+{% block body %}
+    {% trans_default_domain 'FOSUserBundle' %}
+
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card-box">
+
+                <div class="">
+                    {{ form_start(form, { 'action': path('fos_user_profile_edit') }) }}
+                    {{ form_errors(form) }}
+
+
+                    <div class="row m-b-30">
+                        <div class="col-sm-4">
+                            {{ form_label(form.username) }}
+                            {{ form_widget(form.username) }}
+                        </div>
+
+                        <div class="col-sm-2">
+                            {{ form_label(form.lastname) }}
+                            {{ form_widget(form.lastname) }}
+                        </div>
+                        <div class="col-sm-2">
+                            {{ form_label(form.firstname) }}
+                            {{ form_widget(form.firstname) }}
+                        </div>
+                        <div class="col-sm-2">
+                            {{ form_label(form.dateOfBirth) }}
+                            {{ form_widget(form.dateOfBirth) }}
+                        </div>
+                        <div class="col-sm-2">
+                            {{ form_label(form.gender) }}
+                            {{ form_widget(form.gender) }}
+                        </div>
+                    </div>
+
+                    <div class="row m-b-30">
+                        <div class="col-sm-2">
+                            {{ form_label(form.country) }}
+                            {{ form_widget(form.country, {'attr': {'Placeholder': 'Choose a Country'}}) }}
+                        </div>
+                        <div class="col-sm-2">
+                            {{ form_label(form.email) }}
+                            {{ form_widget(form.email) }}
+                        </div>
+                        <div class="col-sm-2">
+                            {{ form_label(form.phone) }}
+                            {{ form_widget(form.phone) }}
+                        </div>
+                        <div class="col-sm-2">
+                            {{ form_label(form.facebookUid) }}
+                            {{ form_widget(form.facebookUid) }}
+                        </div>
+                        <div class="col-sm-2">
+                            {{ form_label(form.twitterUid) }}
+                            {{ form_widget(form.twitterUid) }}
+                        </div>
+                        <div class="col-sm-2">
+                            {{ form_label(form.skype) }}
+                            {{ form_widget(form.skype) }}
+                        </div>
+                    </div>
+                    <div class="row m-b-30">
+                        <div class="col-sm-12">
+                            {{ form_label(form.biography) }}
+                            {{ form_widget(form.biography) }}
+                        </div>
+                    </div>
+
+                    <div class="row m-b-30">
+                        <div class="col-sm-6">
+                            {{ form_label(form.Eco ) }}
+                            {{ form_widget(form.Eco, {'attr': {'class': 'form-control select2'}}) }}
+                        </div>
+                        <div class="col-sm-6">
+                            {{ form_label(form.soi) }}
+                            {{ form_widget(form.soi, {'attr': {'class': 'form-control select2'}}) }}
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-12">
+            <div class="card-box">
+
+                <button class="btn w-md btn-bordered btn-custom waves-effect waves-light m-t-10"
+                        type="submit">{{ 'profile.edit.submit'|trans }}</button>
+
+            </div>
+        </div>
+    </div>
+
+    {{ form_end(form) }}
+
+    {% block javascripts %}
+        <script src="{{ asset('assets/plugins/bootstrap-tagsinput/js/bootstrap-tagsinput.min.js') }}"></script>
+        <script src="{{ asset('assets/plugins/multiselect/js/jquery.multi-select.js') }}"></script>
+        <script src="{{ asset('assets/plugins/jquery-quicksearch/jquery.quicksearch.js') }}"></script>
+        <script src="{{ asset('assets/plugins/select2/js/select2.full.js') }}"></script>
+        <script src="{{ asset('assets/plugins/bootstrap-select/js/bootstrap-select.min.js') }}"></script>
+
+        <script type="text/javascript">
+            $(".select2").select2();
+        </script>
+
+    {% endblock %}
+{% endblock %}

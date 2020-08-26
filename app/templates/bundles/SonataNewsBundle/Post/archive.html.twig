@@ -1,0 +1,156 @@
+{#
+
+/*
+ * This file is part of the Sonata package.
+ *
+ * (c) Thomas Rabaix <thomas.rabaix@sonata-project.org>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+#}
+
+{% extends 'base.html.twig' %}
+{% block title %}{{ 'title_archive'|trans({}, 'SonataNewsBundle') }}{% endblock %}
+
+{% block stylesheets %}
+{% endblock %}
+
+{% block body %}
+
+
+    <div class="">
+        <div class="row">
+            <div class="col-sm-9">
+                <div class="p-20">
+                    <div class="row blog-column-wrapper">
+                        {% for post in pager.getResults() %}
+                            <div class="col-md-6">
+                                <!-- Image Post -->
+
+                                <div class="blog-post blog-post-column m-b-20">
+                                    <div class="post-image">
+                                        {% media post.image, 'wide' %}
+
+                                        <!--<img src="assets/images/blog/1.jpg" alt="" class="img-responsive">-->
+
+                                    </div>
+                                    <div class="p-20">
+                                        <div class="text-muted"><span>by <a
+                                                    class="text-dark font-secondary">{{ 'archive_author'|trans({'%author%': post.author }, 'SonataNewsBundle') }}</a>,</span>
+                                            <span>{{ post.publicationDateStart | format_date }} &nbsp;|&nbsp;</span><a
+                                                class="text-dark font-secondary">{{ 'comments_count'|trans({'%comments_count%': post.commentsCount }, 'SonataNewsBundle') }}</a>
+                                        </div>
+                                        <div class="text-muted"><span><i class="fa fa-tags">Tags: </i><a
+                                                    class="text-dark font-secondary">
+                                            {% if post.tags|length > 1 %}
+                                                <i class="icon-tags"></i>
+                                             {% else %}
+                                                <i class="icon-tag"></i>
+                                            {% endif %}
+                                                    {{ 'published_under'|transchoice(post.tags|length, {}, 'SonataNewsBundle') }}
+
+                                                    {% for tag in post.tags %}
+                                                    <a href="{{ url('sonata_news_tag', { 'tag': tag.slug } ) }}"><span
+                                                            class="label label-default">{{ tag.name }}</span>
+                                                        </a>{% if not loop.last %}{% endif %}
+                                                    {% endfor %}
+                                        </a>,</span></div>
+                                        <div class="post-title">
+                                            <h3>
+                                                <a href="{{ url('sonata_news_view', { 'permalink': sonata_news_permalink(post) }) }}">{{ post.title }}</a>
+                                            </h3>
+                                        </div>
+                                        <div>
+                                            <p class="text-muted">
+                                                {{ post.abstract }}
+                                            </p>
+                                        </div>
+                                        <div class="text-right">
+                                            <a href="{{ url('sonata_news_view', { 'permalink': sonata_news_permalink(post) }) }}"
+                                               class="btn btn-success btn-sm waves-effect waves-light">Read More <i
+                                                    class="mdi mdi-arrow-right m-l-5"></i></a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        {% else %}
+                            {{ 'no_post_found'|trans({}, 'SonataNewsBundle') }}
+                        {% endfor %}
+                    </div>
+                    <!-- end row -->
+
+
+                </div>
+                <ul class="pager">
+
+                    <li{% if pager.page == pager.firstPage %} class="disabled"{% endif %}><a
+                            href="{{ url(route, route_parameters|merge({'page': pager.previouspage})) }}"
+                            title="{{ 'link_previous_page'|trans({}, 'SonataNewsBundle') }}"><i
+                                class="fa fa-angle-left"></i>&nbsp;{{ 'link_previous_page'|trans({}, 'SonataNewsBundle') }}
+                        </a>
+                    <li{% if pager.page == pager.lastPage %} class="disabled"{% endif %}><a
+                            href="{{ url(route, route_parameters|merge({'page': pager.nextpage})) }}"
+                            title="{{ 'link_next_page'|trans({}, 'SonataNewsBundle') }}">{{ 'link_next_page'|trans({}, 'SonataNewsBundle') }}
+                            &nbsp;<i class="fa fa-angle-right"></i></a></li>
+                </ul>
+            </div> <!-- end col -->
+            <div class="col-sm-3">
+                <div class="p-20">
+
+                    <!--<div class="">
+                        <h4 class="text-uppercase">Search</h4>
+                        <div class="border m-b-20"></div>
+                        <div class="form-group search-box">
+                            <input type="text" id="search-input" class="form-control" placeholder="Search here...">
+                            <button type="submit" class="btn btn-search"><i class="fa fa-search"></i></button>
+                        </div>
+                    </div>-->
+
+                    <div class="m-t-50">
+                        <h4 class="text-uppercase">Categories</h4>
+                        <div class="border m-b-20"></div>
+
+
+                    </div>
+
+
+                    <!--<div class="m-t-50">
+                        <h4 class="text-uppercase">Newsletter</h4>
+                        <div class="border m-b-20"></div>
+
+                        <form>
+                            <div class="input-group m-t-10">
+                                <input type="email" id="example-input2-group2" name="example-input2-group2"
+                                       class="form-control" placeholder="Email">
+                                <span class="input-group-btn">
+                                            <button type="button" class="btn waves-effect waves-light btn-primary">Submit</button>
+                                            </span>
+                            </div>
+                        </form>
+                    </div>-->
+
+                </div>
+            </div> <!-- end col -->
+        </div>
+        <!-- end row -->
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    <!-- isotope plugin -->
+    <script src="{{ asset('assets/plugins/isotope/js/isotope.pkgd.min.js') }}"></script>
+    <script type="text/javascript">
+        $('.blog-column-wrapper').isotope({
+            itemSelector: '.col-md-6',
+            percentPosition: true,
+            masonry: {
+                columnWidth: '.col-md-6'
+            }
+        });
+    </script>
+
+
+{% endblock %}

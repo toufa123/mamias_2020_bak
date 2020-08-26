@@ -1,0 +1,25 @@
+swiftmailer:
+#username: mamias2020@gmail.com
+#password: MAMIAS2019
+
+#host: smtp.gmail.com
+#port: 587
+#encryption: tls
+#auth-mode: login
+#local_domain:  localhost
+#source_ip:    127.0.0.1
+
+#stream_options:
+#ssl:
+#allow_self_signed: true
+#verify_peer: false
+#verify_peer_name: false
+#url: '%env(MAILER_URL)%'
+#spool: { type: 'memory' }
+#transport: smtp
+#host: maildev
+#port: 25
+#username: null
+#password: null
+# send all emails to a specific address
+#delivery_addresses: ['atef.ouerghi@gmail.com']

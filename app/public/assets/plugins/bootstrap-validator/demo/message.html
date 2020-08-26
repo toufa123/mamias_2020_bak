@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>BootstrapValidator demo</title>
+
+    <link href="../vendor/bootstrap/css/bootstrap.css" rel="stylesheet"/>
+    <link href="../dist/css/bootstrapValidator.css" rel="stylesheet"/>
+
+    <script src="../vendor/jquery/jquery.min.js" type="text/javascript"></script>
+    <script src="../vendor/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+    <script src="../dist/js/bootstrapValidator.js" type="text/javascript"></script>
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <div class="page-header">
+            <h1>Use error message that is returned from remote/callback validator</h1>
+        </div>
+
+        <div class="col-lg-8 col-lg-offset-2">
+            <form action="target.php" class="form-horizontal" id="defaultForm" method="post">
+                <div class="form-group">
+                    <label class="col-lg-3 control-label">Username</label>
+                    <div class="col-lg-5">
+                        <input autocomplete="off" class="form-control" name="username" type="text"/>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-lg-3 control-label">Email address</label>
+                    <div class="col-lg-5">
+                        <input autocomplete="off" class="form-control" name="email" type="text"/>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-lg-3 control-label">Password</label>
+                    <div class="col-lg-5">
+                        <input class="form-control" name="password" type="password"/>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-lg-9 col-lg-offset-3">
+                        <button class="btn btn-primary" type="submit">Submit</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#defaultForm').bootstrapValidator({
+                message: 'This value is not valid',
+                feedbackIcons: {
+                    valid: 'glyphicon glyphicon-ok',
+                    invalid: 'glyphicon glyphicon-remove',
+                    validating: 'glyphicon glyphicon-refresh'
+                },
+                fields: {
+                    username: {
+                        message: 'The username is not valid',
+                        validators: {
+                            notEmpty: {
+                                message: 'The username is required and can\'t be empty'
+                            },
+                            remote: {
+                                url: 'remote2.php'
+                            },
+                            different: {
+                                field: 'password',
+                                message: 'The username and password can\'t be the same as each other'
+                            }
+                        }
+                    },
+                    email: {
+                        validators: {
+                            notEmpty: {
+                                message: 'The email address is required and can\'t be empty'
+                            },
+                            emailAddress: {
+                                message: 'The input is not a valid email address'
+                            },
+                            remote: {
+                                url: 'remote2.php'
+                            }
+                        }
+                    },
+                    password: {
+                        validators: {
+                            notEmpty: {
+                                message: 'The password is required and can\'t be empty'
+                            },
+                            different: {
+                                field: 'username',
+                                message: 'The password can\'t be the same as username'
+                            },
+                            callback: {
+                                callback: function (value, validator) {
+                                    // Check the password strength
+                                    if (value.length < 6) {
+                                        return {
+                                            valid: false,
+                                            message: 'The password must be more than 6 characters'
+                                        }
+                                    }
+
+                                    if (value === value.toLowerCase()) {
+                                        return {
+                                            valid: false,
+                                            message: 'The password must contain at least one upper case character'
+                                        }
+                                    }
+                                    if (value === value.toUpperCase()) {
+                                        return {
+                                            valid: false,
+                                            message: 'The password must contain at least one lower case character'
+                                        }
+                                    }
+                                    if (value.search(/[0-9]/) < 0) {
+                                        return {
+                                            valid: false,
+                                            message: 'The password must contain at least one digit'
+                                        }
+                                    }
+
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

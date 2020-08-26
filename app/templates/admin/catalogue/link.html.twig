@@ -1,0 +1,15 @@
+{% extends '@SonataAdmin/CRUD/base_list_field.html.twig' %}
+
+{% block field %}
+
+    {% if object.aphia == "-999" %}
+        <a class="btn btn-xs bg-orange"
+           href="http://www.marinespecies.org/aphia.php?p=taxlist&tName={{ object.Species }}" target="_blank">[Manuel
+            Link]</a>
+    {% elseif object.aphia is not null %}
+        <a class="btn btn-xs btn-success" href="{{ object.WormsUrl }}" target="_blank">[WoRMS Link]</a>
+    {% else %}
+        <span class="label bg-red">[AphiaID missing]</span>
+    {% endif %}
+
+{% endblock %}

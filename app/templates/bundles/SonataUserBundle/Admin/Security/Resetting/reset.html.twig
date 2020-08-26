@@ -1,0 +1,138 @@
+{#
+
+This file is part of the Sonata package.
+
+(c) Thomas Rabaix <thomas.rabaix@sonata-project.org>
+
+For the full copyright and license information, please view the LICENSE
+file that was distributed with this source code.
+
+#}
+
+{% extends 'auth.html.twig' %}
+{% trans_default_domain 'FOSUserBundle' %}
+{% block title %}Authentification{% endblock %}
+{% block body %}
+    <section>
+        <div class="container-alt">
+            <div class="row">
+                <div class="col-sm-12">
+
+                    <div class="wrapper-page">
+
+                        <div class="m-t-40 account-pages">
+                            <div class="text-center account-logo-box">
+                                <h2 class="text-uppercase">
+                                    <a href="{{ path('home') }}" class="text-success">
+                                <span><img src="{{ asset('resources/logo/Logo-Mamias-web.png') }}" alt="MAMIAS 3.0"
+                                           height="36"></span>
+                                    </a>
+                                </h2>
+                                <!--<h4 class="text-uppercase font-bold m-b-0">Sign In</h4>-->
+                            </div>
+
+                            <div class="account-content">
+
+                                <p class="login-box-msg">{{ 'resetting.reset.submit'|trans({}, 'FOSUserBundle') }}</p>
+                                {{ form_start(form, { 'action': path('sonata_user_admin_resetting_reset', {'token': token}) }) }}
+                                <div class="form-group">
+                                    {{ form_widget(form.plainPassword.first, {'attr': {
+                                        'class': 'form-control',
+                                        'placeholder': 'form.new_password'|trans({}, 'FOSUserBundle')
+                                    }}) }}
+                                </div>
+                                <div class="form-group">
+                                    {{ form_widget(form.plainPassword.second, {'attr': {
+                                        'class': 'form-control',
+                                        'placeholder': 'form.new_password_confirmation'|trans({}, 'FOSUserBundle')
+                                    }}) }}
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-12">
+                                        <button type="submit" class="btn btn-primary btn-block btn-flat">
+                                            {{ 'resetting.reset.submit'|trans({}, 'FOSUserBundle') }}
+                                        </button>
+                                    </div>
+                                </div>
+                                {{ form_end(form) }}
+
+
+                                <form class="" id="loginform" action="{{ path("sonata_user_admin_security_check") }}"
+                                      method="post">
+                                    <input type="hidden" name="_csrf_token"
+                                           value="{{ fos_csrf_provider.refreshToken('authenticate') }}"/>
+                                    <div class="form-group ">
+                                        <div class="col-xs-12">
+                                            <input class="form-control" type="text" id="username" name="_username"
+                                                   placeholder="{{ 'security.login.username'|trans({}, 'SonataUserBundle') }}"
+
+                                                   required="required"/>
+                                        </div>
+                                    </div>
+                                    <br>
+                                    <div class="form-group">
+                                        <div class="col-xs-12">
+                                            <input class="form-control" type="password" required="" name="_password"
+                                                   placeholder="{{ 'security.login.password'|trans({}, 'SonataUserBundle') }}">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group ">
+                                        <div class="col-xs-12">
+                                            <div class="checkbox checkbox-success">
+                                                <input id="checkbox-signup" type="checkbox" checked>
+                                                <label for="checkbox-signup">
+                                                    Remember me
+                                                </label>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+
+                                    <div class="form-group account-btn text-center m-t-40 ">
+                                        <div class="col-sm-12 m-t-20 ">
+                                            <button
+                                                class="btn w-md btn-bordered btn-custom waves-effect waves-light m-t-50"
+                                                type="submit">{{ 'security.login.submit'|trans({}, 'FOSUserBundle') }}</button>
+                                        </div>
+                                    </div>
+                                </form>
+
+                                <div class="clearfix"></div>
+
+                                <div class="form-group text-center m-t-5">
+                                    <div class="col-sm-12">
+
+                                        <a href="{{ path('sonata_user_admin_resetting_request') }}"
+                                           class="text-muted float-right"><i
+                                                class="fa fa-lock m-r-5"></i> {{ 'forgotten_password'|trans({}, 'SonataUserBundle') }}
+                                        </a>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <!-- end card-box-->
+
+
+                        <div class="row m-t-50">
+                            <div class="col-sm-12 text-center">
+                                <p class="text-white">Don't have an account? <a
+                                        href="{{ path('fos_user_registration_register') }}"
+                                        class="text-white m-l-5"><b>Register</b></a>
+                                </p>
+                            </div>
+                        </div>
+
+                    </div>
+                    <!-- end wrapper -->
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+{% endblock %}
+
+

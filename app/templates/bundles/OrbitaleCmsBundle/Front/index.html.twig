@@ -1,0 +1,73 @@
+{% set layout = app.request.attributes.get('_orbitale_cms_layout') -%}
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    {% for asset_css in layout.assets_css %}
+        <link rel="stylesheet" href="{{ asset(asset_css) }}">
+    {% endfor %}
+    {% if page.css %}
+        <style type="text/css" id="orbitale_cms_css">
+            {{- page.css | raw -}}
+        </style>
+    {% endif %}
+{% endblock %}
+
+{% block orbitale_cms_head_metas %}
+    {% if page.metaDescription %}
+        <meta name="description" content="{{ page.metaDescription }}" />{% endif %}
+    {% if page.metaTitle %}
+        <meta name="title" content="{{ page.metaTitle }}" />{% endif %}
+    {% if page.metaKeywords %}
+        <meta name="keywords" content="{{ page.metaKeywords }}" />{% endif %}
+{% endblock %}
+
+{% block title %}{{- page.title -}}{% endblock %}
+{% block body %}
+    {#{% block orbitale_cms_breadcrumbs %}
+    <div id="breadcrumbs" class="{{ orbitale_cms_design.breadcrumbs_class }}">
+        {% set slugsArray = [] %}
+        {% if page.homepage %}
+            <span class="{{ orbitale_cms_design.breadcrumbs_current_class }}">{{ 'home' | trans({}, 'OrbitaleCms') }} - {{ page.title }}</span>
+        {% else %}
+            <a href="{{ path('orbitale_cms_page') }}" class="{{ orbitale_cms_design.breadcrumbs_link_class }}">{{ 'home' | trans({}, 'OrbitaleCms') }}</a>
+            {% for key, breadcrumbPage in pages %}
+
+                <span class="{{ orbitale_cms_design.breadcrumbs_separator_class }}">{{ orbitale_cms_design.breadcrumbs_separator }}</span>
+
+                {% set slugsArray = slugsArray | merge({ (key): breadcrumbPage.slug }) %}
+
+                {% if breadcrumbPage.id == page.id %}
+                    <span class="{{ orbitale_cms_design.breadcrumbs_current_class }}" >{{ breadcrumbPage.title }}</span>
+                {% else %}
+                    <a href="{{ path('orbitale_cms_page', {slugs: slugsArray|join('/')}) }}" class="{{ orbitale_cms_design.breadcrumbs_link_class }}">
+                        {{ breadcrumbPage.title }}
+                    </a>
+                {% endif %}
+
+            {% endfor %}
+        {% endif %}
+    </div>
+{% endblock %}#}
+
+    {% block orbitale_cms_page_content %}
+
+        <!--<h4 class="m-t-30 m-b-20">{{ page.title }}</h4>-->
+        <p class="text-muted m-b-30 font-14">
+            {{ page.content | raw }}
+        </p>
+
+    {% endblock %}
+
+    {% block javascripts %}
+        {{ parent() }}
+        {% for asset_js in layout.assets_js %}
+            <script type="text/javascript" src="{{ asset(asset_js) }}"></script>
+        {% endfor %}
+        {% if page.js %}
+            <script type="text/javascript" id="orbitale_cms_js">
+                {{- page.js | raw -}}
+            </script>
+        {% endif %}
+    {% endblock %}
+{% endblock %}

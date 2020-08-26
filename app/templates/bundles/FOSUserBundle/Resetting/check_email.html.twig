@@ -1,0 +1,53 @@
+{% extends 'auth.html.twig' %}
+{% trans_default_domain 'FOSUserBundle' %}
+{% block title %}Authentification{% endblock %}
+
+{% block body %}
+
+    <section>
+        <div class="container-alt">
+            <div class="row">
+                <div class="col-sm-12">
+
+                    <div class="wrapper-page">
+
+                        <div class="m-t-40 account-pages">
+                            <div class="text-center account-logo-box">
+                                <h2 class="text-uppercase">
+                                    <a href="{{ path('home') }}" class="text-success">
+                                <span><img src="{{ asset('resources/logo/Logo-Mamias-web.png') }}" alt="MAMIAS 3.0"
+                                           height="36"></span>
+                                    </a>
+                                </h2>
+                                <!--<h4 class="text-uppercase font-bold m-b-0">Sign In</h4>-->
+                            </div>
+
+                            <div class="account-content">
+
+                                <p> {{ 'resetting.check_email'|trans({'%tokenLifetime%': tokenLifetime})|nl2br }}</p>
+
+
+                                <div class="clearfix"></div>
+
+
+                            </div>
+                        </div>
+                        <!-- end card-box-->
+
+
+                    </div>
+                    <!-- end wrapper -->
+
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- END HOME -->
+
+{% endblock %}
+{% block javascripts %}
+    <script>
+        var resizefunc = [];
+    </script>
+
+{% endblock %}

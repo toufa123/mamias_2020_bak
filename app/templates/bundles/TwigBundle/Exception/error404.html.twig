@@ -1,0 +1,27 @@
+{% extends 'one.html.twig' %}
+{% block title %}Page Not Found{% endblock %}
+{% block body %}
+
+    <section>
+        <div class="container-alt">
+            <div class="row">
+                <div class="col-sm-12 text-center">
+
+                    <div class="wrapper-page">
+                        <img src="{{ asset('resources/images/animat-search-color.gif') }}" alt="" height="120">
+                        <h2 class="text-uppercase text-red">Page Not Found</h2>
+                        <p class="text-muted m-t-5">It's looking like you may have taken a wrong turn. Don't worry... it
+                            happens to the best of us. You might want to check your internet connection. Here's a
+                            little tip that might help you get back on track.</p>
+
+                        <a class="btn btn-primary waves-effect waves-light m-t-20" href="{{ path('home') }}"> Return
+                            Home</a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+{% endblock %}

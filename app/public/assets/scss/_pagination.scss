@@ -1,0 +1,47 @@
+/* Pagination */
+
+.pagination {
+  .page-item {
+    &.active {
+      .page-link {
+        background: $custom;
+        border-color: $custom;
+        color: $white;
+      }
+    }
+
+    &.disabled {
+      .page-link {
+        color: $muted;
+      }
+    }
+
+    .page-link {
+      color: lighten($dark, 18%);
+      margin-left: 5px;
+      border-radius: 3px;
+      display: inline-block;
+      border: 1px solid $gray-300;
+
+      &:focus {
+        box-shadow: none;
+      }
+    }
+  }
+}
+
+.pagination-split {
+  .page-link {
+    border-radius: 0;
+    font-weight: 500;
+    border: 0 !important;
+  }
+}
+
+.pagination-lg {
+  .page-item {
+    .page-link {
+      font-size: 18px;
+    }
+  }
+}

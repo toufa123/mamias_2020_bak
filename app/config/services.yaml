@@ -1,0 +1,192 @@
+# This file is the entry point to configure your own services.
+# Files in the packages/ subdirectory configure your dependencies.
+
+# Put parameters here that don't need to change on each machine where the app is deployed
+# https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
+parameters:
+    google_recaptcha_site_key: '%env(GOOGLE_RECAPTCHA_SITE_KEY)%'
+
+services:
+    # default configuration for services in *this* file
+    _defaults:
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+
+    # makes classes in src/ available to be used as services
+    # this creates a service per class whose id is the fully-qualified class name
+    App\:
+        resource: '../src/*'
+        exclude: '../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php}'
+
+    # controllers are imported separately to make sure services can be injected
+    # as action arguments even if you don't extend any base controller class
+    App\Controller\:
+        resource: '../src/Controller'
+        tags: ['controller.service_arguments']
+
+    # add more service definitions when explicit configuration is needed
+    # please note that last definitions always *replace* previous ones
+    custom.twig.extension.debug:
+        class: Twig_Extension_Debug
+        tags:
+            - { name: 'twig.extension' }
+    Jsor\Doctrine\PostGIS\Event\ORMSchemaEventSubscriber:
+        tags:
+            - { name: doctrine.event_subscriber, connection: default }
+
+    gedmo.listener.timestampable:
+        class: Gedmo\Timestampable\TimestampableListener
+        tags:
+            - { name: doctrine.event_subscriber, connection: default }
+        calls:
+            - [ setAnnotationReader, [ '@annotation_reader' ] ]
+
+    app.form.registration:
+        class: App\Form\RegistrationFormType
+        tags:
+            - { name: form.type, alias: app_user_registration }
+
+    App\Form\ProfileFormType:
+        tags: [form.type]
+        arguments: {$class: 'App\Application\Sonata\UserBundle\Entity\User'}
+
+    #App\Form\RestFormType:
+    #    tags: [form.type]
+    #    arguments: {$class: 'App\Application\Sonata\UserBundle\Entity\User'}
+
+    redirect.after.login:
+        class: App\service\AfterLoginRedirection
+        arguments: ['@router']
+
+    admin.page:
+        class: App\Admin\PageAdmin
+        arguments: [~, App\Entity\Page, App\Controller\PageAdminController]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: CMS, label: Page }
+        public: true
+
+    admin.category:
+        class: App\Admin\CategoryAdmin
+        arguments: [~, App\Entity\Category, App\Controller\CategoryAdminController]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: CMS, label: Category }
+        public: true
+
+    admin.catalogue:
+        class: App\Admin\CatalogueAdmin
+        arguments: [~, App\Entity\Catalogue, App\Controller\CatalogueAdminController]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: Mamias, label: MAMIAS Catalogue }
+        public: true
+
+    admin.synonym:
+        class: App\Admin\SynonymAdmin
+        arguments: [~, App\Entity\Synonym, App\Controller\SynonymAdminController]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: admin, label: Synonym }
+        public: true
+
+    admin.country:
+        class: App\Admin\CountryAdmin
+        arguments: [~, App\Entity\Country, App\Controller\CountryAdminController]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: Settings, label: Country }
+        public: true
+
+    admin.country_distribution:
+        class: App\Admin\CountryDistributionAdmin
+        arguments: [~, App\Entity\CountryDistribution, App\Controller\CountryDistributionAdminController]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: Mamias, label: Country Distribution }
+        public: true
+
+    admin.ec_ap:
+        class: App\Admin\EcApAdmin
+        arguments: [~, App\Entity\EcAp, App\Controller\EcApAdminController]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: Settings, label: EcAp }
+        public: true
+
+    admin.ecofunctional:
+        class: App\Admin\EcofunctionalAdmin
+        arguments: [~, App\Entity\Ecofunctional, App\Controller\EcofunctionalAdminController]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: Settings, label: Ecofunctional Groups }
+        public: true
+
+    admin.geo_occurence:
+        class: App\Admin\GeoOccurenceAdmin
+        arguments: [~, App\Entity\GeoOccurence, App\Controller\GeoOccurenceAdminController]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: Mamias, label: Geo-Occurence }
+        public: true
+
+    admin.invasiveness:
+        class: App\Admin\InvasivenessAdmin
+        arguments: [~, App\Entity\Invasiveness, App\Controller\InvasivenessAdminController]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: Settings, label: Impact }
+        public: true
+
+    admin.literature:
+        class: App\Admin\LiteratureAdmin
+        arguments: [~, App\Entity\Literature, ~]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: Literrature, label: Literature }
+        public: true
+
+    admin.mamias:
+        class: App\Admin\MamiasAdmin
+        arguments: [~, App\Entity\Mamias, App\Controller\MamiasAdminController]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: Mamias, label: MAMIAS Database }
+        public: true
+
+    admin.origin:
+        class: App\Admin\OriginAdmin
+        arguments: [~, App\Entity\Origin, App\Controller\OriginAdminController]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: Settings, label: Origin }
+        public: true
+
+    admin.pathway:
+        class: App\Admin\PathwayAdmin
+        arguments: [~, App\Entity\Pathway, App\Controller\PathwayAdminController]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: Settings, label: Pathway (CBD) }
+        public: true
+
+    admin.regional_sea:
+        class: App\Admin\RegionalSeaAdmin
+        arguments: [~, App\Entity\RegionalSea, App\Controller\RegionalSeaAdminController]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: Settings, label: Seas }
+        public: true
+
+    admin.status:
+        class: App\Admin\StatusAdmin
+        arguments: [~, App\Entity\Status, App\Controller\StatusAdminController]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: Settings, label: Species Status }
+        public: true
+
+    admin.success_type:
+        class: App\Admin\SuccessTypeAdmin
+        arguments: [~, App\Entity\SuccessType, App\Controller\SuccessTypeAdminController]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: Settings, label: Establishement Sucess }
+        public: true
+
+    admin.vector_name:
+        class: App\Admin\VectorNameAdmin
+        arguments: [~, App\Entity\VectorName, App\Controller\VectorNameAdminController, 'vectorName']
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: Settings, label: Pathways (CBD) }
+        public: true
+
+    admin.vectors:
+        class: App\Admin\VectorsAdmin
+        arguments: [~, App\Entity\Vectors, App\Controller\VectorsAdminController]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: Settings, label: Patways/Vectors}
+        public: true

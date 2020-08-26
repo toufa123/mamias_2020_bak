@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>BootstrapValidator demo</title>
+
+    <link href="../vendor/bootstrap/css/bootstrap.css" rel="stylesheet"/>
+    <link href="../dist/css/bootstrapValidator.css" rel="stylesheet"/>
+
+    <script src="../vendor/jquery/jquery.min.js" type="text/javascript"></script>
+    <script src="../vendor/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+    <script src="../dist/js/bootstrapValidator.js" type="text/javascript"></script>
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8 col-lg-offset-2">
+            <div class="page-header">
+                <h2>Dynamic fields</h2>
+            </div>
+
+            <form action="target.php" class="form-horizontal" id="interviewForm" method="post">
+                <div class="form-group">
+                    <label class="col-lg-3 control-label">Your name</label>
+                    <div class="col-lg-5">
+                        <input class="form-control" name="name" type="text"/>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-lg-3 control-label">Topic</label>
+                    <div class="col-lg-5">
+                        <div class="checkbox">
+                            <label>
+                                <input name="topic[]" type="checkbox" value="css"/> CSS
+                            </label>
+                        </div>
+                        <div class="checkbox">
+                            <label>
+                                <input name="topic[]" type="checkbox" value="javascript"/> Javascript
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div data-topic="css" style="display: none;">
+                    <fieldset>
+                        <legend>CSS</legend>
+                        <p>Choose the frameworks that support responsive:</p>
+
+                        <div class="form-group">
+                            <div class="col-lg-offset-3 col-lg-5">
+                                <div class="checkbox">
+                                    <label>
+                                        <input name="css_frameworks[]" type="checkbox" value="Bootstrap"/> Bootstrap
+                                    </label>
+                                </div>
+                                <div class="checkbox">
+                                    <label>
+                                        <input name="css_frameworks[]" type="checkbox" value="Foundation"/> Foundation
+                                    </label>
+                                </div>
+                                <div class="checkbox">
+                                    <label>
+                                        <input name="css_frameworks[]" type="checkbox" value="Blueprint"/> Blueprint
+                                    </label>
+                                </div>
+                                <div class="checkbox">
+                                    <label>
+                                        <input name="css_frameworks[]" type="checkbox" value="960gs"/> 960 Grid System
+                                    </label>
+                                </div>
+                                <div class="checkbox">
+                                    <label>
+                                        <input name="css_frameworks[]" type="checkbox" value="Pure"/> Pure
+                                    </label>
+                                </div>
+                                <div class="checkbox">
+                                    <label>
+                                        <input name="css_frameworks[]" type="checkbox" value="YAML"/> YAML
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+
+                <div data-topic="javascript" style="display: none;">
+                    <fieldset>
+                        <legend>Javascript</legend>
+                        <p>Name 4 Javascript frameworks you have heard about</p>
+
+                        <div class="form-group">
+                            <div class="col-lg-offset-3 col-lg-5">
+                                <input class="form-control" name="js_frameworks[]" type="text"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-lg-offset-3 col-lg-5">
+                                <input class="form-control" name="js_frameworks[]" type="text"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-lg-offset-3 col-lg-5">
+                                <input class="form-control" name="js_frameworks[]" type="text"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-lg-offset-3 col-lg-5">
+                                <input class="form-control" name="js_frameworks[]" type="text"/>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-lg-offset-3 col-lg-3">
+                        <button class="btn btn-primary" type="submit">Submit</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#interviewForm')
+            .bootstrapValidator({
+                message: 'This value is not valid',
+                feedbackIcons: {
+                    valid: 'glyphicon glyphicon-ok',
+                    invalid: 'glyphicon glyphicon-remove',
+                    validating: 'glyphicon glyphicon-refresh'
+                },
+                fields: {
+                    name: {
+                        validators: {
+                            notEmpty: {
+                                message: 'The name is required'
+                            }
+                        }
+                    }
+                }
+            })
+            .find('input[type="checkbox"][name="topic[]"]')
+            .on('change', function () {
+                var topic = $(this).val(),
+                    $container = $('[data-topic="' + topic + '"]');
+                $container.toggle();
+
+                var display = $container.css('display');
+                switch (true) {
+                    case ('css' == topic && 'block' == display):
+                        $('#interviewForm').bootstrapValidator('addField', 'css_frameworks[]', {
+                            validators: {
+                                notEmpty: {
+                                    message: 'Please choose at least 1 framework'
+                                }
+                            }
+                        });
+                        break;
+                    case ('css' == topic && 'none' == display):
+                        $('#interviewForm').bootstrapValidator('removeField', 'css_frameworks[]');
+                        break;
+                    case ('javascript' == topic && 'block' == display):
+                        $('#interviewForm').bootstrapValidator('addField', 'js_frameworks[]', {
+                            validators: {
+                                notEmpty: {
+                                    message: 'The name of framework is required'
+                                }
+                            }
+                        });
+                        break;
+                    case ('javascript' == topic && 'none' == display):
+                        $('#interviewForm').bootstrapValidator('removeField', 'js_frameworks[]');
+                        break;
+                }
+            });
+    });
+</script>
+</body>
+</html>

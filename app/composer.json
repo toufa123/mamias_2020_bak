@@ -1,0 +1,136 @@
+{
+    "name": "mamias/2020",
+    "type": "project",
+    "license": "proprietary",
+    "description": "MAMIAS webApp 3.0 ",
+    "require": {
+        "php": "^7.3.0",
+        "ext-ctype": "*",
+        "ext-gd": "*",
+        "ext-iconv": "*",
+        "api-platform/api-pack": "^1.2.2",
+        "cocur/slugify": "^4.0",
+        "creof/doctrine2-spatial": "dev-master",
+        "creof/geo-parser": "^2.2.1",
+        "creof/wkt-parser": "^2.2",
+        "doctrine/doctrine-migrations-bundle": "3.0.1",
+        "excelwebzone/recaptcha-bundle": "^1.5",
+        "guzzlehttp/guzzle": "^6.5.5",
+        "helios-ag/fm-elfinder-bundle": "^10.0.4",
+        "jms/serializer-bundle": "^3.7.0",
+        "jsor/doctrine-postgis": "^1.7",
+        "liip/imagine-bundle": "^2.3",
+        "ob/highcharts-bundle": "^1.7",
+        "orbitale/cms-bundle": "^3.1.1",
+        "phpoffice/phpspreadsheet": "^1.14.1",
+        "picoss/sonata-extra-admin-bundle": "^4.0",
+        "pugx/autocompleter-bundle": "^1.5",
+        "redcode/tree-bundle": "^0.1.0@alpha",
+        "sensio/framework-extra-bundle": "^5.1",
+        "sensiolabs/security-checker": "^6.0.3",
+        "sonata-project/admin-bundle": "^3.73.0",
+        "sonata-project/block-bundle": "^3.20.4",
+        "sonata-project/cache-bundle": "^2.4.2",
+        "sonata-project/classification-bundle": "*",
+        "sonata-project/core-bundle": "3.20.0",
+        "sonata-project/doctrine-orm-admin-bundle": "3.21.*",
+        "sonata-project/formatter-bundle": "4.1.3",
+        "sonata-project/media-bundle": "*",
+        "sonata-project/news-bundle": "*",
+        "sonata-project/translation-bundle": "2.4.*",
+        "sonata-project/user-bundle": "4.5.*",
+        "stof/doctrine-extensions-bundle": "*",
+        "symfony/asset": "^4.4.11",
+        "symfony/console": "4.4.11",
+        "symfony/dotenv": "4.4.11",
+        "symfony/expression-language": "4.4.*",
+        "symfony/flex": "^1.9.1",
+        "symfony/form": "4.4.*",
+        "symfony/framework-bundle": "4.4.*",
+        "symfony/http-client": "4.4.*",
+        "symfony/intl": "4.4.*",
+        "symfony/mailer": "4.4.*",
+        "symfony/monolog-bundle": "^3.1",
+        "symfony/orm-pack": "*",
+        "symfony/process": "4.4.*",
+        "symfony/security-bundle": "4.4.*",
+        "symfony/serializer-pack": "*",
+        "symfony/swiftmailer-bundle": "3.4.0",
+        "symfony/translation": "4.4.*",
+        "symfony/twig-bundle": "4.4.*",
+        "symfony/twig-pack": "^1.0",
+        "symfony/validator": "4.4.*",
+        "symfony/web-link": "4.4.*",
+        "symfony/yaml": "4.4.*",
+        "symfonycasts/reset-password-bundle": "*",
+        "twig/twig": "^2.13.1",
+        "vich/uploader-bundle": "1.11.*",
+        "whiteoctober/breadcrumbs-bundle": "1.4.5"
+    },
+    "require-dev": {
+        "symfony/debug-pack": "*",
+        "symfony/maker-bundle": "^1.20.0",
+        "symfony/profiler-pack": "*",
+        "symfony/test-pack": "*",
+        "friendsofphp/php-cs-fixer": "^2.16.4",
+        "phpmd/phpmd": "^2.8.2",
+        "squizlabs/php_codesniffer": "^3.5.6",
+        "symfony/var-dumper": "4.4.4"
+    },
+    "config": {
+        "preferred-install": {
+            "*": "dist"
+        },
+        "sort-packages": true
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "App\\Tests\\": "tests/"
+        }
+    },
+    "replace": {
+        "paragonie/random_compat": "2.*",
+        "symfony/polyfill-ctype": "*",
+        "symfony/polyfill-iconv": "*",
+        "symfony/polyfill-php71": "*",
+        "symfony/polyfill-php70": "*",
+        "symfony/polyfill-php56": "*"
+    },
+    "scripts": {
+        "auto-scripts": {
+            "cache:clear": "symfony-cmd",
+            "assets:install %PUBLIC_DIR%": "symfony-cmd",
+            "elfinder:install": "symfony-cmd",
+            "doctrine:schema:update --force": "symfony-cmd",
+            "security:check": "symfony-cmd"
+        },
+        "post-install-cmd": [
+            "@auto-scripts",
+            "php bin/console doctrine:schema:update --force",
+            "php bin/console elfinder:install",
+            "php bin/console security:check"
+        ],
+        "post-update-cmd": [
+            "@auto-scripts",
+            "php bin/console doctrine:schema:update --force",
+            "php bin/console elfinder:install",
+            "php bin/console security:check"
+        ]
+    },
+    "conflict": {
+        "symfony/symfony": "*"
+    },
+    "extra": {
+        "symfony": {
+            "allow-contrib": "true",
+            "require": "4.4.*"
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

@@ -1,0 +1,22 @@
+{% extends '@SonataAdmin/CRUD/base_list_field.html.twig' %}
+
+{% block field %}
+
+    {% if object.status  == "Validated" %}
+        <span class="label bg-green">{{ object.status }}</span>
+    {% endif %}
+
+    {% if object.status  == "Pending" %}
+        <span class="label bg-blue">{{ object.status }}</span>
+    {% endif %}
+
+    {% if object.status  == "Rejected" %}
+        <span class="label bg-red">{{ object.status }}</span>
+    {% endif %}
+
+    {% if object.status  == null %}
+        <span class="label bg-orange">Not checked</span>
+    {% endif %}
+
+
+{% endblock %}

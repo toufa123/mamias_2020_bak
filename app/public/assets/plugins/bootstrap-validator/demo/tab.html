@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>BootstrapValidator demo</title>
+
+    <link href="../vendor/bootstrap/css/bootstrap.css" rel="stylesheet"/>
+    <link href="../dist/css/bootstrapValidator.css" rel="stylesheet"/>
+    <link href="http://netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.css" rel="stylesheet"/>
+
+    <script src="../vendor/jquery/jquery.min.js" type="text/javascript"></script>
+    <script src="../vendor/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+    <script src="../dist/js/bootstrapValidator.js" type="text/javascript"></script>
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <section>
+            <div class="col-lg-8 col-lg-offset-2">
+                <div class="page-header">
+                    <h2>Tab example</h2>
+                </div>
+
+                <ul class="nav nav-tabs">
+                    <li class="active"><a data-toggle="tab" href="#info-tab">Information <i class="fa"></i></a></li>
+                    <li><a data-toggle="tab" href="#address-tab">Address <i class="fa"></i></a></li>
+                </ul>
+
+                <form action="target.php" class="form-horizontal" id="accountForm" method="post"
+                      style="margin-top: 20px;">
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="info-tab">
+                            <div class="form-group">
+                                <label class="col-lg-3 control-label">Full name</label>
+                                <div class="col-lg-5">
+                                    <input class="form-control" name="fullName" type="text"/>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-3 control-label">Company</label>
+                                <div class="col-lg-5">
+                                    <input class="form-control" name="company" type="text"/>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-3 control-label">Job title</label>
+                                <div class="col-lg-5">
+                                    <input class="form-control" name="jobTitle" type="text"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="address-tab">
+                            <div class="form-group">
+                                <label class="col-lg-3 control-label">Address</label>
+                                <div class="col-lg-5">
+                                    <input class="form-control" name="address" type="text"/>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-3 control-label">City</label>
+                                <div class="col-lg-5">
+                                    <input class="form-control" name="city" type="text"/>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-3 control-label">Country</label>
+                                <div class="col-lg-5">
+                                    <select class="form-control" name="country">
+                                        <option value="">Select a country</option>
+                                        <option value="FR">France</option>
+                                        <option value="DE">Germany</option>
+                                        <option value="IT">Italy</option>
+                                        <option value="JP">Japan</option>
+                                        <option value="RU">Russian</option>
+                                        <option value="US">United State</option>
+                                        <option value="GB">United Kingdom</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-lg-5 col-lg-offset-3">
+                            <button class="btn btn-primary" type="submit">Validate</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#accountForm')
+            .bootstrapValidator({
+                excluded: [':disabled'],
+                feedbackIcons: {
+                    valid: 'glyphicon glyphicon-ok',
+                    invalid: 'glyphicon glyphicon-remove',
+                    validating: 'glyphicon glyphicon-refresh'
+                },
+                fields: {
+                    fullName: {
+                        validators: {
+                            notEmpty: {
+                                message: 'The full name is required'
+                            }
+                        }
+                    },
+                    company: {
+                        validators: {
+                            notEmpty: {
+                                message: 'The company name is required'
+                            }
+                        }
+                    },
+                    jobTitle: {
+                        validators: {
+                            notEmpty: {
+                                message: 'The company name is required'
+                            }
+                        }
+                    },
+                    address: {
+                        validators: {
+                            notEmpty: {
+                                message: 'The address is required'
+                            }
+                        }
+                    },
+                    city: {
+                        validators: {
+                            notEmpty: {
+                                message: 'The city is required'
+                            }
+                        }
+                    },
+                    country: {
+                        validators: {
+                            notEmpty: {
+                                message: 'The city is required'
+                            }
+                        }
+                    }
+                }
+            })
+            .on('status.field.bv', function (e, data) {
+                var $form = $(e.target),
+                    validator = data.bv,
+                    $tabPane = data.element.parents('.tab-pane'),
+                    tabId = $tabPane.attr('id');
+
+                if (tabId) {
+                    var $icon = $('a[href="#' + tabId + '"][data-toggle="tab"]').parent().find('i');
+
+                    // Add custom class to tab containing the field
+                    if (data.status == validator.STATUS_INVALID) {
+                        $icon.removeClass('fa-check').addClass('fa-times');
+                    } else if (data.status == validator.STATUS_VALID) {
+                        var isValidTab = validator.isValidContainer($tabPane);
+                        $icon.removeClass('fa-check fa-times')
+                            .addClass(isValidTab ? 'fa-check' : 'fa-times');
+                    }
+                }
+            });
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,98 @@
+security:
+    role_hierarchy:
+
+        ROLE_FOCALPOINT:       [ROLE_REGSITREDUSER]
+        ROLE_NATIONALEXPERT:   [ROLE_REGSITREDUSER]
+        ROLE_REGSITREDUSER:
+        ROLE_ANONYMOUS:
+        ROLE_SPARAC:           [ROLE_REGSITREDUSER]
+        ROLE_S:                [ROLE_REGSITREDUSER]
+        ROLE_ADMIN:            [ROLE_REGSITREDUSER]
+        ROLE_SUPER_ADMIN:      [ROLE_ADMIN, ROLE_S, ROLE_ALLOWED_TO_SWITCH,  ROLE_SPARAC, ROLE_ANONYMOUS, ROLE_REGSITREDUSER, ROLE_NATIONALEXPERT, ROLE_FOCALPOINT]
+        #SONATA:
+        #- ROLE_SONATA_PAGE_ADMIN_PAGE_EDIT  # if you are using acl then this line must be commented
+    access_decision_manager:
+        strategy: unanimous
+    providers:
+        #in_memory:
+        #    memory: ~
+        fos_userbundle:
+            id: fos_user.user_provider.username_email
+            #id: fos_user.user_provider.username
+    encoders:
+        FOS\UserBundle\Model\UserInterface: sha512
+
+    firewalls:
+        # Disabling the security for the web debug toolbar, the profiler and Assetic.
+        dev:
+            pattern:  ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+
+        # -> custom firewall for the admin area of the URL
+        admin:
+            pattern:          /admin(.*)
+            context:          user
+            form_login:
+                provider:       fos_userbundle
+                failure_path:   /admin/login
+                login_path:     /admin/login
+                use_forward:    false
+                check_path:     /admin/login_check
+
+                default_target_path:   /admin/dashboard
+                #csrf_token_generator: security.csrf.token_manager
+                success_handler: redirect.after.login
+
+            logout:
+                path:           /admin/logout
+                target:         /
+            anonymous:        ~
+            logout_on_user_change: true
+
+        # -> end custom configuration
+
+        # default login area for standard users
+
+        # This firewall is used to handle the public login area
+        # This part is handled by the FOS User Bundle
+        main:
+            switch_user:      true
+            pattern:          .*
+            context:          user
+            form_login:
+                provider:       fos_userbundle
+                login_path:     /admin/login
+                use_forward:    false
+                check_path:     /admin/login_check
+                failure_path:   /admin/login
+
+            logout:           true
+            anonymous:        true
+            access_denied_url: /admin/login
+            remember_me:
+                secret:   '%kernel.secret%'
+                lifetime: 604800 # 1 week in seconds
+                path:     /
+
+        # Easy way to control access for large sections of your site
+        # Note: Only the *first* access control that matches will be used
+    access_control:
+        # Admin login page needs to be accessed without credential
+        - { path: ^/.*, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/admin/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/admin/logout$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/register, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/resetting, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/admin/login_check$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/admin/resetting, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        # Secured part of the site
+        # This config requires being logged for the whole site and having the admin role for the admin part.
+        # Change these rules to adapt them to your needs
+        - { path: ^/admin, role: [ROLE_SUPER_ADMIN, ROLE_S, ROLE_ADMIN] }
+        - { path: ^/admin/dashboard, role: [ROLE_SUPER_ADMIN, ROLE_S, ROLE_ADMIN] }
+        - { path: ^/admin/efconnect, role: [ROLE_SUPER_ADMIN] }
+        - { path: ^/admin/elfinder, role: [ROLE_SUPER_ADMIN] }
+        - { path: ^/elfinder, role: [ROLE_SUPER_ADMIN] }
+        - { path: ^/species/declaration, role: [ROLE_REGSITREDUSER] }
+
+

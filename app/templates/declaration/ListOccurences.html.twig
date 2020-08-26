@@ -1,0 +1,459 @@
+{% extends 'base.html.twig' %}
+{% block title %}My Species Reports {% endblock %}
+{% block stylesheets %}
+
+    <!-- DataTables -->
+
+    <link href="{{ asset('assets/plugins/datatables/jquery.dataTables.min.css') }}" rel="stylesheet" type="text/css"/>
+
+    <link href="{{ asset('assets/plugins/datatables/buttons.bootstrap4.min.css') }}" rel="stylesheet" type="text/css"/>
+    <link href="{{ asset('assets/plugins/datatables/fixedHeader.bootstrap4.min.css') }}" rel="stylesheet"
+          type="text/css"/>
+    <link href="{{ asset('assets/plugins/datatables/responsive.bootstrap4.min.css') }}" rel="stylesheet"
+          type="text/css"/>
+    <link href="{{ asset('assets/plugins/datatables/scroller.bootstrap4.min.css') }}" rel="stylesheet" type="text/css"/>
+    <link href="{{ asset('assets/plugins/datatables/dataTables.colVis.css') }}" rel="stylesheet" type="text/css"/>
+    <link href="{{ asset('assets/plugins/datatables/dataTables.bootstrap4.min.css') }}" rel="stylesheet"
+          type="text/css"/>
+    <link href="{{ asset('assets/plugins/datatables/fixedColumns.dataTables.min.css') }}" rel="stylesheet"
+          type="text/css"/>
+
+    <link rel="stylesheet" href="{{ asset('assets/leaflet/leaflet.css') }}" rel="stylesheet"/>
+    <link rel="stylesheet" href="{{ asset('assets/leaflet/leaflet-locationpicker.css') }}" rel="stylesheet"/>
+    <link rel="stylesheet" href="{{ asset('assets/leaflet/Leaflet.Coordinates-0.1.5.css') }}" rel="stylesheet"/>
+    <link rel="stylesheet" href="{{ asset('assets/leaflet/MarkerCluster.css') }}" rel="stylesheet"/>
+    <link rel="stylesheet" href="{{ asset('assets/leaflet/MarkerCluster.Default.css') }}" rel="stylesheet"/>
+    <link rel="stylesheet" href="{{ asset('assets/leaflet/L.Icon.Pulse.css') }}" rel="stylesheet"/>
+
+    <!-- Jquery filer css -->
+    <link rel="stylesheet" href="{{ asset('assets/plugins/jquery.filer/css/jquery.filer.css') }}" rel="stylesheet"/>
+    <link rel="stylesheet"
+          href="{{ asset('assets/plugins/jquery.filer/css/themes/jquery.filer-dragdropbox-theme.css') }}"
+          rel="stylesheet"/>
+    <script src="{{ asset('assets/leaflet/leaflet.js') }}"></script>
+    <script src="{{ asset('assets/leaflet/Leaflet.Coordinates-0.1.5.min.js') }}"></script>
+    <script src="{{ asset('assets/leaflet/Leaflet.Sleep.js') }}"></script>
+{% endblock %}
+{% block body %}
+    <div class="row">
+        {% if app.session.flashBag.has('success') %}
+            <div class="alert alert-success alert-dismissible fade in" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+                {% for msg in app.session.flashBag.get('success') %}
+                    {{ msg }}
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+    <div class="row">
+        <div class="col-sm-12 ">
+            <div class="btn-group m-b-5 float-right">
+                <a href="{{ path('species_declaration') }}"
+                   class="btn btn-custom waves-light waves-effect float-right"><i
+                            class="fa fa-plus-circle m-r-5">
+                    </i>Report New Occurence</a>
+                <a href="{{ path('template') }}"
+                   class="btn btn-custom waves-light waves-effect float-right">
+                    <i class="mdi mdi-file-excel m-r-5"></i>
+                    Get Excel Template </a>
+
+                <a href="#"
+                   class="btn btn-custom waves-light waves-effect float-right" data-toggle="modal"
+                   data-target="#import">
+                    <i class="mdi mdi-file-excel m-r-5"></i>
+                    Import from Excel </a>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="property-card bg-white ">
+                <div class="property-content table-responsive">
+                    <h4 class="page-title">My Species Reports : {{ "now"|date("d/m/Y") }}</h4>
+                    <div class="table-responsive">
+                        <table id="datatable-buttons"
+                               class="table table-striped table-bordered dt-responsive nowrap table-sm"
+                               style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                            <thead>
+                            <tr>
+                                <th>Species Name</th>
+                                <th>Picture</th>
+                                <th>Country</th>
+                                <th>Coordinates</th>
+                                <th>Date of Reporting</th>
+                                <th>Depth (m)</th>
+                                <th>Coverage in m<SUP>2</SUP>/Nb of Indivuduals</th>
+                                <th>Accuracy</th>
+                                <th>Status</th>
+                                <th>comments from Admin</th>
+                            </tr>
+                            </thead>
+
+
+                            <tbody>
+                            {% for item in species %}
+                                <tr>
+                                    <td><i>{{ item.mamias }}</i></td>
+                                    <td>
+
+                                        {% if item.ImageName is defined and item.ImageName is not null %}
+                                            <a href="#"
+                                               class="btn btn-sm btn-default edit_link"
+                                               data-toggle="modal"
+                                               data-target="#Picture-{{ item.id }}">
+                                                <i class="fa fa-image" aria-hidden="true"></i>
+                                                Link
+                                            </a>
+
+
+                                        {% else %}
+                                            <span>No picture</span>
+                                        {% endif %}
+
+                                        <div class="modal fade" id="Picture-{{ item.id }}" tabindex="-1"
+                                             role="dialog"
+                                             aria-labelledby="deleteLabel">
+                                            <div class="modal-dialog" role="document">
+                                                <div class="modal-content modal-lg">
+                                                    <div class="modal-header">
+                                                        <h4 class="modal-title mt-0 text-custom">{{ item.mamias }}</h4>
+                                                        <button type="button" class="close" data-dismiss="modal"
+                                                                aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div class="text-center">
+                                                            <img class="centre"
+                                                                 src="{{ asset('resources/upload/GeoOccurence/images/' ~ item.imageName )|imagine_filter('squared_thumbnail') }}">
+                                                        </div>
+
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+                                    </td>
+                                    <td>{{ item.country }}</td>
+                                    {% if item.Location is defined and item.location is not null %}
+                                        <td>{{ item.Location.x }} ## {{ item.Location.y }}</td>
+                                    {% else %}
+                                        <td>No coordinates</td>
+                                    {% endif %}
+                                    <td>{{ item.createdAt |date("d/m/Y") }}</td>
+                                    {% if item.depth is defined and item.depth is not null %}
+                                        <td>{{ item.depth }}</td>
+                                    {% else %}
+                                        <td>Unknown</td>
+                                    {% endif %}
+
+                                    {% if item.Nvalues is defined and item.Nvalues is not null %}
+                                        {% if item.PlantsAnimals is defined and item.PlantsAnimals =='Numbre of indivudals' %}
+                                            <td>{{ item.Nvalues }} Indviduals</td>
+                                        {% else %}
+                                            <td>{{ item.Nvalues }} m<sup>2</sup></td>
+                                        {% endif %}
+                                    {% else %}
+                                        <td>Unknown</td>
+                                    {% endif %}
+                                    {% if item.EstimatedMeasured is defined and item.EstimatedMeasured is not null %}
+                                        <td>{{ item.EstimatedMeasured }}</td>
+                                    {% else %}
+                                        <td>Unknown</td>
+                                    {% endif %}
+                                    {% if item.status is defined and item.status == "Submitted" %}
+                                        <td><p class="text-orange">{{ item.status }}</p></td>
+                                    {% elseif item.status == "Validated" %}
+                                        <td><p class="text-primary">{{ item.status }}</p></td>
+                                    {% else %}
+                                        <td><p class="text-danger">{{ item.status }}</p></td>
+                                    {% endif %}
+                                    {% if item.notes is defined and item.notes is not null %}
+                                        <td>{{ item.notes }}</td>
+                                    {% else %}
+                                        <td>nothing to report</td>
+                                    {% endif %}
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="property-card bg-white ">
+                <div class="property-content">
+                    <div id="map" style="height: 500px; border-style: solid; border-color:#d9e3e9"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="import" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+         aria-hidden="true" style="display: none;">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title mt-0">Import Wizard (Excel File)</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+
+                </div>
+                <div class="modal-body">
+                    <form id="upload" method="post" enctype="multipart/form-data" action="{{ path('import') }}">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group m-b-0">
+                                    <!--<label class="control-label" for="exampleInputFile">File Upload</label>-->
+
+                                    <input type="file" class="filestyle" required data-buttonname="btn-custom"
+                                           accept=".xls,.xlsx" id="file" name="file">
+
+                                    <p id="error1" style="display:none; color:#FF0000;">
+                                        you should provide an Excel File (xlsx) </p>
+                                    <p id="error2" style="display:none; color:#FF0000;">
+                                        Maximum File Size Limit is 1MB.
+                                    </p>
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" value="Submit" id="submit"
+                                    class="btn btn-custom waves-effect waves-light">
+                                Submit
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div><!-- /.modal -->
+
+    </div>
+
+
+{% endblock %}
+        {% block javascripts %}
+            {{ parent() }}
+            <!-- Required datatable js -->
+
+            <script src="{{ asset('assets/plugins/datatables/jquery.dataTables.min.js') }}"></script>
+            <script src="{{ asset('assets/plugins/datatables/dataTables.bootstrap4.min.js') }}"></script>
+            <script src="{{ asset('assets/plugins/datatables/dataTables.buttons.min.js') }}"></script>
+            <script src="{{ asset('assets/plugins/datatables/buttons.bootstrap4.min.js') }}"></script>
+            <script src="{{ asset('assets/plugins/datatables/jszip.min.js') }}"></script>
+            <script src="{{ asset('assets/plugins/datatables/pdfmake.min.js') }}"></script>
+            <script src="{{ asset('assets/plugins/datatables/vfs_fonts.js') }}"></script>
+            <script src="{{ asset('assets/plugins/datatables/buttons.html5.min.js') }}"></script>
+            <script src="{{ asset('assets/plugins/datatables/buttons.print.min.js') }}"></script>
+            <script src="{{ asset('assets/plugins/datatables/dataTables.fixedHeader.min.js') }}"></script>
+            <script src="{{ asset('assets/plugins/datatables/dataTables.keyTable.min.js') }}"></script>
+            <script src="{{ asset('assets/plugins/datatables/dataTables.responsive.min.js') }}"></script>
+            <script src="{{ asset('assets/plugins/datatables/responsive.bootstrap4.min.js') }}"></script>
+            <script src="{{ asset('assets/plugins/datatables/dataTables.scroller.min.js') }}"></script>
+            <script src="{{ asset('assets/plugins/datatables/dataTables.colVis.js') }}"></script>
+            <script src="{{ asset('assets/plugins/datatables/dataTables.fixedColumns.min.js') }}"></script>
+
+            <script src="{{ asset('assets/leaflet/leaflet-locationpicker.js') }}"></script>
+            <script src="{{ asset('assets/leaflet/leaflet.markercluster.js') }}"></script>
+            <script src="{{ asset('assets/leaflet/L.Icon.Pulse.js') }}"></script>
+
+
+            <!-- Modal-Effect -->
+            <script src="{{ asset('assets/plugins/custombox/js/custombox.min.js') }}"></script>
+            <script src="{{ asset('assets/plugins/custombox/js/legacy.min.js') }}"></script>
+            <script src="{{ asset('assets/plugins/bootstrap-filestyle/js/bootstrap-filestyle.min.js') }}"></script>
+            <script src="{{ asset('assets/plugins/bootstrap-validator/dist/js/bootstrapValidator.min.js') }}"></script>
+
+            <script type="text/javascript">
+                $(document).ready(function () {
+                    var table = $('#datatable-buttons').DataTable({
+                        {% if is_granted('ROLE_REGSITREDUSER') %}
+                        dom: 'Bltip',
+                        lengthChange: true,
+                        "destroy": true,
+                        "searching": false,
+                        "responsive": true,
+                        "pageLength": 5,
+                        "ordering": true,
+                        "pagingType": "full_numbers",
+                        "lengthMenu": [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],
+                        buttons: {
+                            buttons: [
+                                ,
+                                {extend: 'excel', className: 'btn-sm btn-custom waves-effect w-md waves-light'}
+                            ]
+                        },
+                        "order": [[5, 'ASC']]
+                        {% else %}
+                        //"dom": 'ltip',
+                        "responsive": true,
+                        "autoWidth": false,
+                        "pagingType": "full_numbers"
+                        "destroy": true,
+                        "lengthChange": true,
+                        "searching": false,
+                        "pageLength": 5,
+                        "ordering": true,
+                        "lengthMenu": [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],
+                        "order": [[5, 'ASC']]
+                        {% endif %}
+
+                    });
+
+                    $(".dataTables_length").css('clear', 'none');
+                    $(".dataTables_length").css('float', 'right');
+
+                    //info -> reset clear and padding
+                    $(".dataTables_info").css('clear', 'none');
+                    $(".dataTables_info").css('padding', '10');
+
+                    // Responsive Datatable
+                    $('#responsive-datatable').DataTable();
+
+                    table.buttons().container()
+                        .appendTo('#datatable-buttons_wrapper .col-md-6:eq(0)');
+
+                    var map = L.map('map', {
+                        sleep: true,
+                        sleepTime: 750,
+                        wakeTime: 750,
+                        sleepNote: true,
+                        hoverToWake: true
+                    }).setView([34.553127, 18.048012], 5);
+
+                    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="http://www.rac-spa.org/">SPA/RAC</a>',
+                        subdomains: 'abcd',
+                        maxZoom: 19
+                    }).addTo(map);
+                    //L.control.coordinates().addTo(map);
+                    L.control.coordinates({
+                        decimals: 2,
+                        labelTemplateLat: "Latitude: {y}",
+                        labelTemplateLng: "Longitude: {x}"
+                    }).addTo(map);
+
+                    var pulsingIcon = L.icon.pulse({iconSize: [10, 10], color: 'blue'});
+                    var myIcon = L.icon({
+                        iconUrl: 'marker-icon.png',
+                        iconSize: [38, 95],
+                        iconAnchor: [22, 94],
+                        popupAnchor: [-3, -76],
+                        shadowUrl: 'marker-shadow.png',
+                        shadowSize: [68, 95],
+                        shadowAnchor: [22, 94]
+                    });
+
+                    var greenIcon = new L.Icon({
+                        iconUrl: '{{ asset('assets/leaflet/images/marker-icon-blue.png') }}',
+                        shadowUrl: '{{ asset('assets/leaflet/images/marker-shadow.png') }}',
+                        iconSize: [25, 41],
+                        iconAnchor: [12, 41],
+                        popupAnchor: [1, -34],
+                        shadowSize: [41, 41]
+                    });
+                    var greyIcon = new L.Icon({
+                        iconUrl: '{{ asset('assets/leaflet/images/marker-icon-grey.png') }}',
+                        shadowUrl: '{{ asset('assets/leaflet/images/marker-shadow.png') }}',
+                        iconSize: [25, 41],
+                        iconAnchor: [12, 41],
+                        popupAnchor: [1, -34],
+                        shadowSize: [41, 41]
+                    });
+                    var markers = L.markerClusterGroup();
+                    {% for item in species %}
+
+                    var customPopup = "<div class=\"table-responsive\"><table class=\"table  m-b-0\"><tbody>\
+                <tr><th  scope=\"row\"><b><span class=\"text-primary\">NIS</span></b></th><td nowrap ><span><i>{{ item.mamias }}</i></span></td></tr>\
+                <tr><th nowrap  scope=\"row\"><b><span class=\"text-primary\">Date of Occurence</span></b></th><td ><span> {{ item.dateOccurence |date("m/d/Y") }}</span></td></tr>\
+                <tr><th nowrap  scope=\"row\"><b><span class=\"text-primary\">Occurence Status</span></b></th><td ><span>{{ item.status }}</span></td></tr>\
+                {% if item.depth is defined and item.depth is not null %}\
+                <tr><th nowrap  scope=\"row\"><b><span class=\"text-primary\">Depth (m)</span></b></th><td ><span>{{ item.depth }}</span></td></tr>\
+                {% else %}\
+                <tr><th nowrap scope=\"row\"><b><span class=\"text-primary\">Depth (m)</span></b></th><td><span>unknown</span></td></tr>{% endif %}\
+                {% if item.Nvalues is defined and item.Nvalues is not null %}\
+                    {% if item.PlantsAnimals is defined and item.PlantsAnimals =='Numbre of indivudals' %}\
+                    <tr><th nowrap  scope=\"row\"><b><span class=\"text-primary\">Date of Occurence</span></b></th><td ><span> {{ item.Nvalues }} Inviduals </span></td></tr>\
+                    {% else %}\
+                    <tr><th nowrap  scope=\"row\"><b><span class=\"text-primary\">Observation</span></b></th><td ><span> {{ item.Nvalues }} m<sup>2</sup> </span></td></tr>\
+                    {% endif %}\
+                {% else %}\
+                    <tr><th nowrap  scope=\"row\"><b><span class=\"text-primary\">Observation</span></b></th><td ><span> Unknown </span></td></tr>\
+                {% endif %}\
+                {% if item.EstimatedMeasured is defined and item.EstimatedMeasured is not null %}\
+                <tr><th nowrap  scope=\"row\"><b><span class=\"text-primary\">Estimated/Measured</span></b></th><td ><span> {{ item.EstimatedMeasured }} </span></td></tr>\
+                {% else %}\
+                <tr><th nowrap  scope=\"row\"><b><span class=\"text-primary\">Estimated/Measured</span></b></th><td ><span> Unknown </span></td></tr>\
+                {% endif %}\
+                </tbody></table></div>";
+
+
+                    {% if item.location is defined and item.location is not null %}
+
+                    var marker = new L.marker([{{ item.location.x }},{{ item.location.y }}],
+                            {% if item.status == 'Submitted' %}
+                        {icon: pulsingIcon})
+                    {% elseif item.status == 'Validated' %}
+                    {
+                        icon: greenIcon
+                    }
+                );
+                {% else %}
+                {
+                    icon: greyIcon
+                }
+                )
+                ;
+                {% endif %}
+                marker.bindPopup(customPopup, {maxWidth: "auto"});
+
+                {% endif %}
+                markers.addLayer(marker);
+
+
+                {% endfor %}
+                map.addLayer(markers);
+                })
+                $(':input[type="submit"]').prop("disabled", true);
+                //$(':input[type="submit"]').prop('disabled', true);
+                var a = 0;
+                //binds to onchange event of your input field
+                $('#file').bind('change', function () {
+                    if ($(':input:submit').attr('disabled', false)) {
+                        $(':input:submit').attr('disabled', true);
+                    }
+                    var ext = $('#file').val().split('.').pop().toLowerCase();
+                    if ($.inArray(ext, ['xlsx']) == -1) {
+                        $('#error1').slideDown("slow");
+                        $('#error2').slideUp("slow");
+                        a = 0;
+                    } else {
+                        var picsize = (this.files[0].size);
+                        if (picsize > 1000000) {
+                            $('#error2').slideDown("slow");
+                            a = 0;
+                        } else {
+                            a = 1;
+                            $('#error2').slideUp("slow");
+                        }
+                        $('#error1').slideUp("slow");
+                        if (a == 1) {
+                            $(':input:submit').attr('disabled', false);
+                        }
+                    }
+                });
+
+            </script>
+        {% endblock %}

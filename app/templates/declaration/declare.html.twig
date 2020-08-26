@@ -1,0 +1,204 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Occurence Reporting{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('assets/leaflet/leaflet.css') }}" rel="stylesheet"/>
+    <link rel="stylesheet" href="{{ asset('assets/leaflet/leaflet-locationpicker.css') }}" rel="stylesheet"/>
+    <link rel="stylesheet" href="{{ asset('assets/leaflet/Leaflet.Coordinates-0.1.5.css') }}" rel="stylesheet"/>
+    <link rel="stylesheet" href="{{ asset('assets/css/jquery.toast.min.css') }}" rel="stylesheet"/>
+    <!-- select2 -->
+    <link href="{{ asset('assets/plugins/bootstrap-tagsinput/css/bootstrap-tagsinput.css') }}" rel="stylesheet"
+          type="text/css"/>
+    <link href="{{ asset('assets/plugins/multiselect/css/multi-select.css') }}" rel="stylesheet"
+          type="text/css"/>
+    <link href="{{ asset('assets/plugins/select2/css/select2.css') }}" rel="stylesheet" type="text/css"/>
+    <link href="{{ asset('assets/plugins/bootstrap-select/css/bootstrap-select.min.css') }}" rel="stylesheet"
+          type="text/css"/>
+    <link href="{{ asset('assets/plugins/bootstrap-touchspin/css/jquery.bootstrap-touchspin.min.css') }}"
+          rel="stylesheet" type="text/css"/>
+    <link href="{{ asset('assets/plugins/bootstrap-datepicker/css/bootstrap-datepicker.min.css') }}" rel="stylesheet"
+          type="text/css"/>
+    <script src="{{ asset('assets/leaflet/leaflet.js') }}"></script>
+    <script src="{{ asset('assets/leaflet/Leaflet.Coordinates-0.1.5.min.js') }}"></script>
+    <script src="{{ asset('assets/leaflet/Leaflet.Sleep.js') }}"></script>
+
+{% endblock %}
+{% block body %}
+    <div class="row">
+        <div class="col-md-4">
+            <div class="property-card">
+                <div class="property-content bg-white">
+                    {{ form_start(form) }}
+                    {{ form_errors(form) }}
+                    <div class="row">
+                        <div class="col-md-6">
+                            {{ form_errors(form.mamias) }}
+                            {{ form_widget(form.mamias, {'placeholder':'choose a species','attr': {'class': 'form-control  select2'}}) }}
+                            {{ form_help(form.mamias) }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form_errors(form.country) }}
+                            {{ form_widget(form.country, {'placeholder':'choose a country','attr': {'class': 'form-control  select2'}}) }}
+                            {{ form_help(form.country) }}
+                        </div>
+
+                    </div>
+
+                    <div class="row row pt-4">
+                        <div class="col-md-6">
+                            {{ form_errors(form.Location) }}
+                            {{ form_widget(form.Location, {'value':'Coordinates','attr': {'class': 'form-control  text'}}) }}
+                            {{ form_help(form.Location) }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form_errors(form.date_occurence) }}
+                            <div class="input-group">
+                                {{ form_widget(form.date_occurence,{'attr': {'placeholder': 'Reporting date (dd/mm/yyyy)', 'id':'geo_occurence_date_occurence' }}) }}
+                                <div class="input-group-append">
+                                    <span class="input-group-text bg-custom text-white b-0"><i
+                                            class="mdi mdi-calendar"></i></span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row pt-4">
+                        <div class="col-md-12">
+                            {{ form_errors(form.imageFile) }}
+                            {{ form_widget(form.imageFile,{'attr':{'class' : 'filestyle', 'type':'file', 'data-buttontext':'Select file'}}) }}
+
+                        </div>
+                    </div>
+                    <div class="row pt-4">
+                        <div class="col-md-6">
+                            {{ form_errors(form.PlantsAnimals) }}
+                            {{ form_widget(form.PlantsAnimals) }}
+                            {{ form_help(form.PlantsAnimals) }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form_errors(form.nvalues) }}
+                            {{ form_widget(form.nvalues) }}
+                            {{ form_help(form.nvalues) }}
+                        </div>
+                    </div>
+
+                    <div class="row row pt-4">
+                        <div class="col-md-6">
+                            {{ form_errors(form.depth) }}
+                            {{ form_widget(form.depth) }}
+                            {{ form_help(form.depth) }}
+
+                        </div>
+                        <div class="col-md-6">
+                            {{ form_errors(form.EstimatedMeasured) }}
+                            {{ form_widget(form.EstimatedMeasured) }}
+                            {{ form_help(form.EstimatedMeasured) }}
+
+                        </div>
+                    </div>
+                    <div class="row pt-4">
+                        <div class="col-md-12">
+                            {{ form_row(form.note_occurence) }}
+                        </div>
+                    </div>
+                    <div class="row pt-4">
+                        <div class="col-md-12">
+                            {% form_theme form '@EWZRecaptcha/Form/ewz_recaptcha_widget.html.twig' %}
+                            {{ form_widget(form.recaptcha, { 'attr': {
+                                'options' : {
+                                    'theme': 'light',
+                                    'type': 'image',
+                                    'size': 'normal'
+                                },
+                            } }) }}
+                            <span class="text-pink">
+                                {{ form_errors(form.recaptcha) }}
+                            </span>
+                        </div>
+
+                    </div>
+                    <div class="form-group m-t-20">
+                        <input type="submit" name="form[save]" value="Report" class="btn btn-custom "/>
+                        <!--<input type="reset" name="form[reset]" value="Reset" class="btn btn-warning"/>-->
+                        <a href="{{ path('declaration') }}"
+                           class="btn btn-custom waves-light waves-effect float-left mx-1">Back to Report</a>
+                    </div>
+                    {{ form_end(form) }}
+                </div> <!-- end card -->
+            </div>
+
+        </div>
+        <!-- end col -->
+        <div class="col-md-8">
+            <div class="property-card bg-white">
+                <div class="property-content">
+                    <div id="map" style="height: 700px;border-style: solid; border-color:#d9e3e9"></div>
+                </div> <!-- end card -->
+            </div>
+        </div>
+        <!-- end col -->
+    </div>
+
+
+
+{% endblock %}
+
+{% block javascripts %}
+
+    {{ parent() }}
+    <!-- Select2 JavaScript -->
+    <script src="{{ asset('assets/plugins/bootstrap-tagsinput/js/bootstrap-tagsinput.min.js') }}"></script>
+    <script src="{{ asset('assets/plugins/multiselect/js/jquery.multi-select.js') }}"></script>
+    <script src="{{ asset('assets/plugins/jquery-quicksearch/jquery.quicksearch.js') }}"></script>
+    <script src="{{ asset('assets/plugins/select2/js/select2.full.js') }}"></script>
+    <script src="{{ asset('assets/plugins/bootstrap-select/js/bootstrap-select.min.js') }}"></script>
+    <script src="{{ asset('assets/plugins/bootstrap-filestyle/js/bootstrap-filestyle.js') }}"></script>
+    <script src="{{ asset('assets/leaflet/leaflet-locationpicker.js') }}"></script>
+    <script src="{{ asset('assets/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js') }}"></script>
+    <script src="{{ asset('assets/js/jquery.toast.min.js') }}"></script>
+
+    <script type="text/javascript">
+
+        var map = L.map('map', {
+            sleep: true,
+            sleepTime: 750,
+            wakeTime: 750,
+            sleepNote: true,
+            hoverToWake: true
+        }).setView([36.553127, 15.048012], 5);
+        map.options.minZoom = 5;
+        map.options.maxZoom = 14;
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="http://www.rac-spa.org/">SPA/RAC</a>',
+            subdomains: 'abcd',
+            maxZoom: 19
+        }).addTo(map);
+        //L.control.coordinates().addTo(map);
+        L.control.coordinates({
+            decimals: 2,
+            labelTemplateLat: "Latitude: {y}",
+            labelTemplateLng: "Longitude: {x}"
+        }).addTo(map);
+        var marker = L.marker([36.84, 11.58], {draggable: true}).addTo(map);
+        marker.on('dragend', function (e) {
+            document.getElementById('geo_occurence_Location').value = marker.getLatLng().lat + ' ' + marker.getLatLng().lng;
+
+        });
+
+        // Select2
+        $(".select2").select2();
+
+        $('#geo_occurence_date_occurence').datepicker({
+            format: 'dd-mm-yyyy',
+            todayHighlight: true,
+            autoclose: true,
+            clearBtn: true,
+            clickInput: true,
+            orientation: "bottom"
+        });
+
+
+    </script>
+{% endblock %}

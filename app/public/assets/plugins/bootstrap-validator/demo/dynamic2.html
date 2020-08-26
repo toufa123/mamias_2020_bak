@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>BootstrapValidator demo</title>
+
+    <link href="../vendor/bootstrap/css/bootstrap.css" rel="stylesheet"/>
+    <link href="../dist/css/bootstrapValidator.css" rel="stylesheet"/>
+
+    <script src="../vendor/jquery/jquery.min.js" type="text/javascript"></script>
+    <script src="../vendor/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+    <script src="../dist/js/bootstrapValidator.js" type="text/javascript"></script>
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8 col-lg-offset-2">
+            <div class="page-header">
+                <h2>Dynamic fields</h2>
+            </div>
+
+            <form action="target.php" class="form-horizontal" id="contactForm" method="post">
+                <div class="form-group">
+                    <label class="col-lg-3 control-label">Phone number</label>
+                    <div class="col-lg-6">
+                        <input class="form-control" name="phone" type="text"/>
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="btn-group">
+                            <button class="btn btn-default dropdown-toggle" data-toggle="dropdown" type="button">Add
+                                more <span class="caret"></span></button>
+                            <ul class="dropdown-menu" role="menu">
+                                <li><a class="addPhoneButton" data-name="phone_iphone" href="#">iPhone</a></li>
+                                <li><a class="addPhoneButton" data-name="phone_home" href="#">Home</a></li>
+                                <li><a class="addPhoneButton" data-name="phone_office" href="#">Office</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Template for dynamic field -->
+                <div class="form-group" id="template" style="display: none;">
+                    <label class="col-lg-3 control-label"></label>
+                    <div class="col-lg-6">
+                        <input class="form-control" type="text"/>
+                    </div>
+                    <div class="col-lg-3">
+                        <button class="btn btn-link removeButton" type="button">Remove</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-lg-offset-3 col-lg-3">
+                        <button class="btn btn-primary" type="submit">Submit</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('.addPhoneButton').on('click', function () {
+            var $that = $(this),
+                $template = $('#template'),
+                $newRow = $template.clone().removeAttr('id').insertBefore($template).show();
+
+            $that.parent().addClass('disabled');
+
+            // Set the label and field name
+            var fieldName = $that.attr('data-name');
+            $newRow
+                .find('.control-label')
+                .html($that.html())
+                .end()
+                .find('input')
+                .attr('name', fieldName)
+                .end()
+                .on('click', '.removeButton', function () {
+                    // Remove field when clicking the Remove button
+                    $('#contactForm').bootstrapValidator('removeField', fieldName);
+
+                    // Enable the Add button
+                    $that.parent().removeClass('disabled');
+
+                    // Remove element
+                    $newRow.remove();
+                });
+
+            // Add new field
+            $('#contactForm').bootstrapValidator('addField', fieldName, {
+                message: 'The phone number is not valid',
+                validators: {
+                    digits: {
+                        message: 'The value can contain only digits'
+                    }
+                }
+            });
+        });
+
+        $('#contactForm')
+            .bootstrapValidator({
+                message: 'This value is not valid',
+                feedbackIcons: {
+                    valid: 'glyphicon glyphicon-ok',
+                    invalid: 'glyphicon glyphicon-remove',
+                    validating: 'glyphicon glyphicon-refresh'
+                },
+                fields: {
+                    phone: {
+                        message: 'The phone number is not valid',
+                        validators: {
+                            notEmpty: {
+                                message: 'The phone number is required'
+                            },
+                            digits: {
+                                message: 'The value can contain only digits'
+                            }
+                        }
+                    }
+                }
+            })
+            .on('error.field.bv', function (e, data) {
+                console.log(data.field, data.element, '-->error');
+            })
+            .on('success.field.bv', function (e, data) {
+                console.log(data.field, data.element, '-->success');
+            });
+    });
+</script>
+</body>
+</html>

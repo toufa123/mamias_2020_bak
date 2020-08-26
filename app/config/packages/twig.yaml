@@ -1,0 +1,18 @@
+twig:
+    default_path: '%kernel.project_dir%/templates'
+    debug: '%kernel.debug%'
+    globals:
+        fos_csrf_provider: "@security.csrf.token_manager"
+    strict_variables: '%kernel.debug%'
+    form_themes:
+        - 'SonataCoreBundle:Form:datepicker.html.twig'
+        - 'bootstrap_4_layout.html.twig'
+        #- 'bootstrap_3_layout.html.twig'
+        - 'SonataFormatterBundle:Form:formatter.html.twig'
+        #- 'declaration/fields.html.twig'
+        - '@SonataMedia/Form/media_widgets.html.twig'
+        - '@FOSCKEditor/Form/ckeditor_widget.html.twig'
+        - '@EWZRecaptcha/Form/ewz_recaptcha_widget.html.twig'
+        - 'admin/Mamias/fields.html.twig'
+        - 'VichUploaderBundle:Form:fields.html.twig'
+

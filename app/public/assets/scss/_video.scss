@@ -1,0 +1,9 @@
+/* =============
+   video
+============= */
+
+.embed-responsive {
+    &:before {
+        padding-top: 56%;
+    }
+}

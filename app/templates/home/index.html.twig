@@ -1,0 +1,367 @@
+{% extends 'base.html.twig' %}
+{% block title %}Home{% endblock %}
+{% block body %}
+    <div class="row">
+        <div class="col-lg-4 col-md-6">
+            <div class="card-box widget-box-two widget-two-info">
+                <i class="mdi mdi-database widget-two-icon"></i>
+                <div class="wigdet-two-content text-white">
+                    <p class="m-0 text-uppercase font-600 font-secondary text-overflow" title="Statistics">NIS Validated
+                        in the
+                        Catalogue</p>
+                    <h2 class="text-white"><span data-plugin="counterup">{{ NISCount }}</span>
+
+                    </h2>
+                    <p class="m-0">Version 1.0 - last update
+                        : {{ catalogueDate |date("d/m/Y") }}</p>
+                </div>
+            </div>
+        </div><!-- end col -->
+
+        <div class="col-lg-4 col-md-6">
+            <div class="card-box widget-box-two widget-two-primary">
+                <i class="mdi mdi-map-marker widget-two-icon"></i>
+
+                <div class="wigdet-two-content text-white">
+                    <p class="m-0 text-uppercase font-600 font-secondary text-overflow" title="User This Month">
+                        National Occurences</p>
+                    <h2 class="text-white"><span data-plugin="counterup">{{ DistroCount }} </span>
+
+                    </h2>
+                    <p class="m-0">&nbsp;</p>
+                </div>
+            </div>
+        </div><!-- end col -->
+
+        <div class="col-lg-4 col-md-6">
+            <div class="card-box widget-box-two widget-two-danger">
+                <i class="mdi mdi-google-maps widget-two-icon"></i>
+                <div class="wigdet-two-content text-white">
+                    <p class="m-0 text-uppercase font-600 font-secondary text-overflow" title="Statistics">
+                        Georefrenced Occurences</p>
+                    <h2 class="text-white"><span data-plugin="counterup">{{ GeoCount }}</span>
+
+                    </h2>
+                    <p class="m-0">&nbsp;</p>
+                </div>
+            </div>
+        </div><!-- end col -->
+    </div>
+
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="property-card bg-white ">
+                <div class="card-body">
+                    <div id="highcontainer" style="height: 520px;">
+                        <div class="loading">
+                            <i class="icon-spinner icon-spin icon-large"></i>
+                            Loading data from MAMIAS Database...
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+
+            <div class="property-card bg-white">
+                <div class="card-body">
+                    <div id="container" style="min-width: 310px; height: 520px; margin: 0 auto"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="property-card">
+                <div class="property-card bg-white">
+                    <div class="property-content">
+                        <div class="m-b-10">
+                            <!--<h4 class="text-uppercase">Last publication</h4>
+                             <div class="border m-b-30"></div>-->
+                            <div class="row about-team text-center">
+                                <!-- team-member -->
+                                <div class="col-sm-4">
+                                    <div class="about-team-member">
+                                        <img
+                                                src="https://easin.jrc.ec.europa.eu/easin/Content/ECL/images/logo/logo--en.svg"
+                                                alt="EASIN"
+                                                class="img-responsive thumb-xl">
+                                        <h4><a class='text-custom' href="https://easin.jrc.ec.europa.eu/easin/">MAMIAS
+                                                is EASIN Data Patners</a>
+                                        </h4>
+                                        <p>2016</p>
+
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="about-team-member">
+                                        <img src="{{ asset('resources/images/imap.png') }}" alt="IMAP"
+                                             class="img-responsive thumb-xl">
+                                        <h4>
+                                            <a class='text-custom'
+                                               href="https://wedocs.unep.org/bitstream/handle/20.500.11822/17012/imap_2017_eng.pdf?sequence=5&isAllowed=y">Integrated
+                                                Monitoring and Assessment Programme of the Mediterranean Sea and Coast
+                                                and
+                                                related Assessment Criteria (IMAP)</a>
+                                        </h4>
+                                        <p>2016</p>
+
+                                    </div>
+                                </div>
+                                <!-- team-member -->
+                                <div class="col-sm-4">
+                                    <div class="about-team-member">
+                                        <img
+                                                src="{{ asset('resources/images/Mediterranean-quality-status-report-2017-1024x736.png') }}"
+                                                alt="MedQSR 2017"
+                                                class="img-responsive thumb-xl">
+                                        <h4><a class='text-custom' href="https://www.medqsr.org/">Mediterranean 2017
+                                                Quality Status Report</a>
+                                        </h4>
+                                        <p>2017</p>
+                                    </div>
+                                </div>
+                                <!-- team-member -->
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- end row -->
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+{% block javascripts %}
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.3.6/proj4.js"></script>
+
+    <script src="{{ asset('assets/highcharts/highmaps.src.js') }}"></script>
+    <script src="{{ asset('assets/highcharts/modules/data.src.js') }}"></script>
+    {% if is_granted('ROLE_REGSITREDUSER') %}
+        <script src="{{ asset('assets/highcharts/modules/exporting.src.js') }}"></script>
+        <script src="{{ asset('assets/highcharts/modules/offline-exporting.src.js') }}"></script>
+    {% endif %}
+    <script src="{{ asset('assets/highcharts/modules/series-label.src.js') }}"></script>
+    <script src="{{ asset('assets/highcharts/modules/no-data-to-display.src.js') }}"></script>
+
+    <script src="{{ asset('assets/highcharts/highcharts-regression.js') }}"></script>
+    <script src="{{ asset('assets/highcharts/regression2.js') }}"></script>
+    <script src="{{ asset('assets/js/jquery.slimscroll.js') }}"></script>
+
+
+
+    <script>
+        data = [];
+        var data =  {{ NbperCountry1 |raw }};
+        //console.log(data);
+        //$.each(data, function () {
+        //    this.value = (this.value < 1 ? 1 : this.value);
+        //});
+        //var mapData = Highcharts.geojson(Highcharts.maps['custom/world']);
+
+        $.getJSON('{{ asset('assets/geojson/medcountries2020.geojson') }}', function (geojson) {
+            // Initiate the chart
+            $('#highcontainer').highcharts('Map', {
+                borderWidth: 1,
+                //height: (9 / 16 * 100) + '%',
+                title: {
+                    text: 'Number of Reported Marine NIS by Country',
+                    style: {
+                        color: '#00AEEF',
+                        font: "Roboto Light",
+                        fontSize: '18px',
+
+                    }
+                },
+                mapNavigation: {
+                    enabled: true,
+                    buttonOptions: {
+                        verticalAlign: 'bottom'
+                    }
+                },
+                credits: {
+                    text: 'www.mamias.org',
+                    href: 'http://www.mamias.org',
+                    position: {
+                        align: 'right',
+                        x: 1
+                    }
+                },
+                legend: {
+                    enabled: true,
+                    floating: true,
+                    align: 'right',
+                    y: -400,
+                    itemMarginTop: 10,
+                    bubbleLegend: {
+                        enabled: true,
+                        borderWidth: 1,
+                        connectorDistance: 40,
+                        ranges: [{
+                            value: 50
+                        }, {
+                            value: 100
+                        }, {
+                            value: 200
+                        }, {
+                            value: 400
+                        }, {
+                            value: 600
+                        }]
+                    }
+                },
+                lang: {
+                    noData: "No Data"
+                },
+                noData: {
+                    style: {
+                        font: "Roboto",
+                        fontWeight: 'bold',
+                        fontSize: '15px',
+                        color: '#303030'
+                    }
+                },
+                plotOptions: {
+                    series: {
+                        shadow: true
+                    },
+                    candlestick: {
+                        lineColor: '#404048'
+                    },
+                    map: {
+                        shadow: false
+                    }
+                },
+                series: [{
+                    //name: 'Number of NIS',
+                    color: '#E0E0E0',
+                    mapData: geojson,
+                    enableMouseTracking: false,
+                    showInLegend: false
+                }, {
+                    type: 'mapbubble',
+                    mapData: geojson,
+                    color: '#00AEEF',
+                    //mapData: geojson,
+                    joinBy: ['NAME', 'country'],
+                    data: data,
+                    name: 'Number of NIS',
+                    minSize: 8,
+                    maxSize: '20%',
+                    dataLabels: {
+                        enabled: true,
+                        allowOverlap: false,
+                        format: '{point.z}'
+                    }, tooltip: {
+                        pointFormat: '<p class="text-custom"> <b>{point.country}<b>: {point.z}</p>'
+                    }
+
+                }]
+            });
+        });
+        $('.slimscroll').slimScroll();
+    </script>
+    <script>
+        data2 = [];
+        var data2 =  {{ datacu1 |raw }};
+        data3 = []
+        var data3 = {{ cat1 |raw }};
+        data4 = [];
+        data4 = {{ datareg1 | raw }};
+        const result = regression.linear(data4);
+        console.log(data2, data3, data4);
+        $(function () {
+            $('#container').highcharts({
+                chart: {
+                    type: 'areaspline',
+                    zoomType: 'x'
+                },
+                title: {
+                    text: 'Numbers of new reported marine non-indigenous species ',
+                    style: {
+                        color: '#00AEEF',
+                        font: "Roboto Light",
+                        fontSize: '18px',
+
+                    }
+
+                },
+                credits: {
+                    text: 'www.mamias.org',
+                    href: 'http://www.mamias.org',
+                    position: {
+                        align: 'right',
+                        x: 1
+                    }
+                },
+                lang: {
+                    noData: "No Data"
+                },
+                noData: {
+                    style: {
+                        font: "Roboto",
+                        fontWeight: 'bold',
+                        fontSize: '15px',
+                        color: '#303030'
+                    }
+                },
+                xAxis: {
+                    categories: data3,
+                    tickPositioner: function () {
+                        var positions = [],
+                            tick = Math.floor(this.dataMin),
+                            increment = Math.ceil((this.dataMax - this.dataMin) / 6);
+
+                        if (this.dataMax !== null && this.dataMin !== null) {
+                            for (tick; tick - increment <= this.dataMax; tick += increment) {
+                                positions.push(tick);
+                            }
+                        }
+                        return positions;
+                    },
+                    title: {
+                        enabled: true,
+                        text: 'Years'
+                    },
+                    tickInterval: 1,
+                    startOnTick: true,
+                    endOnTick: true,
+                    showLastLabel: true
+                },
+                yAxis: {
+                    title: {
+                        text: 'Numbre of NIS'
+                    },
+                    allowDecimals: false
+                },
+                legend: {
+                    layout: 'vertical',
+                    align: 'left',
+                    verticalAlign: 'top',
+                    x: 100,
+                    y: 70,
+                    floating: true,
+                    backgroundColor: '#FFFFFF',
+                    borderWidth: 1
+                },
+                series: [{
+                    regression: false,
+                    regressionSettings: {
+                        type: 'linear',
+                        color: 'rgb(253,0,0)',
+                        legend: "%eq",
+                        name: "%eq | r2: %r"
+                    },
+                    name: 'Cumulative Number of reported NIS',
+                    color: 'rgb(0,174,239)',
+                    data: data4
+
+                }]
+            });
+        });
+    </script>
+{% endblock %}

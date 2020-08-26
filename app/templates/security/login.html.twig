@@ -1,0 +1,123 @@
+{% extends 'auth.html.twig' %}
+{% trans_default_domain 'FOSUserBundle' %}
+{% block title %}Authentification{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-lg-6">
+            <span><img src="{{ asset('resources/images/signin.svg') }}"
+                       alt="MAMIAS 3.0"></span>
+        </div>
+        <div class="col-lg-6">
+            <div class="wrapper-page">
+                <div class="property-card">
+                    <div class="text-center account-logo-box">
+                        <h2 class="text-uppercase">
+                            <a href="{{ path('home') }}" class="text-success">
+                                            <span><img src="{{ asset('resources/logo/Logo-Mamias-web.png') }}"
+                                                       alt="MAMIAS 3.0"></span>
+                            </a>
+                        </h2>
+
+                    </div>
+                    <div class="property-content">
+                        {% if error %}
+                            <div
+                                class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+                        {% endif %}
+
+                        {% if app.user %}
+                            <div class="mb-3">
+                                You are logged in as {{ app.user.username }}, <a
+                                    href="{{ path('app_logout') }}">Logout</a>
+                            </div>
+                        {% endif %}
+
+
+                        <form class="" id="loginform" action="{{ path("sonata_user_admin_security_check") }}"
+                              method="post">
+                            {% if csrf_token('authenticate') %}
+                                <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}"/>
+                            {% endif %}
+
+                            <div class="form-group ">
+                                <div class="col-xs-12">
+                                    <input class="form-control" type="text" id="username" name="_username"
+                                           placeholder="{{ 'security.login.username'|trans({}, 'SonataUserBundle') }}"
+
+                                           required="required"/>
+                                </div>
+                            </div>
+                            <br>
+                            <div class="form-group">
+                                <div class="col-xs-12">
+                                    <input class="form-control" type="password" required="" name="_password"
+                                           placeholder="{{ 'security.login.password'|trans({}, 'SonataUserBundle') }}">
+                                </div>
+                            </div>
+
+                            {#
+       Uncomment this section and add a remember_me option below your firewall to activate remember me functionality.
+       See https://symfony.com/doc/current/security/remember_me.html
+
+       <div class="checkbox mb-3">
+           <label>
+               <input type="checkbox" name="_remember_me"> Remember me
+           </label>
+       </div>
+   #}
+
+                            <div class="form-group ">
+                                <div class="col-xs-12">
+                                    <div class="checkbox checkbox-primary">
+                                        <input id="checkbox-signup" type="checkbox" checked>
+                                        <label for="checkbox-signup">
+                                            Remember me
+                                        </label>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div class="form-group text-center">
+                                <div class="col-sm-12">
+                                    <a href="{{ path('fos_user_resetting_request') }}"
+                                       class="text-muted float-right"><i
+                                            class="fa fa-lock m-r-5"></i> {{ 'forgotten_password'|trans({}, 'SonataUserBundle') }}
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="form-group ">
+                                <div class="col-xs-12">
+
+                                    <div id="recaptcha-container"></div>
+                                </div>
+                            </div>
+
+                            <div class="form-group account-btn text-center m-t-20 ">
+                                <div class="col-sm-12 m-t-5 ">
+                                    <button
+                                        class="btn btn-block w-md btn-bordered btn-primary waves-effect waves-light m-t-10"
+                                        type="submit">{{ 'security.login.submit'|trans({}, 'FOSUserBundle') }}</button>
+                                </div>
+                            </div>
+                        </form>
+
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+                <div class="row m-t-20">
+                    <div class="col-sm-12 text-center">
+                        <p class="text-custom">Don't have an account? <a
+                                href="{{ path('fos_user_registration_register') }}"
+                                class="text-primary m-l-5"><b>Register</b></a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+{% endblock %}
+{% block javascripts %}
+{% endblock %}

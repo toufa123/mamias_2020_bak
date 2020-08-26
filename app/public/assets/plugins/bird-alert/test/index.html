@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
+
+    <link crossorigin="anonymous" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" rel="stylesheet">
+    <link href="animate.css" rel="stylesheet">
+    <link href="../src/bird-alert-uikit.css" rel="stylesheet">
+
+    <title>Hello, world!</title>
+    <style type="text/css">
+        body {
+            font-size: 14px;
+        }
+
+        h4 {
+            margin-top: 10px;
+        }
+
+        .blockWindow {
+            position: fixed;
+            z-index: 1200;
+            top: 0;
+            width: 600px;
+            right: 0;
+            bottom: 0;
+            display: none;
+            background: rgba(0, 0, 0, 0.6);
+        }
+
+        .blockWindow h1 {
+            margin-top: 50%;
+            margin-left: 100px;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h1>Page test</h1>
+            <hr>
+            <br>
+            <h2>Basic usage</h2>
+            <button class="btn btn-primary" id="btnBasic" type="button">Basic</button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <br>
+            <br>
+            <h2>Options</h2>
+            <hr>
+            <h4>clickToHide: false</h4>
+            <button class="btn btn-primary" id="btnClickToHide" type="button">Show</button>
+            <h4>closeButton: false</h4>
+            <button class="btn btn-warning" id="btnCloseButton" type="button">Show</button>
+            <h4>autoHide: false</h4>
+            <button class="btn btn-primary" id="btnAutoHide" type="button">Show</button>
+            <h4>duration: 1000</h4>
+            <button class="btn btn-primary" id="btnDuration" type="button">Show</button>
+            <h4>showAnimation and hideAnimation: 'fadeIn' and 'fadeOut'</h4>
+            <button class="btn btn-primary" id="btnShowAnimation" type="button">Show</button>
+            <h4>inverseInsert: true</h4>
+            <button class="btn btn-primary" id="btnInverseInsert" type="button">Show</button>
+            <h4>preventDuplicate: true</h4>
+            <button class="btn btn-danger" id="btnPreventDuplicate" type="button">Show</button>
+            <h4>positions</h4>
+            <button class="btn btn-primary" id="btnTopLeft" type="button">top left</button>
+            <button class="btn btn-primary" id="btnTopCenter" type="button">top center</button>
+            <button class="btn btn-primary" id="btnTopRight" type="button">top right</button>
+            <button class="btn btn-primary" id="btnBottomLeft" type="button">bottom left</button>
+            <button class="btn btn-primary" id="btnBottomCenter" type="button">bottom center</button>
+            <button class="btn btn-primary" id="btnBottomRight" type="button">bottom right</button>
+            <h4>quantity: 3</h4>
+            <button class="btn btn-success" id="btnQuantity" type="button">Show</button>
+            <h4>agroup: false</h4>
+            <button class="btn btn-warning" id="btnAgroup" type="button">Show</button>
+            <h4>width: 800</h4>
+            <button class="btn btn-warning" id="btnWidth" type="button">Show</button>
+            <div class="blockWindow"><h1>z-index: 1200</h1></div>
+            <h4>zindex: 1100</h4>
+            <button class="btn btn-primary" id="btnZindex" type="button">Show</button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <br>
+            <br>
+            <h2>Options</h2>
+            <hr>
+            <h4>param.msg</h4>
+            <button class="btn btn-primary" id="btnLongMsg" type="button">Long msg</button>
+            <h4>param.title</h4>
+            <button class="btn btn-primary" id="btnNoTitle" type="button">No title</button>
+            <h4>param.className</h4>
+            <button class="btn btn-success" id="btnSuccess" type="button">Success</button>
+            <button class="btn btn-warning" id="btnWarning" type="button">Warning</button>
+            <button class="btn btn-info" id="btnInfo" type="button">Info</button>
+            <button class="btn btn-danger" id="btnError" type="button">Error</button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <br>
+            <br>
+            <h2>Others</h2>
+            <hr>
+            <h4>Set</h4>
+            <button class="btn btn-primary" id="btnSet" type="button">Set options</button>
+            <button class="btn btn-primary" id="btnSetDefaults" type="button">Set default options</button>
+            <br>
+            <br>
+        </div>
+    </div>
+</div>
+
+<script crossorigin="anonymous" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+<script crossorigin="anonymous" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script crossorigin="anonymous" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<script src="../src/bird-alert.min.js" type="text/javascript"></script>
+<script src="test.js" type="text/javascript"></script>
+</body>
+</html>

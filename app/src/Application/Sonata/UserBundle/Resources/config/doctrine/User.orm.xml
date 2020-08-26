@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                  http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+
+    <entity name="App\Application\Sonata\UserBundle\Entity\User" table="fos_user_user">
+
+        <id name="id" column="id" type="integer">
+            <generator strategy="AUTO"/>
+        </id>
+        <field name="skype" type="string" column="skype" length="255" nullable="true"/>
+        <many-to-many field="soi" target-entity="App\Entity\Catalogue"/>
+        <many-to-many field="Eco" target-entity="App\Entity\Ecofunctional"/>
+        <many-to-one field="country" target-entity="App\Entity\Country"/>
+
+        <one-to-many field="literature" target-entity="App\Entity\Literature" mapped-by="users"/>
+
+    </entity>
+
+</doctrine-mapping>

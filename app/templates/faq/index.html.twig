@@ -1,0 +1,278 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Frequently asked questions{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="property-card bg-white">
+                <div class="property-content">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="text-center">
+                                <h3 class="font-600">Frequently Asked Questions</h3>
+                                <!--<p class="text-muted"> Nisi praesentium similique totam odio obcaecati, reprehenderit, dignissimos rem temporibus ea inventore alias!
+                                    <br/> Beatae animi nemo ea tempora, temporibus laborum facilis ut!</p>-->
+                                <a href="{{ path('contact') }}" id="tooltip-hover"
+                                   class="btn btn-success waves-effect waves-light m-t-10">
+                                    <i class="fa fa-email"></i>Email us your question</a>
+                                <!--<button type="button" class="btn btn-success waves-effect waves-light m-t-10">Email us your question</button>
+                                <button type="button" class="btn btn-primary waves-effect waves-light m-t-10">Send us a tweet</button>-->
+
+                            </div>
+                        </div>
+                        <!-- end col -->
+                    </div>
+                    <!-- end row -->
+
+                    <div class="row m-t-50">
+                        <div class="col-xl-5 offset-xl-1 p-20">
+                            <!-- Question/Answer -->
+                            <div>
+                                <div class="question-q-box">Q.</div>
+                                <h4 class="question">What are Non-indigenous species ?</h4>
+                                <p class="answer">Non-indigenous species (NIS; synonyms: alien, exotic, non-native,
+                                    allochthonous) are species, subspecies, or
+                                    lower taxa introduced outside of their natural range (past or present) and outside
+                                    of their natural dispersal
+                                    potential.</p>
+                            </div>
+
+                            <!-- Question/Answer -->
+
+                            <div>
+                                <div class="question-q-box">Q.</div>
+                                <h4 class="question">What are Invasive Non-indigenous species ?</h4>
+                                <p class="answer">Invasive alien species (IAS) are a subset of established NIS which
+                                    have spread, are spreading, or have
+                                    demonstrated their potential to spread elsewhere, and which have an effect on
+                                    biological diversity and
+                                    ecosystem functioning (by competing with and on some occasions replacing native
+                                    species), socioeconomic values, and/or human health in invaded regions.</p>
+                            </div>
+
+                            <!-- Question/Answer -->
+
+                            <div>
+                                <div class="question-q-box">Q.</div>
+                                <h4 class="question">What is Common Indicator 6?</h4>
+                                <p class="answer">In the context of the Barcelona Convention, a common indicator is an
+                                    indicator that summarizes data into a
+                                    simple, standardized, and communicable figure and is ideally applicable in the whole
+                                    Mediterranean basin,
+                                    or at least on the level of sub-regions, and is monitored by all Contracting
+                                    Parties. A common indicator is
+                                    able to give an indication of the degree of threat or change in the marine ecosystem
+                                    and can deliver valuable
+                                    information to decision makers.</p>
+                            </div>
+
+                        </div>
+                        <!--/col-md-5 -->
+
+                        <div class="col-xl-5 p-20">
+                            <!-- Question/Answer -->
+
+                            <div>
+                                <div class="question-q-box">Q.</div>
+                                <h4 class="question">Is safe use Lorem Ipsum?</h4>
+                                <p class="answer">Lorem Ipsum is simply dummy text of the printing and typesetting
+                                    industry. Lorem Ipsum has been the industry's standard dummy text ever since the
+                                    1500s.</p>
+                            </div>
+
+                            <!-- Question/Answer -->
+
+                            <div>
+                                <div class="question-q-box">Q.</div>
+                                <h4 class="question">When can be used?</h4>
+                                <p class="answer">Lorem ipsum dolor sit amet, in mea nonumes dissentias dissentiunt, pro
+                                    te solet oratio iriure. Cu sit consetetur moderatius intellegam, ius decore
+                                    accusamus te. Ne primis suavitate disputando nam. Mutat convenirete.</p>
+                            </div>
+
+                            <!-- Question/Answer -->
+
+                            <div>
+                                <div class="question-q-box">Q.</div>
+                                <h4 class="question">License &amp; Copyright</h4>
+                                <p class="answer">Lorem Ipsum is simply dummy text of the printing and typesetting
+                                    industry. Lorem Ipsum has been the industry's standard dummy text ever since the
+                                    1500s.</p>
+                            </div>
+
+                        </div>
+                        <!--/col-md-5-->
+                    </div>
+                    <!-- end row -->
+
+                    <div class="row m-t-40">
+                        <div class="col-xl-5 offset-xl-1">
+                            <div class="p-20">
+
+                                <div class="accordion" id="accordionExample">
+                                    <div class="card mb-2">
+                                        <div class="card-heading bg-info">
+                                            <h4 class="card-title m-0">
+                                                <a href="#" class="text-white" data-toggle="collapse"
+                                                   data-target="#collapseOne" aria-expanded="true"
+                                                   aria-controls="collapseOne">
+                                                    What is Lorem Ipsum?
+                                                </a>
+                                            </h4>
+                                        </div>
+
+                                        <div id="collapseOne" class="collapse show" data-parent="#accordionExample">
+                                            <div class="card-body">
+                                                <p>Lorem Ipsum is simply dummy text of the printing and typesetting
+                                                    industry. Lorem Ipsum has been the industry's standard dummy text
+                                                    ever since the 1500s, when an unknown printer took a galley of type
+                                                    and scrambled it to make a type specimen book.</p>
+                                                <p class="mb-0">Anim pariatur cliche reprehenderit, enim eiusmod high
+                                                    life accusamus terry richardson ad squid. 3 wolf moon officia aute,
+                                                    non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt
+                                                    laborum eiusmod.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card mb-2">
+                                        <div class="card-heading bg-info">
+                                            <h4 class="card-title m-0">
+                                                <a href="#" class="collapsed text-white" data-toggle="collapse"
+                                                   data-target="#collapseTwo" aria-expanded="false"
+                                                   aria-controls="collapseTwo">
+                                                    Is safe use Lorem Ipsum?
+                                                </a>
+                                            </h4>
+                                        </div>
+                                        <div id="collapseTwo" class="collapse" data-parent="#accordionExample">
+                                            <div class="card-body">
+                                                <p>Lorem Ipsum is simply dummy text of the printing and typesetting
+                                                    industry. Lorem Ipsum has been the industry's standard dummy text
+                                                    ever since the 1500s, when an unknown printer took a galley of type
+                                                    and scrambled it to make a type specimen book.</p>
+                                                <p class="mb-0">Anim pariatur cliche reprehenderit, enim eiusmod high
+                                                    life accusamus terry richardson ad squid. 3 wolf moon officia aute,
+                                                    non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt
+                                                    laborum eiusmod.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card mb-2">
+                                        <div class="card-heading bg-info">
+                                            <h4 class="card-title m-0">
+                                                <a href="#" class="text-white collapsed" data-toggle="collapse"
+                                                   data-target="#collapseThree" aria-expanded="false"
+                                                   aria-controls="collapseThree">
+                                                    Why use Lorem Ipsum?
+                                                </a>
+                                            </h4>
+                                        </div>
+                                        <div id="collapseThree" class="collapse" data-parent="#accordionExample">
+                                            <div class="card-body">
+                                                <p>Lorem Ipsum is simply dummy text of the printing and typesetting
+                                                    industry. Lorem Ipsum has been the industry's standard dummy text
+                                                    ever since the 1500s, when an unknown printer took a galley of type
+                                                    and scrambled it to make a type specimen book.</p>
+                                                <p class="mb-0">Anim pariatur cliche reprehenderit, enim eiusmod high
+                                                    life accusamus terry richardson ad squid. 3 wolf moon officia aute,
+                                                    non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt
+                                                    laborum eiusmod.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- accordian end -->
+
+                            </div>
+                        </div>
+                        <!-- end col -->
+
+                        <div class="col-xl-5">
+                            <div class="p-20">
+                                <div class="accordion" id="accordionExample1">
+                                    <div class="card mb-2">
+                                        <div class="card-heading bg-info">
+                                            <h4 class="card-title m-0">
+                                                <a href="#" class="text-white" data-toggle="collapse"
+                                                   data-target="#collapseFour" aria-expanded="true"
+                                                   aria-controls="collapseFour">
+                                                    License & Copyright
+                                                </a>
+                                            </h4>
+                                        </div>
+
+                                        <div id="collapseFour" class="collapse show" data-parent="#accordionExample1">
+                                            <div class="card-body">
+                                                <p>Lorem Ipsum is simply dummy text of the printing and typesetting
+                                                    industry. Lorem Ipsum has been the industry's standard dummy text
+                                                    ever since the 1500s, when an unknown printer took a galley of type
+                                                    and scrambled it to make a type specimen book.</p>
+                                                <p class="mb-0">Anim pariatur cliche reprehenderit, enim eiusmod high
+                                                    life accusamus terry richardson ad squid. 3 wolf moon officia aute,
+                                                    non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt
+                                                    laborum eiusmod.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card mb-2">
+                                        <div class="card-heading bg-info">
+                                            <h4 class="card-title m-0">
+                                                <a href="#" class="text-white collapsed" data-toggle="collapse"
+                                                   data-target="#collapseFive" aria-expanded="false"
+                                                   aria-controls="collapseFive">
+                                                    How many variations exist?
+                                                </a>
+                                            </h4>
+                                        </div>
+                                        <div id="collapseFive" class="collapse" data-parent="#accordionExample1">
+                                            <div class="card-body">
+                                                <p>Lorem Ipsum is simply dummy text of the printing and typesetting
+                                                    industry. Lorem Ipsum has been the industry's standard dummy text
+                                                    ever since the 1500s, when an unknown printer took a galley of type
+                                                    and scrambled it to make a type specimen book.</p>
+                                                <p class="mb-0">Anim pariatur cliche reprehenderit, enim eiusmod high
+                                                    life accusamus terry richardson ad squid. 3 wolf moon officia aute,
+                                                    non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt
+                                                    laborum eiusmod.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card mb-2">
+                                        <div class="card-heading bg-info">
+                                            <h4 class="card-title m-0">
+                                                <a href="#" class="text-white collapsed" data-toggle="collapse"
+                                                   data-target="#collapseSix" aria-expanded="false"
+                                                   aria-controls="collapseSix">
+                                                    Why use Lorem Ipsum?
+                                                </a>
+                                            </h4>
+                                        </div>
+                                        <div id="collapseSix" class="collapse" data-parent="#accordionExample1">
+                                            <div class="card-body">
+                                                <p>Lorem Ipsum is simply dummy text of the printing and typesetting
+                                                    industry. Lorem Ipsum has been the industry's standard dummy text
+                                                    ever since the 1500s, when an unknown printer took a galley of type
+                                                    and scrambled it to make a type specimen book.</p>
+                                                <p class="mb-0">Anim pariatur cliche reprehenderit, enim eiusmod high
+                                                    life accusamus terry richardson ad squid. 3 wolf moon officia aute,
+                                                    non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt
+                                                    laborum eiusmod.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- accordian end -->
+                            </div>
+                        </div>
+                        <!-- end col -->
+                    </div>
+                    <!-- end row -->
+
+                </div>
+            </div>
+            <!-- end col -->
+        </div>
+    </div>
+    <!-- end row -->
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends 'one.html.twig' %}
+{% block title %}{{ status_code }}{% endblock %}
+{% block body %}
+
+    <section>
+        <div class="container-alt">
+            <div class="row">
+                <div class="col-sm-12 text-center">
+
+                    <div class="wrapper-page">
+                        <img src="{{ asset('resources/images/animat-search-color.gif') }}" alt="" height="120">
+                        <h2 class="text-uppercase text-danger">{{ status_code }}</h2>
+                        <h1 class="text-muted">{{ status_text }}</h1>
+
+                        <a class="btn btn-primary waves-effect waves-light m-t-20" href="{{ path('home') }}"> Return
+                            Home</a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+{% endblock %}

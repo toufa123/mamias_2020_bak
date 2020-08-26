@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>BootstrapValidator demo</title>
+
+    <link href="../vendor/bootstrap/css/bootstrap.css" rel="stylesheet"/>
+    <link href="../dist/css/bootstrapValidator.css" rel="stylesheet"/>
+
+    <script src="../vendor/jquery/jquery.min.js" type="text/javascript"></script>
+    <script src="../vendor/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+    <script src="../dist/js/bootstrapValidator.js" type="text/javascript"></script>
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <!-- form: -->
+        <section>
+            <div class="col-lg-8 col-lg-offset-2">
+                <div class="page-header">
+                    <h2>Sign up</h2>
+                </div>
+
+                <form action="target.php" class="form-horizontal"
+                      data-bv-feedbackicons-invalid="glyphicon glyphicon-remove"
+                      data-bv-feedbackicons-valid="glyphicon glyphicon-ok"
+                      data-bv-feedbackicons-validating="glyphicon glyphicon-refresh"
+                      data-bv-message="This value is not valid"
+                      id="defaultForm"
+                      method="post">
+                    <div class="form-group">
+                        <label class="col-lg-3 control-label">Full name</label>
+                        <div class="col-lg-4">
+                            <input class="form-control"
+                                   data-bv-notempty-message="The first name is required and cannot be empty"
+                                   data-bv-trigger="keyup" name="firstName" placeholder="First name" required
+                                   type="text"/>
+                        </div>
+                        <div class="col-lg-4">
+                            <input class="form-control"
+                                   data-bv-notempty-message="The last name is required and cannot be empty"
+                                   data-bv-trigger="blur" name="lastName" placeholder="Last name" required type="text"/>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-lg-3 control-label">Username</label>
+                        <div class="col-lg-5">
+                            <input class="form-control" data-bv-message="The username is not valid"
+                                   data-bv-notempty-message="The username is required and cannot be empty"
+                                   data-bv-regexp-message="The username can only consist of alphabetical, number, dot and underscore"
+                                   data-bv-stringlength-message="The username must have at least 5 characters"
+                                   data-bv-trigger="blur" minlength="5"
+                                   name="username" pattern="[a-zA-Z0-9_\.]+"
+                                   required type="text"/>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-lg-3 control-label">Email address</label>
+                        <div class="col-lg-5">
+                            <input class="form-control"
+                                   data-bv-emailaddress-message="The input is not a valid email address" name="email"
+                                   required type="email"/>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-lg-3 control-label">Website</label>
+                        <div class="col-lg-5">
+                            <input class="form-control" data-bv-uri-message="The input is not a valid website address"
+                                   name="website" required type="url"/>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-lg-3 control-label">Fav color</label>
+                        <div class="col-lg-3">
+                            <input class="form-control" data-bv-hexcolor-message="The input is not a valid color code"
+                                   name="color" required type="color"/>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-lg-3 control-label">Age</label>
+                        <div class="col-lg-2">
+                            <input class="form-control" data-bv-greaterthan-inclusive="false"
+                                   data-bv-greaterthan-message="The input must be greater than or equal to 10"
+                                   data-bv-lessthan-inclusive="true"
+                                   data-bv-lessthan-message="The input must be less than 100" max="100" min="10"
+                                   name="age" step="1" type="number"
+                            />
+                            <!--<input type="range" class="form-control" name="age"
+                                   required
+                                   min="10" max="100" data-bv-between-message="The input must be between 10 and 100"
+                                    />-->
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-lg-3 control-label">Bio</label>
+                        <div class="col-lg-5">
+                            <textarea class="form-control" data-bv-stringlength data-bv-stringlength-max="100"
+                                      data-bv-stringlength-message="The bio must be less than 100 characters long"
+                                      name="bio" rows="10"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-lg-9 col-lg-offset-3">
+                            <button class="btn btn-primary" type="submit">Sign up</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </section>
+        <!-- :form -->
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#defaultForm').bootstrapValidator();
+    });
+</script>
+</body>
+</html>

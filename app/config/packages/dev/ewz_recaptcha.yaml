@@ -1,0 +1,3 @@
+ewz_recaptcha:
+    enabled: true
+    #ajax: true

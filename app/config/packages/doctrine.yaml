@@ -1,0 +1,62 @@
+doctrine:
+    dbal:
+        # configure these for your database server
+        #driver: 'pdo_mysql'
+        #server_version: '5.7'
+        #charset: utf8mb4
+        #default_table_options:
+        #    charset: utf8mb4
+        #    collate: utf8mb4_unicode_ci
+        server_version: 12.0
+        driver: 'pdo_pgsql'
+        charset: utf8
+        types:
+            json:       Sonata\Doctrine\Types\JsonType
+            geometry:   CrEOF\Spatial\DBAL\Types\GeometryType
+            point:      CrEOF\Spatial\DBAL\Types\Geometry\PointType
+            #point :     CrEOF\Spatial\PHP\Types\Geometry\Point
+            polygon:    CrEOF\Spatial\DBAL\Types\Geometry\PolygonType
+            linestring: CrEOF\Spatial\DBAL\Types\Geometry\LineStringType
+
+        mapping_types:
+            _text: string
+
+        url: '%env(resolve:DATABASE_URL)%'
+    orm:
+        auto_generate_proxy_classes: true
+        naming_strategy: doctrine.orm.naming_strategy.underscore
+        auto_mapping: true
+
+        #metadata_cache_driver: apc
+        #query_cache_driver: apc
+        #result_cache_driver: apc
+        mappings:
+            App:
+                is_bundle: false
+                type: annotation
+                dir: '%kernel.project_dir%/src/Entity'
+                prefix: 'App\Entity'
+                alias: App
+            SonataUserBundle: ~
+            FOSUserBundle: ~
+            ApplicationSonataUserBundle: ~
+            ApplicationSonataClassificationBundle: ~
+            SonataClassificationBundle: ~
+            StofDoctrineExtensionsBundle: ~
+            ApplicationSonataNewsBundle: ~
+            SonataNewsBundle: ~
+            ApplicationSonataMediaBundle: ~
+            SonataMediaBundle: ~
+            #ApplicationSonataPageBundle: ~ # only once the ApplicationSonataPageBundle is generated
+            #SonataPageBundle: ~
+            #DoctrsSonataImportBundle: ~
+
+        dql:
+            numeric_functions:
+                st_contains:     CrEOF\Spatial\ORM\Query\AST\Functions\PostgreSQL\STContains
+                contains:     CrEOF\Spatial\ORM\Query\AST\Functions\PostgreSQL\Contains
+                st_area:         CrEOF\Spatial\ORM\Query\AST\Functions\PostgreSQL\Area
+                st_geomfromtext: CrEOF\Spatial\ORM\Query\AST\Functions\PostgreSQL\GeomFromText
+                st_intersects:     CrEOF\Spatial\ORM\Query\AST\Functions\PostgreSQL\STIntersects
+                st_buffer:     CrEOF\Spatial\ORM\Query\AST\Functions\PostgreSQL\STBuffer
+                point: CrEOF\Spatial\ORM\Query\AST\Functions\PostgreSQL\Point

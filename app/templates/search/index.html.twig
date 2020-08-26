@@ -1,0 +1,442 @@
+{% extends 'base.html.twig' %}
+{% block title %}Search NIS Species{% endblock %}
+{% block stylesheets %}
+    <!-- Data Table CSS -->
+    <link href="{{ asset('assets/plugins/datatables/jquery.dataTables.min.css') }}" rel="stylesheet" type="text/css"/>
+    <link href="{{ asset('assets/plugins/datatables/buttons.bootstrap4.min.css') }}" rel="stylesheet" type="text/css"/>
+    <link href="{{ asset('assets/plugins/datatables/fixedHeader.bootstrap4.min.css') }}" rel="stylesheet"
+          type="text/css"/>
+    <link href="{{ asset('assets/plugins/datatables/responsive.bootstrap4.min.css') }}" rel="stylesheet"
+          type="text/css"/>
+    <link href="{{ asset('assets/plugins/datatables/scroller.bootstrap4.min.css') }}" rel="stylesheet" type="text/css"/>
+    <link href="{{ asset('assets/plugins/datatables/dataTables.colVis.css') }}" rel="stylesheet" type="text/css"/>
+    <link href="{{ asset('assets/plugins/datatables/dataTables.bootstrap4.min.css') }}" rel="stylesheet"
+          type="text/css"/>
+    <link href="{{ asset('assets/plugins/datatables/fixedColumns.dataTables.min.css') }}" rel="stylesheet"
+          type="text/css"/>
+    <!-- select2 -->
+    <link href="{{ asset('assets/plugins/bootstrap-tagsinput/css/bootstrap-tagsinput.css') }}" rel="stylesheet"
+          type="text/css"/>
+    <link href="{{ asset('assets/plugins/multiselect/css/multi-select.css') }}" rel="stylesheet"
+          type="text/css"/>
+    <link href="{{ asset('assets/plugins/select2/css/select2.css') }}" rel="stylesheet" type="text/css"/>
+    <link href="{{ asset('assets/plugins/bootstrap-select/css/bootstrap-select.min.css') }}" rel="stylesheet"
+          type="text/css"/>
+    <link href="{{ asset('assets/plugins/bootstrap-touchspin/css/jquery.bootstrap-touchspin.min.css') }}"
+          rel="stylesheet" type="text/css"/>
+    <link href="{{ asset('assets/plugins/switchery/switchery.min.css') }}"
+          rel="stylesheet" type="text/css"/>
+
+{% endblock %}
+{% block body %}
+    <div class="row">
+        <div class="col-md-8 offset-md-2 text-center m-t-20">
+            <h3 class="h4"><b>Search MAMIAS for NIS</b></h3>
+        </div>
+    </div>
+    <!-- end row -->
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="property-card bg-white">
+                <div class="property-content">
+                    {{ form_start(form, {'attr': {'id': 'serach' }}) }}
+                    {{ form_errors(form) }}
+                    <div class="row ">
+                        <div class="col-sm">
+                            <div class="row">
+
+                                <div class="col-md-4">
+                                </div>
+                                <div class="col-md-4">
+                                    {{ form_errors(form.speciesName ) }}
+                                    {{ form_widget(form.speciesName,{'attr': {'class': 'form-control select2' }}) }}
+                                    <div class="row m-t-10">
+                                        <div class="col-md-2">
+                                            <input type="checkbox" id="switch1" data-switch="none"/>
+                                            <label for="switch1" data-on-label="On"
+                                                   data-off-label="Off"></label>
+                                        </div>
+                                        <div class="col-md-10"> More searching Criteria (Advanced Searching)
+                                        </div>
+                                        <div class="col-md-4">
+                                        </div>
+                                    </div>
+                                    <!--<div class="row">
+                                        <div class="col-md-2">
+                                            <input type="checkbox" id="switch2" data-switch="none"/>
+                                            <label for="switch2" data-on-label="On"
+                                                   data-off-label="Off"></label>
+                                        </div>
+                                        <div class="col-md-5 text-left">
+                                            Mediterranean Level
+                                        </div>
+                                        <div class="col-md-2">
+                                            <input type="checkbox" id="switch3" data-switch="none"/>
+                                            <label for="switch3" data-on-label="On"
+                                                   data-off-label="Off"></label>
+                                        </div>
+                                        <div class="col-md-3 text-left">
+                                            National Level
+                                        </div>
+
+                                    </div>-->
+
+                                </div>
+                                <div class="col-md-4">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" id="panel" style="display: none">
+                        <div class="col-sm">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    {{ form_errors(form.ecofunctional) }}
+                                    {{ form_widget(form.ecofunctional,{'attr': {'class': 'form-control select2'}}) }}
+                                    <br><br>
+                                    {{ form_errors(form.status) }}
+                                    {{ form_widget(form.status,{'attr': {'class': 'form-control  select2'}}) }}
+
+                                    <br><br>
+                                    {{ form_errors(form.med1stSighting) }}
+                                    {{ form_widget(form.med1stSighting,{'attr': {'class': 'form-control select2'}}) }}
+
+
+                                </div>
+                                <div class="col-md-4">
+                                    {{ form_errors(form.origin) }}
+                                    {{ form_widget(form.origin,{'attr': {'class': 'form-control  select2'}}) }}
+                                    <br><br>
+                                    {{ form_errors(form.successType) }}
+                                    {{ form_widget(form.successType,{'attr': {'class': 'form-control select2'}}) }}
+                                    <br><br>
+                                    {{ form_errors(form.vectorName) }}
+                                    {{ form_widget(form.vectorName, {'attr': {'class': 'form-control mt-15 select2'}}) }}
+
+                                </div>
+                                <div class="col-md-4">
+                                    {{ form_errors(form.Ecap) }}
+                                    {{ form_widget(form.Ecap, {'attr': {'class': 'form-control  select2'}}) }}
+                                    <br><br>
+                                    {{ form_errors(form.invasive) }}
+                                    {{ form_widget(form.invasive, {'attr': {'class': 'form-control select2'}}) }}
+                                    <br><br>
+                                    {{ form_errors(form.country) }}
+                                    {{ form_widget(form.country, {'attr': {'class': 'form-control  select2'}}) }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="form-group float-right">
+                <button type="submit" value="Search" class="btn btn-custom waves-effect waves-light"><i
+                            class="mdi mdi-magnify m-r-5"></i>Search
+                </button>
+                <button type="reset" id="reset" value="Reset" class="btn btn-custom waves-effect waves-light"><i
+                            class="mdi mdi-refresh m-r-5"></i>Reset
+                </button>
+            </div>
+        </div>
+    </div>
+    {{ form_end(form) }}
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="property-card bg-white table-responsive">
+                <div class="property-content">
+
+                    <table id="datatable-buttons"
+                           class="table table-striped table-bordered table-hover table-condensed nowrap table-sm"
+                           style="border:solid 1px #00AEEF;border-collapse: collapse; border-spacing: 0; width: 100%;">
+                        <thead>
+                        <tr>
+                            <th class="text-left">ID</th>
+                            <th class="text-left">Species Name</th>
+                            <th class="text-center">EcoFunctional Group</th>
+                            <th class="text-center">Med. Fisrt Sighting</th>
+                            <th class="text-center">Origin</th>
+                            <th class="text-center">Species Status</th>
+                            <th class="text-center">Establishment</th>
+                            <!--<th class="text-center">EcAp/MSFD Sub-region</th>
+                            <th class="text-center">Country</th>-->
+                            <!--<th class="text-center">Impact</th>-->
+                            <th class="text-center">Action</th>
+
+                        </tr>
+                        </thead>
+                        <tbody>
+
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+{% endblock %}
+{% block javascripts %}
+    <!-- Data Table JavaScript -->
+    <script src="{{ asset('assets/plugins/datatables/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('assets/plugins/datatables/dataTables.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('assets/plugins/datatables/dataTables.buttons.min.js') }}"></script>
+    <script src="{{ asset('assets/plugins/datatables/buttons.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('assets/plugins/datatables/jszip.min.js') }}"></script>
+    <script src="{{ asset('assets/plugins/datatables/pdfmake.min.js') }}"></script>
+    <script src="{{ asset('assets/plugins/datatables/vfs_fonts.js') }}"></script>
+    <script src="{{ asset('assets/plugins/datatables/buttons.html5.min.js') }}"></script>
+    <script src="{{ asset('assets/plugins/datatables/buttons.print.min.js') }}"></script>
+    <script src="{{ asset('assets/plugins/datatables/dataTables.fixedHeader.min.js') }}"></script>
+    <script src="{{ asset('assets/plugins/datatables/dataTables.keyTable.min.js') }}"></script>
+    <script src="{{ asset('assets/plugins/datatables/dataTables.responsive.min.js') }}"></script>
+    <script src="{{ asset('assets/plugins/datatables/responsive.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('assets/plugins/datatables/dataTables.scroller.min.js') }}"></script>
+    <script src="{{ asset('assets/plugins/datatables/dataTables.colVis.js') }}"></script>
+    <script src="{{ asset('assets/plugins/datatables/dataTables.fixedColumns.min.js') }}"></script>
+
+    <!-- Select2 JavaScript -->
+    <script src="{{ asset('assets/plugins/bootstrap-tagsinput/js/bootstrap-tagsinput.min.js') }}"></script>
+    <script src="{{ asset('assets/plugins/multiselect/js/jquery.multi-select.js') }}"></script>
+    <script src="{{ asset('assets/plugins/jquery-quicksearch/jquery.quicksearch.js') }}"></script>
+    <script src="{{ asset('assets/plugins/select2/js/select2.full.js') }}"></script>
+    <script src="{{ asset('assets/plugins/bootstrap-select/js/bootstrap-select.min.js') }}"></script>
+    <script src="{{ asset('assets/plugins/switchery/switchery.min.js') }}"></script>
+    <script type="text/javascript">
+        "use strict";
+        //var n = document.createElement('script');
+        //n.setAttribute('language', 'JavaScript');
+        //n.setAttribute('src', 'https://debug.datatables.net/debug.js');
+        //document.body.appendChild(n);
+
+
+        jQuery(document).ready(function () {
+            var data = {{ response |raw }}
+                console.log(data)
+            var currentDate = new Date();
+            var day = currentDate.getDate();
+            var month = currentDate.getMonth() + 1;
+            var year = currentDate.getFullYear();
+            var d = day + "-" + month + "-" + year;
+            var table = $('#datatable-buttons').DataTable({
+                {% if is_granted('ROLE_REGSITREDUSER') %}
+                dom: 'Bltip',
+                "responsive": true,
+                "autoWidth": false,
+                "lengthChange": true,
+                "processing": true,
+                //"serverSide": true,
+                "data": data.data,
+                //"dataSrc":"data",
+                "aoColumns": [
+                    {"data": "id", "title": "ID", "autoWidth": true},
+                    {
+                        "data": "Species", "autoWidth": true, render: function (data, type, row, meta) {
+                            return '<i>' + row.Species + '</i>'
+                        }
+                    },
+                    {"data": "ecofunctional", "autoWidth": true},
+                    {"data": "firstMedSighting", "autoWidth": true},
+                    {"data": "originRegion", "autoWidth": true},
+                    {"data": "status", "autoWidth": true},
+                    {"data": "successType", "autoWidth": true},
+                    //{"data": "ecap", "autoWidth": true},
+                    //{"data": "country", "autoWidth": true},
+                    {
+                        "render": function (data, type, row) {
+                            var url = '{{ path('species_fiche', { 'id': 'id'}) }}';
+                            url = url.replace("id", row.id);
+                            return '<a class="btn-sm btn-custom waves-effect w-xs waves-light text-center" target="_blank" href="' + url + '">View</a>';
+                        }
+                    }
+                ], "columnDefs": [
+                    {"className": "text-center", "targets": [0, 2, 3, 4, 5, 6, 7]}
+                ], "language": {
+                    "thousands": " ",
+                    "emptyTable": "No data available "
+                },
+                "searching": false,
+
+                "pageLength": 10,
+                "ordering": true,
+                "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+                "buttons": [
+                    {
+                        extend: 'excelHtml5',
+                        //extension: 'xlsx',
+                        className: 'btn-sm btn-custom waves-effect w-md waves-light',
+                        title: 'MAMIAS_Export_' + d,
+                        download: 'open',
+                        header: 'Marine Mediterranean Invasive Alien Species (MAMIAS) Database',
+                        footer: 'http://www.mamias.org accessed ' + d,
+                        sheetName: 'NIS LIST',
+                    },
+                    //{
+                    //    extend: 'pdfHtml5',
+                    //    title: 'MAMIAS_Export_' + d,
+                    //    orientation: 'landscape',
+                    //    header: true,
+                    //    footer: true,
+                    //    messageTop: 'Marine Mediterranean Invasive Alien Species (MAMIAS) Database',
+                    //    messageBottom: 'http://www.mamias.org accessed  ' + d,
+                    //    pageSize: 'A4',
+                    //download: 'open',
+                    //    customize: function (doc) {
+                    //        doc.content[1].margin = [100, 0, 100, 0]; //left, top, right, bottom
+                    //        doc.pageMargins = [15, 30, 15, 30];
+                    //        doc.defaultStyle.fontSize = 10;
+                    //        doc.styles.tableHeader.fontSize = 10;
+                    //        doc.styles.title.fontSize = 10;
+                    // Remove spaces around page title
+                    //        doc.content[0].text = doc.content[0].text.trim();
+                    // Create a footer
+                    //        doc['footer'] = (function (page, pages) {
+                    //            return {
+                    //                columns: [
+                    //                    'http://www.mamias.org accessed ' + d,
+                    //                    {
+                    // This is the right column
+                    //                        alignment: 'right',
+                    //                        text: ['page ', {text: page.toString()}, ' of ', {text: pages.toString()}]
+                    //                    }
+                    //                ],
+                    //                margin: [10, 10]
+                    //            }
+                    //        });
+                    // Styling the table: create style object
+                    //        var objLayout = {};
+                    // Horizontal line thickness
+                    //        objLayout['hLineWidth'] = function (i) {
+                    //            return .5;
+                    //        };
+                    // Vertikal line thickness
+                    //        objLayout['vLineWidth'] = function (i) {
+                    //            return .5;
+                    //        };
+                    // Horizontal line color
+                    //        objLayout['hLineColor'] = function (i) {
+                    //            return '#aaa';
+                    //        };
+                    // Vertical line color
+                    //        objLayout['vLineColor'] = function (i) {
+                    //            return '#aaa';
+                    //        };
+                    // Left padding of the cell
+                    //        objLayout['paddingLeft'] = function (i) {
+                    //            return 4;
+                    //        };
+                    // Right padding of the cell
+                    //        objLayout['paddingRight'] = function (i) {
+                    //            return 4;
+                    //        };
+                    // Inject the object in the document
+                    //        doc.content[1].layout = objLayout;
+
+                    //    }
+
+                    //},
+                ],
+                {% else %}
+
+                "dom": 'ltip',
+                "responsive": true,
+                "autoWidth": false,
+                //"processing": true,
+                //"serverSide": false,
+                "data": data.data,
+                //"dataSrc":"data",
+                "aoColumns": [
+                    {"data": "id", "title": "ID", "autoWidth": true},
+                    {
+                        "data": "Species", "autoWidth": true, render: function (data, type, row, meta) {
+                            return '<i>' + row.Species + '</i>'
+                        }
+                    },
+                    {"data": "ecofunctional", "autoWidth": true},
+                    {"data": "firstMedSighting", "autoWidth": true},
+                    {"data": "originRegion", "autoWidth": true},
+                    {"data": "status", "autoWidth": true},
+                    {"data": "successType", "autoWidth": true},
+                    //{"data": "ecap", "autoWidth": true},
+                    //{"data": "country", "autoWidth": true},
+                    {
+                        "render": function (data, type, row) {
+                            var url = '{{ path('species_fiche', { 'id': 'id'}) }}';
+                            url = url.replace("id", row.id);
+
+                            return '<a class="btn-sm btn-custom waves-effect w-xs waves-light text-center" target="_blank" href="' + url + '">View</a>';
+                        }
+                    }
+
+
+                ], "columnDefs": [
+                    {"className": "text-center", "targets": [0, 2, 3, 4, 5, 6, 7]}
+                ],
+                "language": {
+                    "thousands": " ",
+                    "emptyTable": "No data available "
+                },
+                "lengthChange": true,
+                "searching": false,
+                "pageLength": 10,
+                "ordering": true,
+                "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+
+                {% endif %}
+            });
+
+            $(".dataTables_length").css('clear', 'none');
+            $(".dataTables_length").css('float', 'right');
+
+            //info -> reset clear and padding
+            $(".dataTables_info").css('clear', 'none');
+            $(".dataTables_info").css('padding', '10');
+
+            // Responsive Datatable
+            $('#responsive-datatable').DataTable();
+
+            table.buttons().container()
+                .appendTo('#datatable-buttons_wrapper .col-md-6:eq(0)');
+
+            // Select2
+            $(".select2").select2({
+                //allowClear: true
+            });
+            $("#switch1").click(function () {
+                $("#panel").slideToggle();
+                $.cookie('switch1', true);
+                //alert($.cookie('switch1'))
+            });
+            if ($.cookie('switch1') === 'true') {
+                $('#switch1').click();
+            } else {
+                $("#panel").hide();
+            }
+
+            $("#reset").click(function () {
+                $('#speciesName').val(null).trigger('change');
+                $('#ecofunctional').val(null).trigger('change');
+                $('#origin').val(null).trigger('change');
+                $('#med1stSighting').val(null).trigger('change');
+                $('#successType').val(null).trigger('change');
+                $('#country').val(null).trigger('change');
+                $('#Ecap').val(null).trigger('change');
+                $('#invasive').val(null).trigger('change');
+                $('#status').val(null).trigger('change');
+                $('#vectorName').val(null).trigger('change');
+                $("#panel").hide();
+                $.cookie('switch1', false);
+                $('#datatable-buttons').table.table().draw();
+            })
+
+        });
+
+    </script>
+{% endblock %}

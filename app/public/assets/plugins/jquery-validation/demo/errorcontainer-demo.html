@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Test for jQuery validate() plugin</title>
+	<link href="css/screen.css" media="screen" rel="stylesheet">
+	<script src="../lib/jquery.js"></script>
+	<script src="../dist/jquery.validate.js"></script>
+	<style>
+		.cmxform fieldset p.error label {
+			color: red;
+		}
+
+		div.container {
+			background-color: #eee;
+			border: 1px solid red;
+			margin: 5px;
+			padding: 5px;
+		}
+
+		div.container ol li {
+			list-style-type: disc;
+			margin-left: 20px;
+		}
+
+		div.container {
+			display: none
+		}
+
+		.container label.error {
+			display: inline;
+		}
+
+		form.cmxform {
+			width: 30em;
+		}
+
+		form.cmxform label.error {
+			display: block;
+			margin-left: 1em;
+			width: auto;
+		}
+	</style>
+	<script>
+		// only for demo purposes
+		$.validator.setDefaults({
+			submitHandler: function () {
+				alert("submitted! (skipping validation for cancel button)");
+			}
+		});
+
+		$().ready(function () {
+			$("#form1").validate({
+				errorLabelContainer: $("#form1 div.error")
+			});
+
+			var container = $('div.container');
+			// validate the form when it is submitted
+			var validator = $("#form2").validate({
+				errorContainer: container,
+				errorLabelContainer: $("ol", container),
+				wrapper: 'li'
+			});
+
+			$(".cancel").click(function () {
+				validator.resetForm();
+			});
+		});
+	</script>
+</head>
+
+<body>
+<h1 id="banner"><a href="https://jqueryvalidation.org/">jQuery Validation Plugin</a> Demo</h1>
+<div id="main">
+	<form action="" class="cmxform" id="form1" method="get">
+		<fieldset>
+			<legend>Login Form</legend>
+			<p>
+				<label>Username</label>
+				<input minlength="3" name="user" required title="Please enter your username (at least 3 characters)">
+			</p>
+			<p>
+				<label>Password</label>
+				<input maxlength="12" minlength="5" name="password" required
+					   title="Please enter your password, between 5 and 12 characters" type="password">
+			</p>
+			<div class="error">
+			</div>
+			<p>
+				<input class="submit" type="submit" value="Login">
+			</p>
+		</fieldset>
+	</form>
+	<!-- our error container -->
+	<div class="container">
+		<h4>There are serious errors in your form submission, please see below for details.</h4>
+		<ol>
+			<li>
+				<label class="error" for="email">Please enter your email address</label>
+			</li>
+			<li>
+				<label class="error" for="phone">Please enter your phone <b>number</b> (between 2 and 8
+					characters)</label>
+			</li>
+			<li>
+				<label class="error" for="address">Please enter your address (at least 3 characters)</label>
+			</li>
+			<li>
+				<label class="error" for="avatar">Please select an image (png, jpg, jpeg, gif)</label>
+			</li>
+			<li>
+				<label class="error" for="cv">Please select a document (doc, docx, txt, pdf)</label>
+			</li>
+		</ol>
+	</div>
+	<form action="" class="cmxform" id="form2" method="get">
+		<fieldset>
+			<legend>Validating a complete form</legend>
+			<p>
+				<label for="email">Email</label>
+				<input id="email" name="email" required type="email">
+			</p>
+			<p>
+				<label for="agree">Favorite Color</label>
+				<select id="color" name="color" required title="Please select your favorite color!">
+					<option></option>
+					<option>Red</option>
+					<option>Blue</option>
+					<option>Yellow</option>
+				</select>
+			</p>
+			<p>
+				<label for="phone">Phone</label>
+				<input id="phone" name="phone" rangelength="[2,8]" required type="number">
+			</p>
+			<p>
+				<label for="address">Address</label>
+				<input id="address" minlength="3" name="address" required>
+			</p>
+			<p>
+				<label for="avatar">Avatar</label>
+				<input id="avatar" name="avatar" required type="file">
+			</p>
+			<p>
+				<label for="agree">Please agree to our policy</label>
+				<input class="checkbox" id="agree" name="agree" required title="Please agree to our policy!"
+					   type="checkbox">
+			</p>
+			<p>
+				<input class="submit" type="submit" value="Submit">
+				<input class="cancel" type="submit" value="Cancel">
+			</p>
+		</fieldset>
+	</form>
+	<div class="container">
+		<h4>There are serious errors in your form submission, please see details above the form!</h4>
+	</div>
+	<a href="index.html">Back to main page</a>
+</div>
+</body>
+</html>

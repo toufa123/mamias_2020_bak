@@ -1,0 +1,381 @@
+{
+    "api-platform/api-pack": {
+        "version": "v1.2.2"
+    },
+    "api-platform/core": {
+        "version": "2.5",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "2.5",
+            "ref": "a93061567140e386f107be75340ac2aee3f86cbf"
+        },
+        "files": [
+            "./config/packages/api_platform.yaml",
+            "./config/routes/api_platform.yaml",
+            "./src/Entity/.gitignore"
+        ]
+    },
+    "excelwebzone/recaptcha-bundle": {
+        "version": "1.5",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "master",
+            "version": "1.5",
+            "ref": "fd4da7bc71749db65bc83abf5d164bfa9c839cf4"
+        },
+        "files": [
+            "./config/packages/dev/ewz_recaptcha.yaml",
+            "./config/packages/ewz_recaptcha.yaml"
+        ]
+    },
+    "fig/link-util": {
+        "version": "1.1.1"
+    },
+    "friendsofsymfony/ckeditor-bundle": {
+        "version": "1.2.0"
+    },
+    "friendsofsymfony/user-bundle": {
+        "version": "v2.1.2"
+    },
+    "gedmo/doctrine-extensions": {
+        "version": "v2.4.41"
+    },
+    "google/recaptcha": {
+        "version": "1.1",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "master",
+            "version": "1.1",
+            "ref": "d087df3e087f50da3955f2def05079380da5894b"
+        },
+        "files": [
+            "./config/packages/google_recaptcha.yaml"
+        ]
+    },
+    "guzzlehttp/guzzle": {
+        "version": "6.5.3"
+    },
+    "guzzlehttp/promises": {
+        "version": "v1.3.1"
+    },
+    "guzzlehttp/psr7": {
+        "version": "1.6.1"
+    },
+    "imagine/imagine": {
+        "version": "1.2.3"
+    },
+    "jms/serializer": {
+        "version": "3.6.0"
+    },
+    "jms/serializer-bundle": {
+        "version": "3.0",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "master",
+            "version": "3.0",
+            "ref": "384cec52df45f3bfd46a09930d6960a58872b268"
+        },
+        "files": [
+            "./config/packages/dev/jms_serializer.yaml",
+            "./config/packages/jms_serializer.yaml",
+            "./config/packages/prod/jms_serializer.yaml"
+        ]
+    },
+    "jsor/doctrine-postgis": {
+        "version": "v1.7.0"
+    },
+    "knplabs/gaufrette": {
+        "version": "v0.9.0"
+    },
+    "knplabs/knp-markdown-bundle": {
+        "version": "1.8.1"
+    },
+    "knplabs/knp-menu": {
+        "version": "2.6.0"
+    },
+    "knplabs/knp-menu-bundle": {
+        "version": "v2.3.0"
+    },
+    "kriswallsmith/buzz": {
+        "version": "v0.16.1"
+    },
+    "laminas/laminas-json": {
+        "version": "3.1.2"
+    },
+    "laminas/laminas-zendframework-bridge": {
+        "version": "1.0.4"
+    },
+    "liip/imagine-bundle": {
+        "version": "1.8",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "master",
+            "version": "1.8",
+            "ref": "1d42bc3f713130582e6e0c475c49bc327ab0a2a2"
+        },
+        "files": [
+            "./config/packages/liip_imagine.yaml",
+            "./config/routes/liip_imagine.yaml"
+        ]
+    },
+    "maennchen/zipstream-php": {
+        "version": "2.1.0"
+    },
+    "markbaker/complex": {
+        "version": "1.4.8"
+    },
+    "markbaker/matrix": {
+        "version": "1.2.0"
+    },
+    "michelf/php-markdown": {
+        "version": "1.9.0"
+    },
+    "myclabs/php-enum": {
+        "version": "1.7.6"
+    },
+    "nelmio/cors-bundle": {
+        "version": "1.5",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "1.5",
+            "ref": "6388de23860284db9acce0a7a5d9d13153bcb571"
+        },
+        "files": [
+            "./config/packages/nelmio_cors.yaml"
+        ]
+    },
+    "ob/highcharts-bundle": {
+        "version": "1.7"
+    },
+    "ocramius/package-versions": {
+        "version": "1.5.1"
+    },
+    "php": {
+        "version": "7.3"
+    },
+    "phpoffice/phpspreadsheet": {
+        "version": "1.12.0"
+    },
+    "picoss/sonata-extra-admin-bundle": {
+        "version": "4.0"
+    },
+    "psr/http-client": {
+        "version": "1.0.1"
+    },
+    "psr/http-factory": {
+        "version": "1.0.1"
+    },
+    "psr/http-message": {
+        "version": "1.0.1"
+    },
+    "psr/simple-cache": {
+        "version": "1.0.1"
+    },
+    "pugx/autocompleter-bundle": {
+        "version": "v1.5.0"
+    },
+    "ralouphie/getallheaders": {
+        "version": "3.0.3"
+    },
+    "redcode/tree-bundle": {
+        "version": "0.1-alpha"
+    },
+    "sensiolabs/security-checker": {
+        "version": "4.0",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "4.0",
+            "ref": "160c9b600564faa1224e8f387d49ef13ceb8b793"
+        },
+        "files": [
+            "./config/packages/security_checker.yaml"
+        ]
+    },
+    "sonata-project/admin-bundle": {
+        "version": "3.64",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "master",
+            "version": "3.64",
+            "ref": "e300c83e77d35a352b863a82c8d039f29f10fd62"
+        },
+        "files": [
+            "./config/packages/sonata_admin.yaml",
+            "./config/routes/sonata_admin.yaml",
+            "./src/Admin/.gitignore"
+        ]
+    },
+    "sonata-project/block-bundle": {
+        "version": "3.18.5"
+    },
+    "sonata-project/cache": {
+        "version": "1.1.1"
+    },
+    "sonata-project/cache-bundle": {
+        "version": "2.4.2"
+    },
+    "sonata-project/classification-bundle": {
+        "version": "3.7",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "master",
+            "version": "3.7",
+            "ref": "e79fbb2e8658677e5d5d9199db7d2735332c4b7d"
+        },
+        "files": [
+            "./config/packages/sonata_classification.yaml",
+            "./src/Entity/SonataClassificationCategory.php",
+            "./src/Entity/SonataClassificationCollection.php",
+            "./src/Entity/SonataClassificationContext.php",
+            "./src/Entity/SonataClassificationTag.php"
+        ]
+    },
+    "sonata-project/core-bundle": {
+        "version": "3.9",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "master",
+            "version": "3.9",
+            "ref": "2f69bd1995730b73a5211a9707622fb25a925df7"
+        },
+        "files": [
+            "./config/packages/sonata_core.yaml"
+        ]
+    },
+    "sonata-project/datagrid-bundle": {
+        "version": "2.5.0"
+    },
+    "sonata-project/doctrine-extensions": {
+        "version": "1.6.0"
+    },
+    "sonata-project/doctrine-orm-admin-bundle": {
+        "version": "3.11.0"
+    },
+    "sonata-project/easy-extends-bundle": {
+        "version": "2.5.0"
+    },
+    "sonata-project/exporter": {
+        "version": "2.2.0"
+    },
+    "sonata-project/form-extensions": {
+        "version": "0.1.1"
+    },
+    "sonata-project/formatter-bundle": {
+        "version": "4.1.3"
+    },
+    "sonata-project/intl-bundle": {
+        "version": "2.7.0"
+    },
+    "sonata-project/media-bundle": {
+        "version": "3.13",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "master",
+            "version": "3.13",
+            "ref": "e25412e53b20827db07abb6f2aa0b8e4d26c284c"
+        },
+        "files": [
+            "./config/packages/sonata_media.yaml",
+            "./config/routes/sonata_media.yaml",
+            "./public/upload/media/.gitignore"
+        ]
+    },
+    "sonata-project/news-bundle": {
+        "version": "3.12.0"
+    },
+    "sonata-project/translation-bundle": {
+        "version": "2.3",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "master",
+            "version": "2.3",
+            "ref": "65f0e544ca19d262268e1f1ce2b4cbbe459a4a97"
+        },
+        "files": [
+            "./config/packages/sonata_translation.yaml"
+        ]
+    },
+    "sonata-project/twig-extensions": {
+        "version": "0.1.1"
+    },
+    "sonata-project/user-bundle": {
+        "version": "4.5.3"
+    },
+    "stof/doctrine-extensions-bundle": {
+        "version": "1.2",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "master",
+            "version": "1.2",
+            "ref": "6c1ceb662f8997085f739cd089bfbef67f245983"
+        },
+        "files": [
+            "./config/packages/stof_doctrine_extensions.yaml"
+        ]
+    },
+    "swiftmailer/swiftmailer": {
+        "version": "v6.2.3"
+    },
+    "symfony/polyfill-intl-grapheme": {
+        "version": "v1.17.0"
+    },
+    "symfony/polyfill-intl-normalizer": {
+        "version": "v1.17.0"
+    },
+    "symfony/polyfill-php80": {
+        "version": "v1.17.0"
+    },
+    "symfony/security-acl": {
+        "version": "v3.0.4"
+    },
+    "symfony/string": {
+        "version": "v5.0.8"
+    },
+    "symfony/swiftmailer-bundle": {
+        "version": "2.5",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "2.5",
+            "ref": "ae4d22af30bbd484506bc1817c5a3ef72c855b93"
+        },
+        "files": [
+            "./config/packages/dev/swiftmailer.yaml",
+            "./config/packages/swiftmailer.yaml",
+            "./config/packages/test/swiftmailer.yaml"
+        ]
+    },
+    "symfonycasts/reset-password-bundle": {
+        "version": "1.0",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "1.0",
+            "ref": "97c1627c0384534997ae1047b93be517ca16de43"
+        },
+        "files": [
+            "./config/packages/reset_password.yaml"
+        ]
+    },
+    "twig/extensions": {
+        "version": "1.0",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "1.0",
+            "ref": "a86723ee8d8b2f9437c8ce60a5546a1c267da5ed"
+        },
+        "files": [
+            "./config/packages/twig_extensions.yaml"
+        ]
+    },
+    "twig/string-extra": {
+        "version": "v3.0.3"
+    },
+    "willdurand/negotiation": {
+        "version": "v2.3.1"
+    }
+}
