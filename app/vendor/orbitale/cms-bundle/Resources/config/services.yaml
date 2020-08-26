@@ -1,0 +1,41 @@
+services:
+    orbitale_cms.listeners.layouts:
+        class: Orbitale\Bundle\CmsBundle\EventListener\LayoutsListener
+        arguments:
+            - '%orbitale_cms.layouts%'
+            - '@twig'
+        tags:
+          - { name: kernel.event_subscriber }
+
+    orbitale_cms.twig.extension:
+        class: Orbitale\Bundle\CmsBundle\Twig\CmsExtension
+        arguments:
+            - '%orbitale_cms.design%'
+        tags: [ { name: twig.extension } ]
+
+    orbitale_cms.doctrine_mapping_listener:
+        class: Orbitale\Bundle\CmsBundle\EventListener\DoctrineMappingListener
+        public: false
+        arguments:
+            - '%orbitale_cms.page_class%'
+            - '%orbitale_cms.category_class%'
+        tags:
+            - { name: doctrine.event_subscriber }
+
+    orbitale_cms.page_repository:
+        class: Orbitale\Bundle\CmsBundle\Repository\PageRepository
+        public: true
+        factory: ['@doctrine.orm.entity_manager', 'getRepository']
+        arguments:
+            - '%orbitale_cms.page_class%'
+        calls:
+            - [ 'setConfig', ['%orbitale_cms.cache%'] ]
+
+    orbitale_cms.category_repository:
+        class: Orbitale\Bundle\CmsBundle\Repository\CategoryRepository
+        public: true
+        factory: ['@doctrine.orm.entity_manager', 'getRepository']
+        arguments:
+            - '%orbitale_cms.category_class%'
+        calls:
+            - [ 'setConfig', ['%orbitale_cms.cache%'] ]

@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Catalogue;
+use App\Entity\Mamias;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -54,6 +55,8 @@ class CatalogueRepository extends ServiceEntityRepository
             ->select('COUNT(a)')
             ->Where('a.status = :Validated')
             ->setParameter('Validated', 'Validated')
+            //->Where('Mamias.Success != :Success')
+            //->setParameter('Success', '7')
             ->getQuery()
             ->getSingleScalarResult();
     }

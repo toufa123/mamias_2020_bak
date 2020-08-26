@@ -1,0 +1,34 @@
+<?xml version="1.0" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+
+        <!-- Our service, for controllers -->
+        <service id="WhiteOctober\BreadcrumbsBundle\Model\Breadcrumbs" class="WhiteOctober\BreadcrumbsBundle\Model\Breadcrumbs" public="false">
+            <call method="setRouter">
+                <argument type="service" id="router" />
+            </call>
+            <tag name="kernel.reset" method="clear" />
+        </service>
+        <service id="white_october_breadcrumbs" alias="WhiteOctober\BreadcrumbsBundle\Model\Breadcrumbs" public="true">
+        </service>
+
+        <!-- Templating helper -->
+        <service id="white_october_breadcrumbs.helper" class="WhiteOctober\BreadcrumbsBundle\Templating\Helper\BreadcrumbsHelper" public="true">
+            <argument type="service" id="twig" />
+            <argument type="service" id="white_october_breadcrumbs" />
+            <argument>%white_october_breadcrumbs.options%</argument>
+            <tag name="templating.helper" alias="breadcrumbs" />
+        </service>
+
+        <!-- Twig extension -->
+        <service id="white_october_breadcrumbs.twig" class="WhiteOctober\BreadcrumbsBundle\Twig\Extension\BreadcrumbsExtension" public="true">
+          <argument type="service" id="service_container" />
+          <tag name="twig.extension" />
+        </service>
+
+    </services>
+
+</container>

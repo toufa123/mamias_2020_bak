@@ -22,6 +22,7 @@ class MedlevelController extends AbstractController
         //Number of Species in the Catalogue
         $Species_catalogues = $em->getRepository(Catalogue::class)->getNb();
         //dump($Species_catalogues);die;
+        $Species_MAMIAS = $em->getRepository(Mamias::class)->findAllSpecies();
         //Number of Established Species
         $Species_established = $em->getRepository(Mamias::class)->getNbEstablished();
 
@@ -368,6 +369,7 @@ class MedlevelController extends AbstractController
                 'linechart' => $ob8,
                 'linechart1' => $ob11,
                 'barchart3' => $ob9,
+                'Species_MAMIAS' => $Species_MAMIAS
 
             ]
         );

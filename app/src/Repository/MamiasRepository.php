@@ -52,11 +52,13 @@ class MamiasRepository extends ServiceEntityRepository
     public function findAllSpecies()
     {
         return $this->createQueryBuilder('a')
-            ->from('Mamias', 'a')
-            ->where('Mamias.Success != 7')
-            ->join('Catalogue', 'b')
+            //->from('a')
+            ->select('count(a.id)')
+            ->where('a.Success != 7')
+            //->join('a.relation', 'b')
             ->getQuery()
-            ->getOneOrNullResult();
+            ->getSingleScalarResult();
+        //->getOneOrNullResult();
 
     }
 

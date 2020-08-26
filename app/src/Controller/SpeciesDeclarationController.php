@@ -115,7 +115,7 @@ class SpeciesDeclarationController extends Controller
             //);
             //$this->addFlash('success', 'Article Created! Knowledge is power!');
 
-            $message = (new Swift_Message())
+            $message = (new Swift_Message('NIS Occurence reporting'))
                 ->embed(\Swift_Image::fromPath('public/resources/logo/Logo-Mamias-web.png'))
                 //$message = \Swift_Message::newInstance()
                 ->setSubject('NIS Occurence reporting')

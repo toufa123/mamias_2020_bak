@@ -1,0 +1,55 @@
+{
+    "name": "orbitale/cms-bundle",
+    "description": "A simple CMS bundle for Symfony",
+    "type": "symfony-bundle",
+    "keywords": ["symfony", "cms", "bundle"],
+    "homepage": "https://github.com/Orbitale/CmsBundle",
+    "license": "MIT",
+    "require": {
+        "php": "^7.1",
+        "behat/transliterator": "^1.2",
+        "doctrine/doctrine-bundle": "^1.8",
+        "doctrine/doctrine-cache-bundle": "^1.3.1",
+        "doctrine/orm": "^2.5",
+        "symfony/asset": "^4.2",
+        "symfony/config": "^4.2",
+        "symfony/framework-bundle": "^4.2",
+        "symfony/finder": "^4.2",
+        "symfony/translation": "^4.2",
+        "symfony/twig-bundle": "^4.2",
+        "symfony/validator": "^4.2",
+        "twig/twig": "^2.7"
+    },
+    "require-dev": {
+        "symfony/browser-kit": "^4.2",
+        "symfony/css-selector": "^4.2",
+        "symfony/dom-crawler": "^4.2",
+        "symfony/phpunit-bridge": "^4.2",
+        "symfony/yaml": "^4.2"
+    },
+    "suggest": {
+        "javiereguiluz/easyadmin-bundle": "To manage your pages directly inside your CMS (view documentation)"
+    },
+    "autoload": {
+        "psr-4": {
+            "Orbitale\\Bundle\\CmsBundle\\": ""
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Orbitale\\Bundle\\CmsBundle\\Tests\\": "Tests"
+        }
+    },
+    "authors": [
+        {
+            "name" : "Alexandre \"Orbitale\" Ancelet",
+            "email": "alex@orbitale.io",
+            "homepage": "http://www.orbitale.io/"
+        }
+    ],
+    "extra": {
+        "branch-alias": {
+            "dev-master": "3.x-dev"
+        }
+    }
+}

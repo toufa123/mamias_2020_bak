@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<container xmlns="http://symfony.com/schema/dic/services" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <parameters>
+        <parameter key="sonata_translation.block.locale_switcher.class">Sonata\TranslationBundle\Block\LocaleSwitcherBlockService</parameter>
+    </parameters>
+    <services>
+        <service id="sonata_translation.block.locale_switcher" class="%sonata_translation.block.locale_switcher.class%">
+            <tag name="sonata.block"/>
+            <argument>sonata_translation.block.locale_switcher</argument>
+            <argument type="service" id="sonata.templating"/>
+            <argument>%sonata_translation.locale_switcher_show_country_flags%</argument>
+        </service>
+    </services>
+</container>

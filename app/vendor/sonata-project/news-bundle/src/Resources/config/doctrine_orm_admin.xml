@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<container xmlns="http://symfony.com/schema/dic/services" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <parameters>
+        <parameter key="sonata.news.admin.groupname">sonata_blog</parameter>
+        <parameter key="sonata.news.admin.groupicon"><![CDATA[<i class='fa fa-rss-square'></i>]]></parameter>
+    </parameters>
+    <services>
+        <service id="sonata.news.admin.post" class="%sonata.news.admin.post.class%" public="true">
+            <tag name="sonata.admin" manager_type="orm" group="%sonata.news.admin.groupname%" label="posts" label_catalogue="%sonata.news.admin.post.translation_domain%" label_translator_strategy="sonata.admin.label.strategy.underscore" icon="%sonata.news.admin.groupicon%"/>
+            <argument/>
+            <argument>%sonata.news.admin.post.entity%</argument>
+            <argument>%sonata.news.admin.post.controller%</argument>
+            <call method="setUserManager">
+                <argument type="service" id="fos_user.user_manager" on-invalid="null"/>
+            </call>
+            <call method="setPoolFormatter">
+                <argument type="service" id="sonata.formatter.pool"/>
+            </call>
+            <call method="addChild">
+                <argument type="service" id="sonata.news.admin.comment"/>
+                <argument>post</argument>
+            </call>
+            <call method="setTranslationDomain">
+                <argument>%sonata.news.admin.post.translation_domain%</argument>
+            </call>
+            <call method="setPermalinkGenerator">
+                <argument id="sonata.news.permalink.generator" type="service"/>
+            </call>
+        </service>
+        <service id="sonata.news.admin.comment" class="%sonata.news.admin.comment.class%" public="true">
+            <tag name="sonata.admin" manager_type="orm" group="%sonata.news.admin.groupname%" label="comments" label_catalogue="%sonata.news.admin.comment.translation_domain%" label_translator_strategy="sonata.admin.label.strategy.underscore" icon="%sonata.news.admin.groupicon%"/>
+            <argument/>
+            <argument>%sonata.news.admin.comment.entity%</argument>
+            <argument>%sonata.news.admin.comment.controller%</argument>
+            <call method="setTranslationDomain">
+                <argument>%sonata.news.admin.comment.translation_domain%</argument>
+            </call>
+            <call method="setCommentManager">
+                <argument id="sonata.news.manager.comment" type="service"/>
+            </call>
+            <call method="setTemplates">
+                <argument type="collection">
+                    <argument key="inner_list_row">@SonataNews/Admin/inner_row_comment.html.twig</argument>
+                    <argument key="base_list_field">@SonataAdmin/CRUD/base_list_flat_field.html.twig</argument>
+                </argument>
+            </call>
+        </service>
+    </services>
+</container>

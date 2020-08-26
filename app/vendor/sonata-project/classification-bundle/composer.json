@@ -1,0 +1,84 @@
+{
+    "name": "sonata-project/classification-bundle",
+    "type": "symfony-bundle",
+    "description": "Symfony SonataClassificationBundle",
+    "keywords": [
+        "category",
+        "tag",
+        "taxonomy"
+    ],
+    "homepage": "https://sonata-project.org/bundles/classification",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Thomas Rabaix",
+            "email": "thomas.rabaix@sonata-project.org",
+            "homepage": "https://sonata-project.org"
+        },
+        {
+            "name": "Sonata Community",
+            "homepage": "https://github.com/sonata-project/SonataClassificationBundle/contributors"
+        }
+    ],
+    "require": {
+        "php": "^7.2",
+        "cocur/slugify": "^3.0 || ^4.0",
+        "sonata-project/datagrid-bundle": "^2.3 || ^3.0",
+        "sonata-project/doctrine-extensions": "^1.8",
+        "sonata-project/form-extensions": "^0.1.1 || ^1.4",
+        "symfony/config": "^4.4",
+        "symfony/console": "^4.4",
+        "symfony/dependency-injection": "^4.4",
+        "symfony/form": "^4.4",
+        "symfony/http-foundation": "^4.4",
+        "symfony/http-kernel": "^4.4",
+        "symfony/options-resolver": "^4.4",
+        "twig/twig": "^2.12.1"
+    },
+    "conflict": {
+        "friendsofsymfony/rest-bundle": "<2.3",
+        "jms/serializer": "<0.13",
+        "sonata-project/admin-bundle": "<3.68",
+        "sonata-project/block-bundle": "<3.19 || >=4.0",
+        "sonata-project/core-bundle": "<3.20",
+        "sonata-project/doctrine-orm-admin-bundle": "<3.16",
+        "sonata-project/media-bundle": "<3.20 || >=4.0"
+    },
+    "require-dev": {
+        "doctrine/annotations": "^1.7",
+        "friendsofsymfony/rest-bundle": "^2.3 || ^3.0",
+        "jms/serializer-bundle": "^2.0 || ^3.0",
+        "matthiasnoback/symfony-config-test": "^4.0",
+        "matthiasnoback/symfony-dependency-injection-test": "^4.0",
+        "nelmio/api-doc-bundle": "^2.13.4",
+        "sonata-project/admin-bundle": "^3.68",
+        "sonata-project/block-bundle": "^3.19",
+        "sonata-project/doctrine-orm-admin-bundle": "^3.16",
+        "sonata-project/media-bundle": "^3.20",
+        "symfony/browser-kit": "^4.4 || ^5.1",
+        "symfony/phpunit-bridge": "^5.1",
+        "symfony/yaml": "^4.4"
+    },
+    "suggest": {
+        "sonata-project/block-bundle": "For rendering dynamic list blocks on a page.",
+        "sonata-project/media-bundle": "For media management"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "3.x-dev"
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Sonata\\ClassificationBundle\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Sonata\\ClassificationBundle\\Tests\\": "tests/"
+        }
+    }
+}

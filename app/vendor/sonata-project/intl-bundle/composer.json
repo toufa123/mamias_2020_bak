@@ -1,0 +1,60 @@
+{
+    "name": "sonata-project/intl-bundle",
+    "type": "symfony-bundle",
+    "description": "Symfony SonataIntlBundle",
+    "keywords": [
+        "sonata",
+        "intl",
+        "date",
+        "time",
+        "number"
+    ],
+    "homepage": "https://sonata-project.org/bundles/intl",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Thomas Rabaix",
+            "email": "thomas.rabaix@sonata-project.org"
+        },
+        {
+            "name": "Sonata Community",
+            "homepage": "https://github.com/sonata-project/SonataIntlBundle/contributors"
+        }
+    ],
+    "require": {
+        "php": "^7.2",
+        "symfony/config": "^4.4 || ^5.1",
+        "symfony/dependency-injection": "^4.4 || ^5.1",
+        "symfony/http-foundation": "^4.4 || ^5.1",
+        "symfony/http-kernel": "^4.4 || ^5.1",
+        "symfony/intl": "^4.4 || ^5.1",
+        "symfony/templating": "^4.4 || ^5.1",
+        "twig/twig": "^2.9 || ^3.0"
+    },
+    "conflict": {
+        "sonata-project/user-bundle": "<3.6"
+    },
+    "require-dev": {
+        "matthiasnoback/symfony-dependency-injection-test": "^4.0",
+        "symfony/phpunit-bridge": "^5.1",
+        "symfony/security-core": "^4.4 || ^5.1"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.x-dev"
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Sonata\\IntlBundle\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Sonata\\IntlBundle\\Tests\\": "tests/"
+        }
+    }
+}

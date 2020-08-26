@@ -26,8 +26,11 @@ class HomeController extends AbstractController
 
         //nombre total de NIS validated dans le catalogue
         $NISCount = $em->getRepository(Catalogue::class)->getNb();
-        //nombre total de NIS validated dans le catalogue
-        $NIStotal = $em->getRepository(Catalogue::class)->getallNb();
+        //nombre total de NIS validated in MAMIAS
+        //$NIStotal = $em->getRepository(Catalogue::class)->getallNb();
+        $NISMamias = $em->getRepository(Mamias::class)->findAllSpecies();
+        //dump($NISMamias);die;
+
         //nombre total de national occurences dans MAMIAS
         $DistroCount = $em->getRepository(CountryDistribution::class)->getNb();
         //dump($DistroCount);die;
@@ -79,10 +82,11 @@ class HomeController extends AbstractController
             'NbperCountry1' => $NbperCountry1,
             'catalogueDate' => $catalogueDate,
             'mamiasDate' => $mamiasDate,
-            'NIStotal' => $NIStotal,
+            //'NIStotal' => $NIStotal,
             'datacu1' => $datacu1,
             'cat1' => $cat1,
-            'datareg1' => $datareg1
+            'datareg1' => $datareg1,
+            'NISMamias' => $NISMamias
 
         ]);
     }

@@ -1,0 +1,9 @@
+orbitale_cms:
+    page_class: Orbitale\Bundle\CmsBundle\Tests\Fixtures\TestBundle\Entity\Page
+    category_class: Orbitale\Bundle\CmsBundle\Tests\Fixtures\TestBundle\Entity\Category
+    layouts:
+        first:
+            resource: test_only
+        second:
+            host: localhost
+            resource: test_only
