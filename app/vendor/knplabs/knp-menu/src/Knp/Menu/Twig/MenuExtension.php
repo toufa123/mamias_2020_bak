@@ -23,7 +23,7 @@ class MenuExtension extends AbstractExtension
         $this->menuManipulator = $menuManipulator;
     }
 
-    public function getFunctions()
+    public function getFunctions(): array
     {
         return [
              new TwigFunction('knp_menu_get', [$this, 'get']),
@@ -33,14 +33,14 @@ class MenuExtension extends AbstractExtension
         ];
     }
 
-    public function getFilters()
+    public function getFilters(): array
     {
         return [
             new TwigFilter('knp_menu_as_string', [$this, 'pathAsString']),
         ];
     }
 
-    public function getTests()
+    public function getTests(): array
     {
         return [
             new TwigTest('knp_menu_current', [$this, 'isCurrent']),
@@ -57,7 +57,7 @@ class MenuExtension extends AbstractExtension
      *
      * @return ItemInterface
      */
-    public function get($menu, array $path = [], array $options = [])
+    public function get($menu, array $path = [], array $options = []): ItemInterface
     {
         return $this->helper->get($menu, $path, $options);
     }
@@ -71,7 +71,7 @@ class MenuExtension extends AbstractExtension
      *
      * @return string
      */
-    public function render($menu, array $options = [], $renderer = null)
+    public function render($menu, array $options = [], $renderer = null): string
     {
         return $this->helper->render($menu, $options, $renderer);
     }
@@ -84,7 +84,7 @@ class MenuExtension extends AbstractExtension
      *
      * @return array
      */
-    public function getBreadcrumbsArray($menu, $subItem = null)
+    public function getBreadcrumbsArray($menu, $subItem = null): array
     {
         return $this->helper->getBreadcrumbsArray($menu, $subItem);
     }
@@ -96,7 +96,7 @@ class MenuExtension extends AbstractExtension
      *
      * @return ItemInterface
      */
-    public function getCurrentItem($menu)
+    public function getCurrentItem($menu): ItemInterface
     {
         $rootItem = $this->get($menu);
 
@@ -119,7 +119,7 @@ class MenuExtension extends AbstractExtension
      *
      * @return string
      */
-    public function pathAsString(ItemInterface $menu, $separator = ' > ')
+    public function pathAsString(ItemInterface $menu, $separator = ' > '): string
     {
         if (null === $this->menuManipulator) {
             throw new \BadMethodCallException('The menu manipulator must be set to get the breadcrumbs array');
@@ -135,7 +135,7 @@ class MenuExtension extends AbstractExtension
      *
      * @return bool
      */
-    public function isCurrent(ItemInterface $item)
+    public function isCurrent(ItemInterface $item): bool
     {
         if (null === $this->matcher) {
             throw new \BadMethodCallException('The matcher must be set to get the breadcrumbs array');
@@ -152,20 +152,12 @@ class MenuExtension extends AbstractExtension
      *
      * @return bool
      */
-    public function isAncestor(ItemInterface $item, $depth = null)
+    public function isAncestor(ItemInterface $item, ?int $depth = null): bool
     {
         if (null === $this->matcher) {
             throw new \BadMethodCallException('The matcher must be set to get the breadcrumbs array');
         }
 
         return $this->matcher->isAncestor($item, $depth);
-    }
-
-    /**
-     * @return string
-     */
-    public function getName()
-    {
-        return 'knp_menu';
     }
 }

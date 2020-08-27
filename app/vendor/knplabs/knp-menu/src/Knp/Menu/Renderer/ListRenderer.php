@@ -18,7 +18,7 @@ class ListRenderer extends Renderer implements RendererInterface
      * @param array            $defaultOptions
      * @param string|null      $charset
      */
-    public function __construct(MatcherInterface $matcher, array $defaultOptions = [], $charset = null)
+    public function __construct(MatcherInterface $matcher, array $defaultOptions = [], ?string $charset = null)
     {
         $this->matcher = $matcher;
         $this->defaultOptions = \array_merge([
@@ -39,7 +39,7 @@ class ListRenderer extends Renderer implements RendererInterface
         parent::__construct($charset);
     }
 
-    public function render(ItemInterface $item, array $options = [])
+    public function render(ItemInterface $item, array $options = []): string
     {
         $options = \array_merge($this->defaultOptions, $options);
 
@@ -52,9 +52,9 @@ class ListRenderer extends Renderer implements RendererInterface
         return $html;
     }
 
-    protected function renderList(ItemInterface $item, array $attributes, array $options)
+    protected function renderList(ItemInterface $item, array $attributes, array $options): string
     {
-        /**
+        /*
          * Return an empty string if any of the following are true:
          *   a) The menu has no children eligible to be displayed
          *   b) The depth is 0
@@ -80,11 +80,11 @@ class ListRenderer extends Renderer implements RendererInterface
      * This method updates the depth for the children.
      *
      * @param ItemInterface $item
-     * @param array         $options The options to render the item.
+     * @param array         $options the options to render the item
      *
      * @return string
      */
-    protected function renderChildren(ItemInterface $item, array $options)
+    protected function renderChildren(ItemInterface $item, array $options): string
     {
         // render children with a depth - 1
         if (null !== $options['depth']) {
@@ -114,7 +114,7 @@ class ListRenderer extends Renderer implements RendererInterface
      *
      * @return string
      */
-    protected function renderItem(ItemInterface $item, array $options)
+    protected function renderItem(ItemInterface $item, array $options): string
     {
         // if we don't have access or this item is marked to not be shown
         if (!$item->isDisplayed()) {
@@ -186,9 +186,9 @@ class ListRenderer extends Renderer implements RendererInterface
      *
      * @return string
      */
-    protected function renderLink(ItemInterface $item, array $options = [])
+    protected function renderLink(ItemInterface $item, array $options = []): string
     {
-        if ($item->getUri() && (!$item->isCurrent() || $options['currentAsLink'])) {
+        if ($item->getUri() && (!$this->matcher->isCurrent($item) || $options['currentAsLink'])) {
             $text = $this->renderLinkElement($item, $options);
         } else {
             $text = $this->renderSpanElement($item, $options);
@@ -197,17 +197,17 @@ class ListRenderer extends Renderer implements RendererInterface
         return $this->format($text, 'link', $item->getLevel(), $options);
     }
 
-    protected function renderLinkElement(ItemInterface $item, array $options)
+    protected function renderLinkElement(ItemInterface $item, array $options): string
     {
         return \sprintf('<a href="%s"%s>%s</a>', $this->escape($item->getUri()), $this->renderHtmlAttributes($item->getLinkAttributes()), $this->renderLabel($item, $options));
     }
 
-    protected function renderSpanElement(ItemInterface $item, array $options)
+    protected function renderSpanElement(ItemInterface $item, array $options): string
     {
         return \sprintf('<span%s>%s</span>', $this->renderHtmlAttributes($item->getLabelAttributes()), $this->renderLabel($item, $options));
     }
 
-    protected function renderLabel(ItemInterface $item, array $options)
+    protected function renderLabel(ItemInterface $item, array $options): string
     {
         if ($options['allow_safe_labels'] && $item->getExtra('safe_label', false)) {
             return $item->getLabel();
@@ -228,7 +228,7 @@ class ListRenderer extends Renderer implements RendererInterface
      *
      * @return string
      */
-    protected function format($html, $type, $level, array $options)
+    protected function format(string $html, string $type, int $level, array $options): string
     {
         if ($options['compressed']) {
             return $html;

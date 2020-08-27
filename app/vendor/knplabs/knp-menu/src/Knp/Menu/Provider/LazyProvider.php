@@ -2,6 +2,8 @@
 
 namespace Knp\Menu\Provider;
 
+use Knp\Menu\ItemInterface;
+
 /**
  * A menu provider building menus lazily thanks to builder callables.
  *
@@ -18,7 +20,7 @@ class LazyProvider implements MenuProviderInterface
         $this->builders = $builders;
     }
 
-    public function get($name, array $options = [])
+    public function get(string $name, array $options = []): ItemInterface
     {
         if (!isset($this->builders[$name])) {
             throw new \InvalidArgumentException(\sprintf('The menu "%s" is not defined.', $name));
@@ -34,10 +36,10 @@ class LazyProvider implements MenuProviderInterface
             throw new \LogicException(\sprintf('Invalid menu builder for "%s". A callable or a factory for an object callable are expected.', $name));
         }
 
-        return \call_user_func($builder, $options);
+        return $builder($options);
     }
 
-    public function has($name, array $options = [])
+    public function has(string $name, array $options = []): bool
     {
         return isset($this->builders[$name]);
     }

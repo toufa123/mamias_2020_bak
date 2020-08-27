@@ -18,12 +18,12 @@ class RegexVoter implements VoterInterface
     /**
      * @param string|null $regexp
      */
-    public function __construct($regexp)
+    public function __construct(?string $regexp)
     {
         $this->regexp = $regexp;
     }
 
-    public function matchItem(ItemInterface $item)
+    public function matchItem(ItemInterface $item): ?bool
     {
         if (null === $this->regexp || null === $item->getUri()) {
             return null;

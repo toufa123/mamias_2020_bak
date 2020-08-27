@@ -16,7 +16,7 @@ interface MatcherInterface
      *
      * @return bool
      */
-    public function isCurrent(ItemInterface $item);
+    public function isCurrent(ItemInterface $item): bool;
 
     /**
      * Checks whether an item is the ancestor of a current item.
@@ -26,10 +26,10 @@ interface MatcherInterface
      *
      * @return bool
      */
-    public function isAncestor(ItemInterface $item, $depth = null);
+    public function isAncestor(ItemInterface $item, ?int $depth = null): bool;
 
     /**
      * Clears the state of the matcher.
      */
-    public function clear();
+    public function clear(): void;
 }

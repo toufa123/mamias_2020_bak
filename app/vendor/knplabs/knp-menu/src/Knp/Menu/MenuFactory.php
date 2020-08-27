@@ -25,7 +25,7 @@ class MenuFactory implements FactoryInterface
         $this->addExtension(new CoreExtension(), -10);
     }
 
-    public function createItem($name, array $options = [])
+    public function createItem(string $name, array $options = []): ItemInterface
     {
         foreach ($this->getExtensions() as $extension) {
             $options = $extension->buildOptions($options);
@@ -46,7 +46,7 @@ class MenuFactory implements FactoryInterface
      * @param ExtensionInterface $extension
      * @param int                $priority
      */
-    public function addExtension(ExtensionInterface $extension, $priority = 0)
+    public function addExtension(ExtensionInterface $extension, int $priority = 0): void
     {
         $this->extensions[$priority][] = $extension;
         $this->sorted = null;
@@ -57,7 +57,7 @@ class MenuFactory implements FactoryInterface
      *
      * @return ExtensionInterface[]|null
      */
-    private function getExtensions()
+    private function getExtensions(): ?array
     {
         if (null === $this->sorted) {
             \krsort($this->extensions);

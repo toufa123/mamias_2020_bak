@@ -100,9 +100,6 @@
     "kriswallsmith/buzz": {
         "version": "v0.16.1"
     },
-    "kunicmarko/sonata-annotation-bundle": {
-        "version": "1.2.1"
-    },
     "laminas/laminas-json": {
         "version": "3.1.2"
     },

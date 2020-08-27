@@ -11,10 +11,11 @@ use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
  * @author Christophe Coevoet <stof@notk.org>
  *
  * @internal
+ * @final
  */
-class MenuBuilderPass implements CompilerPassInterface
+final class MenuBuilderPass implements CompilerPassInterface
 {
-    public function process(ContainerBuilder $container)
+    public function process(ContainerBuilder $container): void
     {
         if (!$container->hasDefinition('knp_menu.menu_provider.builder_service')) {
             return;
@@ -47,3 +48,4 @@ class MenuBuilderPass implements CompilerPassInterface
         $definition->replaceArgument(1, $menuBuilders);
     }
 }
+

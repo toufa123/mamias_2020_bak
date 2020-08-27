@@ -263,7 +263,7 @@ abstract class AbstractAdmin implements AdminInterface, DomainObjectInterface, A
     /**
      * NEXT_MAJOR: should be default array and private.
      *
-     * @var string|array
+     * @var array<string, mixed>|string|null
      */
     protected $parentAssociationMapping;
 
@@ -952,6 +952,13 @@ abstract class AbstractAdmin implements AdminInterface, DomainObjectInterface, A
      */
     final public function addParentAssociationMapping($code, $value)
     {
+        if (\is_string($this->parentAssociationMapping)) {
+            @trigger_error(sprintf(
+                'Calling "%s" when $this->parentAssociationMapping is string is deprecated since sonata-admin/admin-bundle 3.75 and will be removed in 4.0.',
+                __METHOD__
+            ), E_USER_DEPRECATED);
+        }
+
         $this->parentAssociationMapping[$code] = $value;
     }
 
@@ -2682,12 +2689,7 @@ EOT;
      */
     public function getPermissionsShow($context)
     {
-        switch ($context) {
-            case self::CONTEXT_DASHBOARD:
-            case self::CONTEXT_MENU:
-            default:
-                return ['LIST'];
-        }
+        return ['LIST'];
     }
 
     public function showIn($context)
@@ -3008,8 +3010,8 @@ EOT;
         $list = [];
 
         if (\in_array($action, ['tree', 'show', 'edit', 'delete', 'list', 'batch'], true)
-            && $this->hasAccess('create')
             && $this->hasRoute('create')
+            && $this->hasAccess('create')
         ) {
             $list['create'] = [
                 // NEXT_MAJOR: Remove this line and use commented line below it instead
@@ -3019,8 +3021,8 @@ EOT;
         }
 
         if (\in_array($action, ['show', 'delete', 'acl', 'history'], true)
-            && $this->canAccessObject('edit', $object)
             && $this->hasRoute('edit')
+            && $this->canAccessObject('edit', $object)
         ) {
             $list['edit'] = [
                 // NEXT_MAJOR: Remove this line and use commented line below it instead
@@ -3030,8 +3032,8 @@ EOT;
         }
 
         if (\in_array($action, ['show', 'edit', 'acl'], true)
-            && $this->canAccessObject('history', $object)
             && $this->hasRoute('history')
+            && $this->canAccessObject('history', $object)
         ) {
             $list['history'] = [
                 // NEXT_MAJOR: Remove this line and use commented line below it instead
@@ -3042,8 +3044,8 @@ EOT;
 
         if (\in_array($action, ['edit', 'history'], true)
             && $this->isAclEnabled()
-            && $this->canAccessObject('acl', $object)
             && $this->hasRoute('acl')
+            && $this->canAccessObject('acl', $object)
         ) {
             $list['acl'] = [
                 // NEXT_MAJOR: Remove this line and use commented line below it instead
@@ -3053,9 +3055,9 @@ EOT;
         }
 
         if (\in_array($action, ['edit', 'history', 'acl'], true)
+            && $this->hasRoute('show')
             && $this->canAccessObject('show', $object)
             && \count($this->getShow()) > 0
-            && $this->hasRoute('show')
         ) {
             $list['show'] = [
                 // NEXT_MAJOR: Remove this line and use commented line below it instead
@@ -3065,8 +3067,8 @@ EOT;
         }
 
         if (\in_array($action, ['show', 'edit', 'delete', 'acl', 'batch'], true)
-            && $this->hasAccess('list')
             && $this->hasRoute('list')
+            && $this->hasAccess('list')
         ) {
             $list['list'] = [
                 // NEXT_MAJOR: Remove this line and use commented line below it instead

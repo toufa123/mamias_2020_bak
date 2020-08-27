@@ -110,12 +110,9 @@ class MenuItem implements ItemInterface
      *                                  reference it. Also used as label if label not specified
      * @param FactoryInterface $factory
      */
-    public function __construct($name, FactoryInterface $factory)
+    public function __construct(string $name, FactoryInterface $factory)
     {
-        if (null === $name) {
-            @trigger_error('Passing a null name is deprecated since version 2.5 and will be removed in 3.0.', E_USER_DEPRECATED);
-        }
-        $this->name = (string) $name;
+        $this->name = $name;
         $this->factory = $factory;
     }
 
@@ -126,19 +123,19 @@ class MenuItem implements ItemInterface
      *
      * @return ItemInterface
      */
-    public function setFactory(FactoryInterface $factory)
+    public function setFactory(FactoryInterface $factory): ItemInterface
     {
         $this->factory = $factory;
 
         return $this;
     }
 
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
 
-    public function setName($name)
+    public function setName(string $name): ItemInterface
     {
         if ($this->name === $name) {
             return $this;
@@ -165,43 +162,43 @@ class MenuItem implements ItemInterface
         return $this;
     }
 
-    public function getUri()
+    public function getUri(): ?string
     {
         return $this->uri;
     }
 
-    public function setUri($uri)
+    public function setUri(?string $uri): ItemInterface
     {
         $this->uri = $uri;
 
         return $this;
     }
 
-    public function getLabel()
+    public function getLabel(): string
     {
         return (null !== $this->label) ? $this->label : $this->name;
     }
 
-    public function setLabel($label)
+    public function setLabel(?string $label): ItemInterface
     {
         $this->label = $label;
 
         return $this;
     }
 
-    public function getAttributes()
+    public function getAttributes(): array
     {
         return $this->attributes;
     }
 
-    public function setAttributes(array $attributes)
+    public function setAttributes(array $attributes): ItemInterface
     {
         $this->attributes = $attributes;
 
         return $this;
     }
 
-    public function getAttribute($name, $default = null)
+    public function getAttribute(string $name, $default = null)
     {
         if (isset($this->attributes[$name])) {
             return $this->attributes[$name];
@@ -210,26 +207,26 @@ class MenuItem implements ItemInterface
         return $default;
     }
 
-    public function setAttribute($name, $value)
+    public function setAttribute(string $name, $value): ItemInterface
     {
         $this->attributes[$name] = $value;
 
         return $this;
     }
 
-    public function getLinkAttributes()
+    public function getLinkAttributes(): array
     {
         return $this->linkAttributes;
     }
 
-    public function setLinkAttributes(array $linkAttributes)
+    public function setLinkAttributes(array $linkAttributes): ItemInterface
     {
         $this->linkAttributes = $linkAttributes;
 
         return $this;
     }
 
-    public function getLinkAttribute($name, $default = null)
+    public function getLinkAttribute(string $name, $default = null)
     {
         if (isset($this->linkAttributes[$name])) {
             return $this->linkAttributes[$name];
@@ -238,26 +235,26 @@ class MenuItem implements ItemInterface
         return $default;
     }
 
-    public function setLinkAttribute($name, $value)
+    public function setLinkAttribute(string $name, $value): ItemInterface
     {
         $this->linkAttributes[$name] = $value;
 
         return $this;
     }
 
-    public function getChildrenAttributes()
+    public function getChildrenAttributes(): array
     {
         return $this->childrenAttributes;
     }
 
-    public function setChildrenAttributes(array $childrenAttributes)
+    public function setChildrenAttributes(array $childrenAttributes): ItemInterface
     {
         $this->childrenAttributes = $childrenAttributes;
 
         return $this;
     }
 
-    public function getChildrenAttribute($name, $default = null)
+    public function getChildrenAttribute(string $name, $default = null)
     {
         if (isset($this->childrenAttributes[$name])) {
             return $this->childrenAttributes[$name];
@@ -266,26 +263,26 @@ class MenuItem implements ItemInterface
         return $default;
     }
 
-    public function setChildrenAttribute($name, $value)
+    public function setChildrenAttribute(string $name, $value): ItemInterface
     {
         $this->childrenAttributes[$name] = $value;
 
         return $this;
     }
 
-    public function getLabelAttributes()
+    public function getLabelAttributes(): array
     {
         return $this->labelAttributes;
     }
 
-    public function setLabelAttributes(array $labelAttributes)
+    public function setLabelAttributes(array $labelAttributes): ItemInterface
     {
         $this->labelAttributes = $labelAttributes;
 
         return $this;
     }
 
-    public function getLabelAttribute($name, $default = null)
+    public function getLabelAttribute(string $name, $default = null)
     {
         if (isset($this->labelAttributes[$name])) {
             return $this->labelAttributes[$name];
@@ -294,26 +291,26 @@ class MenuItem implements ItemInterface
         return $default;
     }
 
-    public function setLabelAttribute($name, $value)
+    public function setLabelAttribute(string $name, $value): ItemInterface
     {
         $this->labelAttributes[$name] = $value;
 
         return $this;
     }
 
-    public function getExtras()
+    public function getExtras(): array
     {
         return $this->extras;
     }
 
-    public function setExtras(array $extras)
+    public function setExtras(array $extras): ItemInterface
     {
         $this->extras = $extras;
 
         return $this;
     }
 
-    public function getExtra($name, $default = null)
+    public function getExtra(string $name, $default = null)
     {
         if (isset($this->extras[$name])) {
             return $this->extras[$name];
@@ -322,38 +319,38 @@ class MenuItem implements ItemInterface
         return $default;
     }
 
-    public function setExtra($name, $value)
+    public function setExtra(string $name, $value): ItemInterface
     {
         $this->extras[$name] = $value;
 
         return $this;
     }
 
-    public function getDisplayChildren()
+    public function getDisplayChildren(): bool
     {
         return $this->displayChildren;
     }
 
-    public function setDisplayChildren($bool)
+    public function setDisplayChildren(bool $bool): ItemInterface
     {
-        $this->displayChildren = (bool) $bool;
+        $this->displayChildren = $bool;
 
         return $this;
     }
 
-    public function isDisplayed()
+    public function isDisplayed(): bool
     {
         return $this->display;
     }
 
-    public function setDisplay($bool)
+    public function setDisplay(bool $bool): ItemInterface
     {
-        $this->display = (bool) $bool;
+        $this->display = $bool;
 
         return $this;
     }
 
-    public function addChild($child, array $options = [])
+    public function addChild($child, array $options = []): ItemInterface
     {
         if (!$child instanceof ItemInterface) {
             $child = $this->factory->createItem($child, $options);
@@ -368,14 +365,14 @@ class MenuItem implements ItemInterface
         return $child;
     }
 
-    public function getChild($name)
+    public function getChild(string $name): ?ItemInterface
     {
         return isset($this->children[$name]) ? $this->children[$name] : null;
     }
 
-    public function reorderChildren($order)
+    public function reorderChildren(array $order): ItemInterface
     {
-        if (count($order) != $this->count()) {
+        if (\count($order) != $this->count()) {
             throw new \InvalidArgumentException('Cannot reorder children, order does not contain all children.');
         }
 
@@ -383,7 +380,7 @@ class MenuItem implements ItemInterface
 
         foreach ($order as $name) {
             if (!isset($this->children[$name])) {
-                throw new \InvalidArgumentException('Cannot find children named ' . $name);
+                throw new \InvalidArgumentException('Cannot find children named '.$name);
             }
 
             $child = $this->children[$name];
@@ -395,7 +392,7 @@ class MenuItem implements ItemInterface
         return $this;
     }
 
-    public function copy()
+    public function copy(): ItemInterface
     {
         $newMenu = clone $this;
         $newMenu->setChildren([]);
@@ -407,12 +404,12 @@ class MenuItem implements ItemInterface
         return $newMenu;
     }
 
-    public function getLevel()
+    public function getLevel(): int
     {
         return $this->parent ? $this->parent->getLevel() + 1 : 0;
     }
 
-    public function getRoot()
+    public function getRoot(): ItemInterface
     {
         $obj = $this;
         do {
@@ -422,17 +419,17 @@ class MenuItem implements ItemInterface
         return $found;
     }
 
-    public function isRoot()
+    public function isRoot(): bool
     {
         return null === $this->parent;
     }
 
-    public function getParent()
+    public function getParent(): ?ItemInterface
     {
         return $this->parent;
     }
 
-    public function setParent(ItemInterface $parent = null)
+    public function setParent(?ItemInterface $parent = null): ItemInterface
     {
         if ($parent === $this) {
             throw new \InvalidArgumentException('Item cannot be a child of itself');
@@ -443,19 +440,19 @@ class MenuItem implements ItemInterface
         return $this;
     }
 
-    public function getChildren()
+    public function getChildren(): array
     {
         return $this->children;
     }
 
-    public function setChildren(array $children)
+    public function setChildren(array $children): ItemInterface
     {
         $this->children = $children;
 
         return $this;
     }
 
-    public function removeChild($name)
+    public function removeChild($name): ItemInterface
     {
         $name = $name instanceof ItemInterface ? $name->getName() : $name;
 
@@ -468,17 +465,17 @@ class MenuItem implements ItemInterface
         return $this;
     }
 
-    public function getFirstChild()
+    public function getFirstChild(): ItemInterface
     {
         return \reset($this->children);
     }
 
-    public function getLastChild()
+    public function getLastChild(): ItemInterface
     {
         return \end($this->children);
     }
 
-    public function hasChildren()
+    public function hasChildren(): bool
     {
         foreach ($this->children as $child) {
             if ($child->isDisplayed()) {
@@ -489,19 +486,19 @@ class MenuItem implements ItemInterface
         return false;
     }
 
-    public function setCurrent($bool)
+    public function setCurrent(?bool $bool): ItemInterface
     {
         $this->isCurrent = $bool;
 
         return $this;
     }
 
-    public function isCurrent()
+    public function isCurrent(): ?bool
     {
         return $this->isCurrent;
     }
 
-    public function isLast()
+    public function isLast(): bool
     {
         // if this is root, then return false
         if ($this->isRoot()) {
@@ -511,7 +508,7 @@ class MenuItem implements ItemInterface
         return $this->getParent()->getLastChild() === $this;
     }
 
-    public function isFirst()
+    public function isFirst(): bool
     {
         // if this is root, then return false
         if ($this->isRoot()) {
@@ -521,7 +518,7 @@ class MenuItem implements ItemInterface
         return $this->getParent()->getFirstChild() === $this;
     }
 
-    public function actsLikeFirst()
+    public function actsLikeFirst(): bool
     {
         // root items are never "marked" as first
         if ($this->isRoot()) {
@@ -549,7 +546,7 @@ class MenuItem implements ItemInterface
         return false;
     }
 
-    public function actsLikeLast()
+    public function actsLikeLast(): bool
     {
         // root items are never "marked" as last
         if ($this->isRoot()) {
@@ -580,7 +577,7 @@ class MenuItem implements ItemInterface
     /**
      * Implements Countable
      */
-    public function count()
+    public function count(): int
     {
         return \count($this->children);
     }
@@ -588,7 +585,7 @@ class MenuItem implements ItemInterface
     /**
      * Implements IteratorAggregate
      */
-    public function getIterator()
+    public function getIterator(): \Traversable
     {
         return new \ArrayIterator($this->children);
     }
@@ -596,7 +593,7 @@ class MenuItem implements ItemInterface
     /**
      * Implements ArrayAccess
      */
-    public function offsetExists($name)
+    public function offsetExists($name): bool
     {
         return isset($this->children[$name]);
     }
@@ -620,7 +617,7 @@ class MenuItem implements ItemInterface
     /**
      * Implements ArrayAccess
      */
-    public function offsetUnset($name)
+    public function offsetUnset($name): void
     {
         $this->removeChild($name);
     }

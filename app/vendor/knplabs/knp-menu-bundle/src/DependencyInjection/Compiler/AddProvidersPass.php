@@ -13,10 +13,11 @@ use Symfony\Component\DependencyInjection\Reference;
  * @author Christophe Coevoet <stof@notk.org>
  *
  * @internal
+ * @final
  */
-class AddProvidersPass implements CompilerPassInterface
+final class AddProvidersPass implements CompilerPassInterface
 {
-    public function process(ContainerBuilder $container)
+    public function process(ContainerBuilder $container): void
     {
         if (!$container->hasDefinition('knp_menu.menu_provider.chain')) {
             return;
