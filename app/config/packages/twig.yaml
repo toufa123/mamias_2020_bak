@@ -14,5 +14,5 @@ twig:
         - '@FOSCKEditor/Form/ckeditor_widget.html.twig'
         - '@EWZRecaptcha/Form/ewz_recaptcha_widget.html.twig'
         - 'admin/Mamias/fields.html.twig'
-        - 'VichUploaderBundle:Form:fields.html.twig'
+        #- 'VichUploaderBundle:Form:fields.html.twig'
 

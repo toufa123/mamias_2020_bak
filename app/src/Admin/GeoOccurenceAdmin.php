@@ -27,23 +27,17 @@ use Symfony\Component\Form\Extension\Core\DataTransformer\DateTimeToStringTransf
 
 final class GeoOccurenceAdmin extends AbstractAdmin
 {
-
-
     protected $baseRouteName = 'Geo';
     protected $classnameLabel = 'GeoOccurence';
-
     public function prePersist($object)
     {
         $user = $this->getConfigurationPool()->getContainer()->get('security.token_storage')->getToken()->getUser();
         $object->setUser($user);
-
         $parser = new Parser('Point(' . $object->getLocation() . ')');
         $geo = $parser->parse();
         $g = new \CrEOF\Spatial\PHP\Types\Geometry\Point($geo['value'], '4326');
         $object->setLocation($g);
         //dump ('prepersist',$geo,$g);die;
-
-
     }
 
     public function preUpdate($object)
@@ -57,12 +51,10 @@ final class GeoOccurenceAdmin extends AbstractAdmin
         $object->setUser($user);
     }
 
-
     protected function configureDatagridFilters(DatagridMapper $datagridMapper): void
     {
         $datagridMapper
             //->add('id')
-
             ->add('mamias', null, ['label' => 'Species Name', 'show_filter' => true])
             ->add('date_occurence', null, ['label' => 'Date of the Occurence', 'format' => 'd/M/y'])
             ->add('createdAt', null, ['label' => 'Created At', 'format' => 'y'])
@@ -95,7 +87,6 @@ final class GeoOccurenceAdmin extends AbstractAdmin
             ->add('country', null, ['label' => 'Country'])
             ->add('imageFile', null, ['label' => 'Picture', 'template' => 'declaration/picture.html.twig'])
             ->add('Location', null, ['label' => 'Coordinates'])
-            //->add('longitude', null, array('label' => 'longitude'))
             ->add('date_occurence', DateTimeType::class, ['label' => 'Reporting Date', 'template' => 'admin/Mamias/date.html.twig'])
             //->add('note_occurence', null, array('label' => 'Note'))
             ->add(
@@ -135,7 +126,7 @@ final class GeoOccurenceAdmin extends AbstractAdmin
         $user = $this->getConfigurationPool()->getContainer()->get('security.token_storage')->getToken()->getUser();
         $formtest1 = $this->id($this->getSubject());
         //$formtest2 = $this->getSubject ()->getId ();
-        //dump($user);die;
+        //dump($formtest1);die;
 
         if (null === $formtest1) {
             if ($this->hasParentFieldDescription()) {
@@ -231,8 +222,8 @@ final class GeoOccurenceAdmin extends AbstractAdmin
                             'required' => false,
                             //'download_link' => false,
                             'allow_delete' => false,
-                            //'download_uri' => false,
-                            'image_uri' => true,
+                            'download_uri' => false,
+                            //'image_uri' => true,
                             'disabled' => false
 
                         ]

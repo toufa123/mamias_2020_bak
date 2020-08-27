@@ -30,19 +30,19 @@
 
         {%- if image_uri -%}
 
-            <a href="{{ asset_helper is same as(true) ? asset(image_uri) : image_uri }}"
+            <a href="{{ download_uri }}"
                class="btn btn-sm btn-default edit_link"
                data-toggle="modal"
                data-target="#Picture">
                 <i class="fa fa-image" aria-hidden="true"></i>
                 Picture Link </a>
 
-
         {%- else -%}
             {{- form_widget(form.file) -}}
         {%- endif -%}
         {%- if download_uri -%}
-            <a href="{{ asset_helper is same as(true) ? asset(download_uri) : download_uri }}">{{ translation_domain is same as(false) ? download_label : download_label|trans({}, translation_domain) }}</a>
+            <a href="{{ asset_helper is same as(true) ? asset(download_uri) : download_uri }}" data-toggle="modal"
+               data-target="#Picture">{{ translation_domain is same as(false) ? download_label : download_label|trans({}, translation_domain) }}</a>
         {%- endif -%}
     </div>
 {%- endblock -%}
@@ -52,17 +52,17 @@
     {{- block('form_label') -}}
 {%- endblock -%}
 
-<div class="modal fade" id="Picture" tabindex="-1" role="dialog" aria-labelledby="deleteLabel">
-    <div class="modal-dialog" role="document">
+<div class="modal fade" id="Picture">
+    <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                            aria-hidden="true">&times;</span></button>
+                        aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="Picture">{{ object.mamias }}</h4>
             </div>
             <div class="modal-body">
                 <img class='centre'
-                     src="{{ asset_helper is same as(true) ? asset(image_uri) : image_uri }}">
+                     src="{{ asset_helper is same as(true) ? asset(download_uri) : download_uri }}">
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

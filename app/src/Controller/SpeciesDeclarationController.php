@@ -116,23 +116,21 @@ class SpeciesDeclarationController extends Controller
             //$this->addFlash('success', 'Article Created! Knowledge is power!');
 
             $message = (new Swift_Message('NIS Occurence reporting'))
-                ->embed(\Swift_Image::fromPath('public/resources/logo/Logo-Mamias-web.png'))
+
                 //$message = \Swift_Message::newInstance()
-                ->setSubject('NIS Occurence reporting')
+                //->setSubject('NIS Occurence reporting')
                 ->setFrom(['mamias@no-reply.com' => 'MAMIAS Team'])
                 ->setTo($useremail)
-                ->setBcc(['atef.ouerghi@spa-rac.org', 'atef.ouerghi@gmail.com'])
+                //->setBcc(['atef.ouerghi@spa-rac.org', 'atef.ouerghi@gmail.com'])
                 ->setBody(
                     $this->renderView('declaration/sendemail.html.twig', ['User' => $user, 'dec' => $dec]),
-                    'text/html'
-                )
+                    'text/html')
                 ->addPart(
                     'Hi ' . $user . ' ! Your report of the occurencce of ' . $dec . ' is successfully
                         Submitted on' . $data->getCreatedAt()->format('d-m-Y') .
-                    '<br>We will get back to you soon!<br>Thanks!',
-                    'text/plain'
-                );
-
+                    '<br>Check your  reporting table soon!<br>Thanks!', 'text/plain');
+            //->embed(\Swift_Image::fromPath('public/resources/logo/Logo-Mamias-web.png'));
+            $mailer->send($message);
             //$transporter = new Swift_SmtpTransport('smtp.gmail.com', 587, 'tls');
             //$transporter->setAuthMode ('login')
             //->setUsername ('mamias2020@gmail.com')
@@ -149,7 +147,7 @@ class SpeciesDeclarationController extends Controller
 
             //$mailer = new Swift_Mailer($transporter);
 
-            $email = (new Swift_Message('NIS Occurence reporting'))
+            $email = (new Swift_Message('NIS Occurence Reported'))
                 //$message = \Swift_Message::newInstance()
                 //->setSubject ($subject)
                 ->setFrom(['no-reply@mamias.org' => 'MAMIAS team'])
@@ -160,10 +158,9 @@ class SpeciesDeclarationController extends Controller
                     $this->renderView('contact/sendReportingnotification.html.twig'),
                     'text/html'
                 )
-                ->addPart(
-                    'Hi a NIS Occurence reporting was added', 'text/plain');
+                ->addPart('Hi a NIS Occurence was added', 'text/plain');
 
-            $mailer->send($message);
+            $mailer->send($email);
             //$this->container->get('mailer')->send($message);
             //$this->get('mailer')->send($message);
 

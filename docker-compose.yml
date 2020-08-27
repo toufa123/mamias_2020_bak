@@ -13,15 +13,11 @@ services:
       #- mysql
       - postgres
       #- mail
-      #- solr
-      #- elasticsearch
       #- redis
       #- memcached
-      #- ftp
     ports:
       - "80:80"
       - "8443:443"
-      #- "10022:22"
     volumes:
       - ./app/:/app/
     environment:
@@ -31,14 +27,6 @@ services:
       - etc/environment.development.yml
     labels:
       - "traefik.http.routers.MAMIAS_app.rule=Host(`mamias.docker.localhost`)"
-
-  Mapstore:
-    restart: always
-    container_name: "Mapstore"
-    image: geosolutionsit/mapstore2
-    ports:
-      - "8081:8080"
-
   #######################################
   # PostgreSQL server
   #######################################
@@ -54,7 +42,7 @@ services:
     volumes:
       #  - solr:/opt/solr/server/solr/data
       - postgres_data:/var/lib/postgresql/data
-      - ./backup/mamias20072020.sql:/docker-entrypoint-initdb.d/setup-db.sql
+      - ./backup/mamias24082020.sql:/docker-entrypoint-initdb.d/setup-db.sql
 
     environment:
       - ALLOW_IP_RANGE=0.0.0.0/0
@@ -68,38 +56,6 @@ services:
       - etc/environment.yml
       - etc/environment.production.yml
     command: bash -c "while [ ! -f /docker-entrypoin-initdb.d/public.sql ]; do sleep 1; done && /docker-entrypoint.sh"
-
-    #######################################
-    # Solr server
-    #######################################
-    #solr:
-    #  build:
-    #    context: docker/solr/
-    #  ports:
-    #    - 18983:8983
-    #  volumes:
-    #    - solr:/opt/solr/server/solr/data
-    #  environment:
-    #    - SOLR_STORAGE=/opt/solr/server/solr/data
-    #  env_file:
-    #    - etc/environment.yml
-    #    - etc/environment.production.yml
-
-    #######################################
-    # Elasticsearch
-    #######################################
-    #elasticsearch:
-    #  build:
-    #    context: docker/elasticsearch/
-    #  ports:
-    #    - 19200:9200
-    #    - 19300:9300
-    #  volumes:
-    #    - elasticsearch:/usr/share/elasticsearch/data
-    #  env_file:
-    #    - etc/environment.yml
-    #    - etc/environment.production.yml
-
     #######################################
     # Redis
     #######################################
@@ -122,22 +78,10 @@ services:
     #    - etc/environment.yml
     #    - etc/environment.production.yml
 
-    #######################################
-    # FTP (vsftpd)
-    #######################################
-    #ftp:
-    #  build:
-    #    context: docker/vsftpd/
-    #  volumes:
-    #    - ./:/application/
-    #  env_file:
-    #    - etc/environment.yml
-    #    - etc/environment.production.yml
   #######################################
   # pgAdmin
   #######################################
   pgAdmin:
-
     restart: always
     container_name: "pgadmin4"
     image: dpage/pgadmin4
@@ -196,10 +140,9 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
 
 volumes:
-  #mysql:
   postgres_data:
   pgadmin:
   #solr:
   #elasticsearch:
   #redis:
-  #phpmyadmin:
+
