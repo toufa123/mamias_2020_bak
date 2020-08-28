@@ -22,14 +22,17 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use UniqueConstraintViolationException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-
+use KunicMarko\SonataImporterBundle\Admin\AdminWithImport as import;
+use KunicMarko\SonataImporterBundle\Controller\ImportCRUDController as importer;
+use KunicMarko\SonataImporterBundle\Controller\ImportActionTrait;
 
 /**
  * @Security("is_granted('ROLE_ADMIN')")
  * @Route("/admin")
  */
-final class CatalogueAdmin extends AbstractAdmin
+final class CatalogueAdmin extends AbstractAdmin implements import
 {
+    use ImportActionTrait;
 
     protected $perPageOptions = [10, 20, 50, 100, 'All'];
     protected $maxPerPage = '50';

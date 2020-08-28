@@ -16,3 +16,8 @@ twig:
         - 'admin/Mamias/fields.html.twig'
         #- 'VichUploaderBundle:Form:fields.html.twig'
 
+sonata_importer:
+    templates:
+        form:                 '@SonataImporter/form.html.twig'
+        action_button:        '@SonataImporter/action_button.html.twig'
+        dashboard_action:     '@SonataImporter/dashboard_action.html.twig'

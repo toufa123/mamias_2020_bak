@@ -73,6 +73,7 @@ class NfpController extends AbstractController
 
     }
 
+
     /*
      * @Route("/user/{id}", name="fos_user_profile_show_user")
      * @IsGranted("ROLE_FOCALPOINT")

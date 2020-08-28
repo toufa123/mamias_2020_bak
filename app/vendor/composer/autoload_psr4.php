@@ -136,6 +136,8 @@ return array(
     'Liip\\ImagineBundle\\' => array($vendorDir . '/liip/imagine-bundle'),
     'Laminas\\ZendFrameworkBridge\\' => array($vendorDir . '/laminas/laminas-zendframework-bridge/src'),
     'Laminas\\Json\\' => array($vendorDir . '/laminas/laminas-json/src'),
+    'KunicMarko\\SonataImporterBundle\\' => array($vendorDir . '/kunicmarko/sonata-importer-bundle/src'),
+    'KunicMarko\\Importer\\' => array($vendorDir . '/kunicmarko/importer/src'),
     'Knp\\Menu\\' => array($vendorDir . '/knplabs/knp-menu/src/Knp/Menu'),
     'Knp\\Bundle\\MenuBundle\\' => array($vendorDir . '/knplabs/knp-menu-bundle/src'),
     'Knp\\Bundle\\MarkdownBundle\\' => array($vendorDir . '/knplabs/knp-markdown-bundle'),
