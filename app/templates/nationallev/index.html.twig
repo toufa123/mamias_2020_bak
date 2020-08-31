@@ -31,7 +31,7 @@
 
         </div>
         <!-- end page title end breadcrumb -->
-
+    {% if form1.vars.submitted and form1.country.vars.value !='Select A country' %}
         <div class="row">
             <div class="col-lg-4 col-md-6">
                 <div class="card-box widget-box-two widget-two-info">
@@ -135,7 +135,7 @@
                 </div>
             </div>
         </div>
-
+    {% endif %}
     {% else %}
 
         <!-- end page title end breadcrumb -->

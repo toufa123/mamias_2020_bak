@@ -21,28 +21,28 @@ class NationallevController extends AbstractController
      */
     public function index(Request $request)
     {
+        $n1 = null;
+        $n2 = null;
+        $n3 = null;
+        $n6 = null;
+        //$n4 = array();
+        $cat = null;
+        $c = null;
+        $co = null;
+        $ob = new Highchart();
+        $ob2 = new Highchart();
+        $ob3 = new Highchart();
+        $ob4 = new Highchart();
 
+        //$this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
         $user = $this->get('security.token_storage')->getToken()->getUser();
-        $role = $user->hasRole('ROLE_FOCALPOINT');
-        //dump($role);die;
-        if ('' != $user & $user != 'anon.' & $user->hasRole('ROLE_FOCALPOINT')) {
-            //$username = $this->get('security.token_storage')->getToken()->getUser()->getUsername();
-            //$userId = $this->get('security.token_storage')->getToken()->getUser()->getId();
-            //$Country = $this->get('security.token_storage')->getToken()->getUser()->getCountry();
-            $userCountry = $user->getCountry()->getId();
-            //dump($userCountry);die;
-            $n1 = null;
-            $n2 = null;
-            $n3 = null;
-            $n6 = null;
-            //$n4 = array();
-            $cat = null;
-            $c = null;
-            $co = null;
-            $ob = new Highchart();
-            $ob2 = new Highchart();
-            $ob3 = new Highchart();
-            $ob4 = new Highchart();
+        //$hasAccess = in_array('ROLE_FOCALPOINT', $user->getRoles()); & in_array('ROLE_FOCALPOINT', $user->getRoles()) != false
+        //dump($user);die;
+        if ('' != $user & $user != 'anon.' & $user != 'admin_sparac') {
+
+            $co = $user->getCountry()->getId();
+            //dump($co);die;
+
             //$search = new SearchCountry();
             //$form1 = $this->createForm(CountrySearchType::class, $search);
             //$form1->handleRequest($request);
@@ -57,10 +57,11 @@ class NationallevController extends AbstractController
             //    if ('' != $c) {
             //        $co = $em->getRepository(Country::class)->findOneBy(['country' => $c])->getId();
             //    }
-            $n1 = $em->getRepository(Mamias::class)->findnumbersBycountry($userCountry);
-            $n2 = $em->getRepository(Mamias::class)->findnumbersByestablished($userCountry);
-            $n3 = $em->getRepository(Mamias::class)->findnumbersByInvasive($userCountry);
-            $n4 = $em->getRepository(Mamias::class)->getcumulativebyCountry1($userCountry);
+            $n1 = $em->getRepository(Mamias::class)->findnumbersBycountry($co);
+            $nn = $em->getRepository(Mamias::class)->findnumbersBycountry($co);
+            $n2 = $em->getRepository(Mamias::class)->findnumbersByestablished($co);
+            $n3 = $em->getRepository(Mamias::class)->findnumbersByInvasive($co);
+            $n4 = $em->getRepository(Mamias::class)->getcumulativebyCountry1($co);
             //$this->addFlash('success', 'The country Selected is ' . $c);
             //dump($n4);die;
             //Cumulative Number by Country
@@ -98,7 +99,7 @@ class NationallevController extends AbstractController
             $ob->series([['name' => 'Total Number of Reported NIS', 'color' => '#00AEEF', 'data' => $datareg]]);
 
             //groups per country
-            $n6 = $em->getRepository(Mamias::class)->getSpeciesbyGroupandCountry($userCountry);
+            $n6 = $em->getRepository(Mamias::class)->getSpeciesbyGroupandCountry($co);
             $data = [];
             foreach ($n6 as $values) {
                 $a = [$values['ecofunctional'], $values['value']];
@@ -130,7 +131,7 @@ class NationallevController extends AbstractController
             $ob2->series([['type' => 'pie', 'name' => 'Number of NIS', 'data' => $data]]);
 
             //origin for countries
-            $n5 = $em->getRepository(Mamias::class)->getSpeciesbyOriginsandCountry($userCountry);
+            $n5 = $em->getRepository(Mamias::class)->getSpeciesbyOriginsandCountry($co);
             $data3 = [];
             $categories = [];
             foreach ($n5 as $values) {
@@ -156,7 +157,7 @@ class NationallevController extends AbstractController
             //$data = array($status,$results2);
             $ob3->series([['type' => 'column', 'name' => 'Number of NIS', 'color' => '#00AEEF', 'data' => $data3]]);
             //Pathways for countries
-            $n6 = $em->getRepository(Mamias::class)->getnumberbypathwayspercountry($userCountry);
+            $n6 = $em->getRepository(Mamias::class)->getnumberbypathwayspercountry($co);
             //dump($n6);die;
             $data4 = [];
             $categories = [];
@@ -201,18 +202,7 @@ class NationallevController extends AbstractController
             ]
         );
         } else {
-            $n1 = null;
-            $n2 = null;
-            $n3 = null;
-            $n6 = null;
-            //$n4 = array();
-            $cat = null;
-            $c = null;
-            $co = null;
-            $ob = new Highchart();
-            $ob2 = new Highchart();
-            $ob3 = new Highchart();
-            $ob4 = new Highchart();
+
             $search = new SearchCountry();
             $form1 = $this->createForm(CountrySearchType::class, $search);
             $form1->handleRequest($request);

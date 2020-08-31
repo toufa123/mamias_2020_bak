@@ -198,13 +198,14 @@ class MamiasRepository extends ServiceEntityRepository
     public function getSpeciesPerCountry()
     {
         $rawSql = 'SELECT country.country As Country, (SELECT COUNT(DISTINCT mamias.id)) As z '
-            . 'FROM mamias , country_distribution , country '
+            . ' FROM mamias , country_distribution , country '
             . ' WHERE mamias.id = country_distribution.mamias_id AND country_distribution.country_id = country.id AND mamias.success_id != 7'
             . ' GROUP BY country.country ORDER BY country.country ASC';
         $stmt = $this->getEntityManager()->getConnection()->prepare($rawSql);
         $stmt->execute([]);
         return $stmt->fetchAll();
     }
+
 
     public function gettotal()
     {

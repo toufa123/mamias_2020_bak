@@ -19,6 +19,7 @@
         "helios-ag/fm-elfinder-bundle": "^10.0.4",
         "jms/serializer-bundle": "^3.7.0",
         "jsor/doctrine-postgis": "^1.7",
+        "kunicmarko/sonata-importer-bundle": "^0.1.2",
         "liip/imagine-bundle": "^2.3",
         "ob/highcharts-bundle": "^1.7",
         "orbitale/cms-bundle": "^3.1.1",
@@ -66,7 +67,8 @@
         "symfonycasts/reset-password-bundle": "*",
         "twig/twig": "^2.13.1",
         "vich/uploader-bundle": "1.11.*",
-        "whiteoctober/breadcrumbs-bundle": "1.4.5"
+        "whiteoctober/breadcrumbs-bundle": "1.4.5",
+        "kunicmarko/importer": "*"
     },
     "require-dev": {
         "symfony/debug-pack": "*",
