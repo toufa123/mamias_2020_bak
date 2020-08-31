@@ -7,15 +7,10 @@ namespace App\Controller;
 use Sonata\AdminBundle\Controller\CRUDController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use KunicMarko\SonataImporterBundle\Controller\ImportCRUDController as import;
 
-final class CatalogueAdminController extends CRUDController
+final class CatalogueAdminController extends import
 {
 
-    public function importAction(Request $request)
-    {
-
-        return new Response('<html><body>Hello !</body></html>');
-
-    }
 
 }
