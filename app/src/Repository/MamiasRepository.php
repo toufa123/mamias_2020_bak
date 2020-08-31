@@ -300,6 +300,23 @@ class MamiasRepository extends ServiceEntityRepository
         return $stmt->fetchColumn('1');
     }
 
+    public function findnumbersBycountry2($co)
+    {
+        return $this->createQueryBuilder('fc')
+            ->select('COUNT(fc)')
+            ->where('fc.firstMedSighting IS NOT NULL')
+            ->andwhere('length(fc.firstMedSighting)>0')
+            ->leftJoin('fc.Distribution', 'C')
+            ->leftJoin('C.country', 'CC')
+            ->andWhere('C.country = :country')
+            ->setParameter('country', $co)
+            ->addSelect('CC.country')
+            ->groupBy('CC.country')
+            ->orderBy('CC.country', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
     public function getcumulativeBycountry($co)
     {
         $rawSql = 'SELECT mamias.first_med_sighting, sum(count(DISTINCT mamias.id)) OVER (ORDER BY mamias.first_med_sighting) as cumulative '

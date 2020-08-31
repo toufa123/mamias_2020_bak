@@ -68,7 +68,7 @@
         "twig/twig": "^2.13.1",
         "vich/uploader-bundle": "1.11.*",
         "whiteoctober/breadcrumbs-bundle": "1.4.5",
-        "kunicmarko/importer": "*"
+        "kunicmarko/importer": "0.2.0"
     },
     "require-dev": {
         "symfony/debug-pack": "*",

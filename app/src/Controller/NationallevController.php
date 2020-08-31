@@ -39,26 +39,15 @@ class NationallevController extends AbstractController
         //$hasAccess = in_array('ROLE_FOCALPOINT', $user->getRoles()); & in_array('ROLE_FOCALPOINT', $user->getRoles()) != false
         //dump($user);die;
         if ('' != $user & $user != 'anon.' & $user != 'admin_sparac') {
-
             $co = $user->getCountry()->getId();
-            //dump($co);die;
-
-            //$search = new SearchCountry();
-            //$form1 = $this->createForm(CountrySearchType::class, $search);
-            //$form1->handleRequest($request);
-            //$country = $request->get('country');
-            //dump($country);die;
+            dump($co);
+            die;
             $em = $this->getDoctrine()->getManager();
-            //if ($form1->isSubmitted() && $form1->isValid()) {
-            //    $data = $form1->getData();
-            //    $c = $data->getCountry();
-            //dump($c);die;
-            //$c = 'Algeria';
-            //    if ('' != $c) {
-            //        $co = $em->getRepository(Country::class)->findOneBy(['country' => $c])->getId();
-            //    }
+
             $n1 = $em->getRepository(Mamias::class)->findnumbersBycountry($co);
-            $nn = $em->getRepository(Mamias::class)->findnumbersBycountry($co);
+            $n11 = $em->getRepository(Mamias::class)->findnumbersBycountry2($co);
+            dump($n11);
+            die;
             $n2 = $em->getRepository(Mamias::class)->findnumbersByestablished($co);
             $n3 = $em->getRepository(Mamias::class)->findnumbersByInvasive($co);
             $n4 = $em->getRepository(Mamias::class)->getcumulativebyCountry1($co);
@@ -80,6 +69,7 @@ class NationallevController extends AbstractController
             $ob->chart->renderTo('linechart');
             $ob->title->text('numbers of new reported marine non-indigenous species');
             $ob->xAxis->categories($cat);
+            $ob->xAxis->tickPositions($cat);
             $ob->title->style(['fontFamily' => 'Roboto light', 'fontSize' => '18px', 'color' => '#00AEEF', 'fontWeight' => 'bold']);
             $ob->credits->text('www.mamias.org');
             $ob->credits->href('http://www.mamias.org _target="blank"');
@@ -218,6 +208,8 @@ class NationallevController extends AbstractController
                     $co = $em->getRepository(Country::class)->findOneBy(['country' => $c])->getId();
                 }
                 $n1 = $em->getRepository(Mamias::class)->findnumbersBycountry($co);
+                $n11 = $em->getRepository(Mamias::class)->findnumbersBycountry2($co);
+                //dump($n11);die;
                 $n2 = $em->getRepository(Mamias::class)->findnumbersByestablished($co);
                 $n3 = $em->getRepository(Mamias::class)->findnumbersByInvasive($co);
                 $n4 = $em->getRepository(Mamias::class)->getcumulativebyCountry1($co);

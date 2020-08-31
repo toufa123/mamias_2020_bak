@@ -22,17 +22,33 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use UniqueConstraintViolationException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use KunicMarko\SonataImporterBundle\Admin\AdminWithImport as import;
-use KunicMarko\SonataImporterBundle\Controller\ImportCRUDController as importer;
-use KunicMarko\SonataImporterBundle\Controller\ImportActionTrait;
 
 /**
  * @Security("is_granted('ROLE_ADMIN')")
  * @Route("/admin")
  */
-final class CatalogueAdmin extends AbstractAdmin implements import
+final class CatalogueAdmin extends AbstractAdmin
 {
-    use ImportActionTrait;
+
+    protected function configureRoutes(RouteCollection $collection)
+    {
+        $collection->add('import');
+    }
+
+    public function getDashboardActions()
+    {
+        $actions = parent::getDashboardActions();
+
+        $actions['import'] = [
+            'label' => 'Import',
+            'url' => $this->generateUrl('import'),
+            'icon' => 'upload',
+            'translation_domain' => 'SonataAdminBundle', // optional
+            'template' => '@SonataAdmin/CRUD/dashboard__action.html.twig', // optional
+        ];
+
+        return $actions;
+    }
 
     protected $perPageOptions = [10, 20, 50, 100, 'All'];
     protected $maxPerPage = '50';
