@@ -1,5 +1,5 @@
 /**
- * @license Highcharts JS v8.0.0 (2019-12-10)
+ * @license Highcharts JS v8.2.0 (2020-08-20)
  * @module highcharts/modules/exporting
  * @requires highcharts
  *
@@ -10,5 +10,5 @@
  * License: www.highcharts.com/license
  */
 'use strict';
-import '../../modules/full-screen.src.js';
-import '../../modules/exporting.src.js';
+import '../../Extensions/FullScreen.js';
+import '../../Extensions/Exporting.js';

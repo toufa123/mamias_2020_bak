@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2009-2019 Øystein Moseng
+ *  (c) 2009-2020 Øystein Moseng
  *
  *  Sonification functions for chart/series.
  *
@@ -10,7 +10,7 @@
  *
  * */
 'use strict';
-import H from '../../parts/Globals.js';
+import H from '../../Core/Globals.js';
 /**
  * An Earcon configuration, specifying an Earcon and when to play it.
  *
@@ -88,14 +88,17 @@ import H from '../../parts/Globals.js';
  * Callback after a point has finished playing.
  * @name Highcharts.SonifySeriesOptionsObject#onPointEnd
  * @type {Function|undefined}
- */ /**
+ */
+/**
  * Callback after the series has played.
  * @name Highcharts.SonifySeriesOptionsObject#onEnd
  * @type {Function|undefined}
  */
-import U from '../../parts/Utilities.js';
+''; // detach doclets above
+import Point from '../../Core/Series/Point.js';
+import U from '../../Core/Utilities.js';
 
-var isArray = U.isArray, pick = U.pick, splat = U.splat;
+var find = U.find, isArray = U.isArray, merge = U.merge, pick = U.pick, splat = U.splat, objectEach = U.objectEach;
 import utilities from './utilities.js';
 
 /**
@@ -113,7 +116,6 @@ function getPointTimeValue(point, timeProp) {
         timeProp(point) :
         pick(point[timeProp], point.options[timeProp]);
 }
-
 /**
  * Get the time extremes of this series. This is handled outside of the
  * dataExtremes, as we always want to just sonify the visible points, and we
@@ -140,19 +142,38 @@ function getTimeExtremes(series, timeProp) {
 }
 
 /**
- * Calculate value extremes for used instrument data properties.
+ * Calculate value extremes for used instrument data properties on a chart.
  * @private
  * @param {Highcharts.Chart} chart
  * The chart to calculate extremes from.
- * @param {Array<Highcharts.PointInstrumentObject>} instruments
- * The instrument definitions used.
+ * @param {Array<Highcharts.PointInstrumentObject>} [instruments]
+ * Additional instrument definitions to inspect for data props used, in
+ * addition to the instruments defined in the chart options.
  * @param {Highcharts.Dictionary<Highcharts.RangeObject>} [dataExtremes]
  * Predefined extremes for each data prop.
  * @return {Highcharts.Dictionary<Highcharts.RangeObject>}
  * New extremes with data properties mapped to min/max objects.
  */
 function getExtremesForInstrumentProps(chart, instruments, dataExtremes) {
-    return (instruments || []).reduce(function (newExtremes, instrumentDefinition) {
+    var _a;
+    var allInstrumentDefinitions = (instruments || []).slice(0);
+    var defaultInstrumentDef = (_a = chart.options.sonification) === null || _a === void 0 ? void 0 : _a.defaultInstrumentOptions;
+    var optionDefToInstrDef = function (optionDef) {
+        return ({
+            instrumentMapping: optionDef.mapping
+        });
+    };
+    if (defaultInstrumentDef) {
+        allInstrumentDefinitions.push(optionDefToInstrDef(defaultInstrumentDef));
+    }
+    chart.series.forEach(function (series) {
+        var _a;
+        var instrOptions = (_a = series.options.sonification) === null || _a === void 0 ? void 0 : _a.instruments;
+        if (instrOptions) {
+            allInstrumentDefinitions = allInstrumentDefinitions.concat(instrOptions.map(optionDefToInstrDef));
+        }
+    });
+    return (allInstrumentDefinitions).reduce(function (newExtremes, instrumentDefinition) {
         Object.keys(instrumentDefinition.instrumentMapping || {}).forEach(function (instrumentParameter) {
             var value = instrumentDefinition.instrumentMapping[instrumentParameter];
             if (typeof value === 'string' && !newExtremes[value]) {
@@ -162,9 +183,8 @@ function getExtremesForInstrumentProps(chart, instruments, dataExtremes) {
             }
         });
         return newExtremes;
-    }, H.merge(dataExtremes));
+    }, merge(dataExtremes));
 }
-
 /**
  * Get earcons for the point if there are any.
  * @private
@@ -196,7 +216,6 @@ function getPointEarcons(point, earconDefinitions) {
         return earcons;
     }, []);
 }
-
 /**
  * Utility function to get a new list of instrument options where all the
  * instrument references are copies.
@@ -211,8 +230,54 @@ function makeInstrumentCopies(instruments) {
         var instrument = instrumentDef.instrument, copy = (typeof instrument === 'string' ?
             H.sonification.instruments[instrument] :
             instrument).copy();
-        return H.merge(instrumentDef, {instrument: copy});
+        return merge(instrumentDef, {instrument: copy});
     });
+}
+
+/**
+ * Utility function to apply a master volume to a list of instrument
+ * options.
+ * @private
+ * @param {Array<Highcharts.PointInstrumentObject>} instruments
+ * The instrument options. Only options with Instrument object instances
+ * will be affected.
+ * @param {number} masterVolume
+ * The master volume multiplier to apply to the instruments.
+ * @return {Array<Highcharts.PointInstrumentObject>}
+ * Array of instrument options.
+ */
+function applyMasterVolumeToInstruments(instruments, masterVolume) {
+    instruments.forEach(function (instrOpts) {
+        var instr = instrOpts.instrument;
+        if (typeof instr !== 'string') {
+            instr.setMasterVolume(masterVolume);
+        }
+    });
+    return instruments;
+}
+
+/**
+ * Utility function to find the duration of the final note in a series.
+ * @private
+ * @param {Highcharts.Series} series The data series to calculate on.
+ * @param {Array<Highcharts.PointInstrumentObject>} instruments The instrument options for this series.
+ * @param {Highcharts.Dictionary<Highcharts.RangeObject>} dataExtremes Value extremes for the data series props.
+ * @return {number} The duration of the final note in milliseconds.
+ */
+function getFinalNoteDuration(series, instruments, dataExtremes) {
+    var finalPoint = series.points[series.points.length - 1];
+    return instruments.reduce(function (duration, instrument) {
+        var mapping = instrument.instrumentMapping.duration;
+        var instrumentDuration;
+        if (typeof mapping === 'string') {
+            instrumentDuration = 0; // Ignore, no easy way to map this
+        } else if (typeof mapping === 'function') {
+            instrumentDuration = mapping(finalPoint, dataExtremes);
+        } else {
+            instrumentDuration = mapping;
+        }
+        return Math.max(duration, instrumentDuration);
+    }, 0);
 }
 
 /**
@@ -230,19 +295,23 @@ function makeInstrumentCopies(instruments) {
 function buildTimelinePathFromSeries(series, options) {
     // options.timeExtremes is internal and used so that the calculations from
     // chart.sonify can be reused.
-    var timeExtremes = options.timeExtremes || getTimeExtremes(series, options.pointPlayTime, options.dataExtremes),
+    var timeExtremes = options.timeExtremes || getTimeExtremes(series, options.pointPlayTime),
+        // Compute any data extremes that aren't defined yet
+        dataExtremes = getExtremesForInstrumentProps(series.chart, options.instruments, options.dataExtremes),
+        minimumSeriesDurationMs = 10,
+        // Get the duration of the final note
+        finalNoteDuration = getFinalNoteDuration(series, options.instruments, dataExtremes),
         // Get time offset for a point, relative to duration
         pointToTime = function (point) {
             return utilities.virtualAxisTranslate(getPointTimeValue(point, options.pointPlayTime), timeExtremes, {
                 min: 0,
-                max: options.duration
+                max: Math.max(options.duration - finalNoteDuration, minimumSeriesDurationMs)
             });
-        },
-        // Compute any data extremes that aren't defined yet
-        dataExtremes = getExtremesForInstrumentProps(series.chart, options.instruments, options.dataExtremes),
+        }, masterVolume = pick(options.masterVolume, 1),
         // Make copies of the instruments used for this series, to allow
         // multiple series with the same instrument to play together
-        instruments = makeInstrumentCopies(options.instruments),
+        instrumentCopies = makeInstrumentCopies(options.instruments),
+        instruments = applyMasterVolumeToInstruments(instrumentCopies, masterVolume),
         // Go through the points, convert to events, optionally add Earcons
         timelineEvents = series.points.reduce(function (events, point) {
             var earcons = getPointEarcons(point, options.earcons || []), time = pointToTime(point);
@@ -254,14 +323,18 @@ function buildTimelinePathFromSeries(series, options) {
                     id: point.id,
                     playOptions: {
                         instruments: instruments,
-                        dataExtremes: dataExtremes
+                        dataExtremes: dataExtremes,
+                        masterVolume: masterVolume
                     }
                 }),
                 // Earcons
                 earcons.map(function (earcon) {
                     return new H.sonification.TimelineEvent({
                         eventObject: earcon,
-                        time: time
+                        time: time,
+                        playOptions: {
+                            volume: masterVolume
+                        }
                     });
                 }));
         }, []);
@@ -275,7 +348,7 @@ function buildTimelinePathFromSeries(series, options) {
         },
         onEventStart: function (event) {
             var eventObject = event.options && event.options.eventObject;
-            if (eventObject instanceof H.Point) {
+            if (eventObject instanceof Point) {
                 // Check for hidden series
                 if (!eventObject.series.visible &&
                     !eventObject.series.chart.series.some(function (series) {
@@ -295,7 +368,7 @@ function buildTimelinePathFromSeries(series, options) {
         onEventEnd: function (eventData) {
             var eventObject = eventData.event && eventData.event.options &&
                 eventData.event.options.eventObject;
-            if (eventObject instanceof H.Point && options.onPointEnd) {
+            if (eventObject instanceof Point && options.onPointEnd) {
                 options.onPointEnd(eventData.event, eventObject);
             }
         },
@@ -303,10 +376,10 @@ function buildTimelinePathFromSeries(series, options) {
             if (options.onEnd) {
                 options.onEnd(series);
             }
-        }
+        },
+        targetDuration: options.duration
     });
 }
-
 /* eslint-disable no-invalid-this, valid-jsdoc */
 /**
  * Sonify a series.
@@ -324,18 +397,23 @@ function buildTimelinePathFromSeries(series, options) {
  *
  * @function Highcharts.Series#sonify
  *
- * @param {Highcharts.SonifySeriesOptionsObject} options
- *        The options for sonifying this series.
+ * @param {Highcharts.SonifySeriesOptionsObject} [options]
+ *        The options for sonifying this series. If not provided,
+ *        uses options set on chart and series.
  *
  * @return {void}
  */
 function seriesSonify(options) {
-    var timelinePath = buildTimelinePathFromSeries(this, options), chartSonification = this.chart.sonification;
+    var mergedOptions = getSeriesSonifyOptions(this, options);
+    var timelinePath = buildTimelinePathFromSeries(this, mergedOptions);
+    var chartSonification = this.chart.sonification;
     // Only one timeline can play at a time. If we want multiple series playing
     // at the same time, use chart.sonify.
     if (chartSonification.timeline) {
         chartSonification.timeline.pause();
     }
+    // Store reference to duration
+    chartSonification.duration = mergedOptions.duration;
     // Create new timeline for this series, and play it.
     chartSonification.timeline = new H.sonification.Timeline({
         paths: [timelinePath]
@@ -351,32 +429,40 @@ function seriesSonify(options) {
  * The series to return options for.
  * @param {Highcharts.RangeObject} dataExtremes
  * Pre-calculated data extremes for the chart.
- * @param {Highcharts.SonifyChartOptionsObject} chartSonifyOptions
+ * @param {Highcharts.SonificationOptions} chartSonifyOptions
  * Options passed in to chart.sonify.
  * @return {Partial<Highcharts.SonifySeriesOptionsObject>}
  * Options for buildTimelinePathFromSeries.
  */
-function buildSeriesOptions(series, dataExtremes, chartSonifyOptions) {
-    var seriesOptions = chartSonifyOptions.seriesOptions || {};
-    return H.merge({
+function buildChartSonifySeriesOptions(series, dataExtremes, chartSonifyOptions) {
+    var _a, _b, _c;
+    var additionalSeriesOptions = chartSonifyOptions.seriesOptions || {};
+    var pointPlayTime = ((_c = (_b = (_a = series.chart.options.sonification) === null || _a === void 0 ? void 0 : _a.defaultInstrumentOptions) === null || _b === void 0 ? void 0 : _b.mapping) === null || _c === void 0 ? void 0 : _c.pointPlayTime) || 'x';
+    var configOptions = chartOptionsToSonifySeriesOptions(series);
+    return merge(
+        // Options from chart configuration
+        configOptions,
+        // Options passed in
+        {
             // Calculated dataExtremes for chart
             dataExtremes: dataExtremes,
             // We need to get timeExtremes for each series. We pass this
             // in when building the TimelinePath objects to avoid
             // calculating twice.
-            timeExtremes: getTimeExtremes(series, chartSonifyOptions.pointPlayTime),
+            timeExtremes: getTimeExtremes(series, pointPlayTime),
             // Some options we just pass on
-            instruments: chartSonifyOptions.instruments,
-            onStart: chartSonifyOptions.onSeriesStart,
-            onEnd: chartSonifyOptions.onSeriesEnd,
-            earcons: chartSonifyOptions.earcons
+            instruments: chartSonifyOptions.instruments || configOptions.instruments,
+            onStart: chartSonifyOptions.onSeriesStart || configOptions.onStart,
+            onEnd: chartSonifyOptions.onSeriesEnd || configOptions.onEnd,
+            earcons: chartSonifyOptions.earcons || configOptions.earcons,
+            masterVolume: pick(chartSonifyOptions.masterVolume, configOptions.masterVolume)
         },
-        // Merge in the specific series options by ID
-        isArray(seriesOptions) ? (H.find(seriesOptions, function (optEntry) {
+        // Merge in the specific series options by ID if any are passed in
+        isArray(additionalSeriesOptions) ? (find(additionalSeriesOptions, function (optEntry) {
             return optEntry.id === pick(series.id, series.options.id);
-        }) || {}) : seriesOptions, {
+        }) || {}) : additionalSeriesOptions, {
             // Forced options
-            pointPlayTime: chartSonifyOptions.pointPlayTime
+            pointPlayTime: pointPlayTime
         });
 }
 
@@ -401,7 +487,8 @@ function buildPathOrder(orderOptions, chart, seriesOptionsCallback) {
     if (orderOptions === 'sequential' || orderOptions === 'simultaneous') {
         // Just add the series from the chart
         order = chart.series.reduce(function (seriesList, series) {
-            if (series.visible) {
+            var _a;
+            if (series.visible && ((_a = series.options.sonification) === null || _a === void 0 ? void 0 : _a.enabled) !== false) {
                 seriesList.push({
                     series: series,
                     seriesOptions: seriesOptionsCallback(series)
@@ -459,7 +546,6 @@ function buildPathOrder(orderOptions, chart, seriesOptionsCallback) {
     }
     return order;
 }
-
 /**
  * Utility function to add a silent wait after all series.
  * @private
@@ -491,7 +577,6 @@ function addAfterSeriesWaits(order, wait) {
         return newOrder;
     }, []);
 }
-
 /**
  * Utility function to find the total amout of wait time in the TimelinePaths.
  * @private
@@ -507,7 +592,6 @@ function getWaitTime(order) {
             def[0].options.silentWait || 0);
     }, 0);
 }
-
 /**
  * Utility function to ensure simultaneous paths have start/end events at the
  * same time, to sync them.
@@ -545,7 +629,6 @@ function syncSimultaneousPaths(paths) {
         }
     });
 }
-
 /**
  * Utility function to find the total duration span for all simul path sets
  * that include series.
@@ -565,7 +648,6 @@ function getSimulPathDurationTotal(order) {
         }, 0);
     }, 0);
 }
-
 /**
  * Function to calculate the duration in ms for a series.
  * @private
@@ -584,7 +666,6 @@ function getSeriesDurationMs(seriesValueDuration, totalValueDuration, totalDurat
         max: totalDurationMs
     });
 }
-
 /**
  * Convert series building objects into paths and return a new list of
  * TimelinePaths.
@@ -626,18 +707,120 @@ function buildPathsFromOrder(order, duration) {
 }
 
 /**
+ * @private
+ * @param {Highcharts.Series} series The series to get options for.
+ * @param {Highcharts.SonifySeriesOptionsObject} options
+ *  Options to merge with user options on series/chart and default options.
+ * @returns {Array<Highcharts.PointInstrumentObject>} The merged options.
+ */
+function getSeriesInstrumentOptions(series, options) {
+    var _a, _b;
+    if (options === null || options === void 0 ? void 0 : options.instruments) {
+        return options.instruments;
+    }
+    var defaultInstrOpts = ((_a = series.chart.options.sonification) === null || _a === void 0 ? void 0 : _a.defaultInstrumentOptions) || {};
+    var seriesInstrOpts = ((_b = series.options.sonification) === null || _b === void 0 ? void 0 : _b.instruments) || [{}];
+    var removeNullsFromObject = function (obj) {
+        objectEach(obj, function (val, key) {
+            if (val === null) {
+                delete obj[key];
+            }
+        });
+    };
+    // Convert series options to PointInstrumentObjects and merge with
+    // default options
+    return (seriesInstrOpts).map(function (optionSet) {
+        // Allow setting option to null to use default
+        removeNullsFromObject(optionSet.mapping || {});
+        removeNullsFromObject(optionSet);
+        return {
+            instrument: optionSet.instrument || defaultInstrOpts.instrument,
+            instrumentOptions: merge(defaultInstrOpts, optionSet, {
+                // Instrument options are lifted to root in the API options
+                // object, so merge all in order to avoid missing any. But
+                // remove the following which are not instrumentOptions:
+                mapping: void 0,
+                instrument: void 0
+            }),
+            instrumentMapping: merge(defaultInstrOpts.mapping, optionSet.mapping)
+        };
+    });
+}
+
+/**
+ * Utility function to translate between options set in chart configuration and
+ * a SonifySeriesOptionsObject.
+ * @private
+ * @param {Highcharts.Series} series The series to get options for.
+ * @returns {Highcharts.SonifySeriesOptionsObject} Options for chart/series.sonify()
+ */
+function chartOptionsToSonifySeriesOptions(series) {
+    var _a, _b;
+    var seriesOpts = series.options.sonification || {};
+    var chartOpts = series.chart.options.sonification || {};
+    var chartEvents = chartOpts.events || {};
+    var seriesEvents = seriesOpts.events || {};
+    return {
+        onEnd: seriesEvents.onSeriesEnd || chartEvents.onSeriesEnd,
+        onStart: seriesEvents.onSeriesStart || chartEvents.onSeriesStart,
+        onPointEnd: seriesEvents.onPointEnd || chartEvents.onPointEnd,
+        onPointStart: seriesEvents.onPointStart || chartEvents.onPointStart,
+        pointPlayTime: (_b = (_a = chartOpts.defaultInstrumentOptions) === null || _a === void 0 ? void 0 : _a.mapping) === null || _b === void 0 ? void 0 : _b.pointPlayTime,
+        masterVolume: chartOpts.masterVolume,
+        instruments: getSeriesInstrumentOptions(series),
+        earcons: seriesOpts.earcons || chartOpts.earcons
+    };
+}
+
+/**
+ * @private
+ * @param {Highcharts.Series} series The series to get options for.
+ * @param {Highcharts.SonifySeriesOptionsObject} options
+ *  Options to merge with user options on series/chart and default options.
+ * @returns {Highcharts.SonifySeriesOptionsObject} The merged options.
+ */
+function getSeriesSonifyOptions(series, options) {
+    var chartOpts = series.chart.options.sonification;
+    var seriesOpts = series.options.sonification;
+    return merge({
+        duration: (seriesOpts === null || seriesOpts === void 0 ? void 0 : seriesOpts.duration) || (chartOpts === null || chartOpts === void 0 ? void 0 : chartOpts.duration)
+    }, chartOptionsToSonifySeriesOptions(series), options);
+}
+
+/**
+ * @private
+ * @param {Highcharts.Chart} chart The chart to get options for.
+ * @param {Highcharts.SonificationOptions} options
+ *  Options to merge with user options on chart and default options.
+ * @returns {Highcharts.SonificationOptions} The merged options.
+ */
+function getChartSonifyOptions(chart, options) {
+    var _a, _b, _c, _d, _e;
+    var chartOpts = chart.options.sonification || {};
+    return merge({
+        duration: chartOpts.duration,
+        afterSeriesWait: chartOpts.afterSeriesWait,
+        pointPlayTime: (_b = (_a = chartOpts.defaultInstrumentOptions) === null || _a === void 0 ? void 0 : _a.mapping) === null || _b === void 0 ? void 0 : _b.pointPlayTime,
+        order: chartOpts.order,
+        onSeriesStart: (_c = chartOpts.events) === null || _c === void 0 ? void 0 : _c.onSeriesStart,
+        onSeriesEnd: (_d = chartOpts.events) === null || _d === void 0 ? void 0 : _d.onSeriesEnd,
+        onEnd: (_e = chartOpts.events) === null || _e === void 0 ? void 0 : _e.onEnd
+    }, options);
+}
+
+/**
  * Options for sonifying a chart.
  *
  * @requires module:modules/sonification
  *
- * @interface Highcharts.SonifyChartOptionsObject
+ * @interface Highcharts.SonificationOptions
  */ /**
  * Duration for sonifying the entire chart. The duration is distributed across
  * the different series intelligently, but does not take earcons into account.
  * It is also possible to set the duration explicitly per series, using
  * `seriesOptions`. Note that points may continue to play after the duration has
  * passed, but no new points will start playing.
- * @name Highcharts.SonifyChartOptionsObject#duration
+ * @name Highcharts.SonificationOptions#duration
  * @type {number}
  */ /**
  * Define the order to play the series in. This can be given as a string, or an
@@ -649,7 +832,7 @@ function buildPathsFromOrder(order, duration) {
  * designating a number of milliseconds to wait before continuing. Each element
  * of the array will be played in order. To play elements simultaneously, group
  * the elements in an array.
- * @name Highcharts.SonifyChartOptionsObject#order
+ * @name Highcharts.SonificationOptions#order
  * @type {string|Array<string|Highcharts.Earcon|Array<string|Highcharts.Earcon>>}
  */ /**
  * The axis to use for when to play the points. Can be a string with a data
@@ -658,28 +841,28 @@ function buildPathsFromOrder(order, duration) {
  * with the lowest numeric values are then played first, and the time between
  * points will be proportional to the distance between the numeric values. This
  * option can not be overridden per series.
- * @name Highcharts.SonifyChartOptionsObject#pointPlayTime
+ * @name Highcharts.SonificationOptions#pointPlayTime
  * @type {string|Function}
  */ /**
  * Milliseconds of silent waiting to add between series. Note that waiting time
  * is considered part of the sonify duration.
- * @name Highcharts.SonifyChartOptionsObject#afterSeriesWait
+ * @name Highcharts.SonificationOptions#afterSeriesWait
  * @type {number|undefined}
  */ /**
  * Options as given to `series.sonify` to override options per series. If the
  * option is supplied as an array of options objects, the `id` property of the
  * object should correspond to the series' id. If the option is supplied as a
  * single object, the options apply to all series.
- * @name Highcharts.SonifyChartOptionsObject#seriesOptions
+ * @name Highcharts.SonificationOptions#seriesOptions
  * @type {Object|Array<object>|undefined}
  */ /**
  * The instrument definitions for the points in this chart.
- * @name Highcharts.SonifyChartOptionsObject#instruments
+ * @name Highcharts.SonificationOptions#instruments
  * @type {Array<Highcharts.PointInstrumentObject>|undefined}
  */ /**
  * Earcons to add to the chart. Note that earcons can also be added per series
  * using `seriesOptions`.
- * @name Highcharts.SonifyChartOptionsObject#earcons
+ * @name Highcharts.SonificationOptions#earcons
  * @type {Array<Highcharts.EarconConfiguration>|undefined}
  */ /**
  * Optionally provide the minimum/maximum data values for the points. If this is
@@ -699,19 +882,19 @@ function buildPathsFromOrder(order, duration) {
  *          // Properties used and not provided are calculated on demand
  *      }
  *  ```
- * @name Highcharts.SonifyChartOptionsObject#dataExtremes
+ * @name Highcharts.SonificationOptions#dataExtremes
  * @type {Highcharts.Dictionary<Highcharts.RangeObject>|undefined}
  */ /**
  * Callback before a series is played.
- * @name Highcharts.SonifyChartOptionsObject#onSeriesStart
+ * @name Highcharts.SonificationOptions#onSeriesStart
  * @type {Function|undefined}
  */ /**
  * Callback after a series has finished playing.
- * @name Highcharts.SonifyChartOptionsObject#onSeriesEnd
+ * @name Highcharts.SonificationOptions#onSeriesEnd
  * @type {Function|undefined}
  */ /**
  * Callback after the chart has played.
- * @name Highcharts.SonifyChartOptionsObject#onEnd
+ * @name Highcharts.SonificationOptions#onEnd
  * @type {Function|undefined}
  */
 /**
@@ -732,27 +915,31 @@ function buildPathsFromOrder(order, duration) {
  *
  * @function Highcharts.Chart#sonify
  *
- * @param {Highcharts.SonifyChartOptionsObject} options
- *        The options for sonifying this chart.
+ * @param {Highcharts.SonificationOptions} [options]
+ *        The options for sonifying this chart. If not provided,
+ *        uses options set on chart and series.
  *
  * @return {void}
  */
 function chartSonify(options) {
+    var opts = getChartSonifyOptions(this, options);
     // Only one timeline can play at a time.
     if (this.sonification.timeline) {
         this.sonification.timeline.pause();
     }
+    // Store reference to duration
+    this.sonification.duration = opts.duration;
     // Calculate data extremes for the props used
-    var dataExtremes = getExtremesForInstrumentProps(this, options.instruments, options.dataExtremes);
+    var dataExtremes = getExtremesForInstrumentProps(this, opts.instruments, opts.dataExtremes);
     // Figure out ordering of series and custom paths
-    var order = buildPathOrder(options.order, this, function (series) {
-        return buildSeriesOptions(series, dataExtremes, options);
+    var order = buildPathOrder(opts.order, this, function (series) {
+        return buildChartSonifySeriesOptions(series, dataExtremes, opts);
     });
     // Add waits after simultaneous paths with series in them.
-    order = addAfterSeriesWaits(order, options.afterSeriesWait || 0);
+    order = addAfterSeriesWaits(order, opts.afterSeriesWait || 0);
     // We now have a list of either TimelinePath objects or series that need to
     // be converted to TimelinePath objects. Convert everything to paths.
-    var paths = buildPathsFromOrder(order, options.duration);
+    var paths = buildPathsFromOrder(order, opts.duration);
     // Sync simultaneous paths
     paths.forEach(function (simultaneousPaths) {
         syncSimultaneousPaths(simultaneousPaths);
@@ -760,11 +947,10 @@ function chartSonify(options) {
     // We have a set of paths. Create the timeline, and play it.
     this.sonification.timeline = new H.sonification.Timeline({
         paths: paths,
-        onEnd: options.onEnd
+        onEnd: opts.onEnd
     });
     this.sonification.timeline.play();
 }
-
 /**
  * Get a list of the points currently under cursor.
  *
@@ -784,12 +970,11 @@ function getCurrentPoints() {
             return cursorObj[path].eventObject;
         }).filter(function (eventObj) {
             // Return the events that are points
-            return eventObj instanceof H.Point;
+            return eventObj instanceof Point;
         });
     }
     return [];
 }
-
 /**
  * Set the cursor to a point or set of points in different series.
  *
@@ -812,7 +997,6 @@ function setCursor(points) {
         });
     }
 }
-
 /**
  * Pause the running sonification.
  *
@@ -832,7 +1016,6 @@ function pause(fadeOut) {
         this.sonification.currentlyPlayingPoint.cancelSonify(fadeOut);
     }
 }
-
 /**
  * Resume the currently running sonification. Requires series.sonify or
  * chart.sonify to have been played at some point earlier.
@@ -851,7 +1034,6 @@ function resume(onEnd) {
         this.sonification.timeline.play(onEnd);
     }
 }
-
 /**
  * Play backwards from cursor. Requires series.sonify or chart.sonify to have
  * been played at some point earlier.
@@ -870,7 +1052,6 @@ function rewind(onEnd) {
         this.sonification.timeline.rewind(onEnd);
     }
 }
-
 /**
  * Cancel current sonification and reset cursor.
  *
@@ -887,7 +1068,6 @@ function cancel(fadeOut) {
     this.pauseSonify(fadeOut);
     this.resetSonifyCursor();
 }
-
 /**
  * Reset cursor to start. Requires series.sonify or chart.sonify to have been
  * played at some point earlier.
@@ -903,7 +1083,6 @@ function resetCursor() {
         this.sonification.timeline.resetCursor();
     }
 }
-
 /**
  * Reset cursor to end. Requires series.sonify or chart.sonify to have been
  * played at some point earlier.
@@ -919,7 +1098,6 @@ function resetCursorEnd() {
         this.sonification.timeline.resetCursorEnd();
     }
 }
-
 // Export functions
 var chartSonifyFunctions = {
     chartSonify: chartSonify,

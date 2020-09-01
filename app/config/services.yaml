@@ -73,8 +73,9 @@ services:
         public: true
 
     admin.catalogue:
+
         class: App\Admin\CatalogueAdmin
-        arguments: [~, App\Entity\Catalogue, App\Controller\CatalogueAdminController, KunicMarko\SonataImporterBundle\Controller\ImportCRUDController]
+        arguments: [~, App\Entity\Catalogue, App\Controller\CatalogueAdminController, App\Controller\CatalogueAdminController]
         tags:
             - { name: sonata.admin, manager_type: orm, group: Mamias, label: MAMIAS Catalogue }
         public: true

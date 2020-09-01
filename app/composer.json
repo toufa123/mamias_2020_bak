@@ -14,12 +14,12 @@
         "creof/geo-parser": "^2.2.1",
         "creof/wkt-parser": "^2.2",
         "doctrine/doctrine-migrations-bundle": "3.0.1",
+        "doctrs/sonata-import-bundle": "dev-master",
         "excelwebzone/recaptcha-bundle": "^1.5",
         "guzzlehttp/guzzle": "^6.5.5",
         "helios-ag/fm-elfinder-bundle": "^10.0.4",
         "jms/serializer-bundle": "^3.7.0",
         "jsor/doctrine-postgis": "^1.7",
-        "kunicmarko/sonata-importer-bundle": "^0.1.2",
         "liip/imagine-bundle": "^2.3",
         "ob/highcharts-bundle": "^1.7",
         "orbitale/cms-bundle": "^3.1.1",
@@ -67,8 +67,7 @@
         "symfonycasts/reset-password-bundle": "*",
         "twig/twig": "^2.13.1",
         "vich/uploader-bundle": "1.11.*",
-        "whiteoctober/breadcrumbs-bundle": "1.4.5",
-        "kunicmarko/importer": "0.2.0"
+        "mhujer/breadcrumbs-bundle": "1.5.0"
     },
     "require-dev": {
         "symfony/debug-pack": "*",

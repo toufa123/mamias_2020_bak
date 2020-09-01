@@ -1,5 +1,5 @@
 /**
- * @license Highcharts JS v8.0.0 (2019-12-10)
+ * @license Highcharts JS v8.2.0 (2020-08-20)
  * @module highcharts/themes/avocado
  * @requires highcharts
  *
@@ -8,4 +8,4 @@
  * License: www.highcharts.com/license
  */
 'use strict';
-import '../../themes/avocado.js';
+import '../../Extensions/Themes/Avocado.js';

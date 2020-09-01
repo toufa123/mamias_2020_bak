@@ -1,5 +1,5 @@
 /**
- * @license Highcharts JS v8.0.0 (2019-12-10)
+ * @license Highcharts JS v8.2.0 (2020-08-20)
  *
  * Wind barb series module
  *
@@ -23,25 +23,25 @@
     }
 }(function (Highcharts) {
     var _modules = Highcharts ? Highcharts._modules : {};
-
     function _registerModule(obj, path, args, fn) {
         if (!obj.hasOwnProperty(path)) {
             obj[path] = fn.apply(null, args);
         }
     }
 
-    _registerModule(_modules, 'mixins/on-series.js', [_modules['parts/Globals.js'], _modules['parts/Utilities.js']], function (H, U) {
+    _registerModule(_modules, 'Mixins/OnSeries.js', [_modules['Core/Globals.js'], _modules['Core/Utilities.js']], function (H, U) {
         /* *
          *
-         *  (c) 2010-2019 Torstein Honsi
+         *  (c) 2010-2020 Torstein Honsi
          *
          *  License: www.highcharts.com/license
          *
          *  !!!!!!! SOURCE GETS TRANSPILED BY TYPESCRIPT. EDIT TS FILE ONLY. !!!!!!!
          *
          * */
-        var defined = U.defined;
-        var seriesTypes = H.seriesTypes, stableSort = H.stableSort;
+        var defined = U.defined,
+            stableSort = U.stableSort;
+        var seriesTypes = H.seriesTypes;
         /**
          * @private
          * @mixin onSeriesMixin
@@ -49,8 +49,10 @@
         var onSeriesMixin = {
             /* eslint-disable valid-jsdoc */
             /**
-             * Override getPlotBox. If the onSeries option is valid, return the plot box
-             * of the onSeries, otherwise proceed as usual.
+             * Override getPlotBox. If the onSeries option is valid,
+             return the plot box
+             * of the onSeries,
+             otherwise proceed as usual.
              *
              * @private
              * @function onSeriesMixin.getPlotBox
@@ -69,13 +71,29 @@
              */
             translate: function () {
                 seriesTypes.column.prototype.translate.apply(this);
-                var series = this, options = series.options, chart = series.chart, points = series.points,
-                    cursor = points.length - 1, point, lastPoint, optionsOnSeries = options.onSeries,
+                var series = this,
+                    options = series.options,
+                    chart = series.chart,
+                    points = series.points,
+                    cursor = points.length - 1,
+                    point,
+                    lastPoint,
+                    optionsOnSeries = options.onSeries,
                     onSeries = (optionsOnSeries &&
-                        chart.get(optionsOnSeries)), onKey = options.onKey || 'y',
-                    step = onSeries && onSeries.options.step, onData = (onSeries && onSeries.points),
-                    i = onData && onData.length, inverted = chart.inverted, xAxis = series.xAxis, yAxis = series.yAxis,
-                    xOffset = 0, leftPoint, lastX, rightPoint, currentDataGrouping, distanceRatio;
+                        chart.get(optionsOnSeries)),
+                    onKey = options.onKey || 'y',
+                    step = onSeries && onSeries.options.step,
+                    onData = (onSeries && onSeries.points),
+                    i = onData && onData.length,
+                    inverted = chart.inverted,
+                    xAxis = series.xAxis,
+                    yAxis = series.yAxis,
+                    xOffset = 0,
+                    leftPoint,
+                    lastX,
+                    rightPoint,
+                    currentDataGrouping,
+                    distanceRatio;
                 // relate to a master series
                 if (onSeries && onSeries.visible && i) {
                     xOffset = (onSeries.pointXOffset || 0) + (onSeries.barW || 0) / 2;
@@ -167,20 +185,23 @@
 
         return onSeriesMixin;
     });
-    _registerModule(_modules, 'modules/windbarb.src.js', [_modules['parts/Globals.js'], _modules['parts/Utilities.js'], _modules['mixins/on-series.js']], function (H, U, onSeriesMixin) {
+    _registerModule(_modules, 'Series/WindbarbSeries.js', [_modules['Core/Globals.js'], _modules['Core/Utilities.js'], _modules['Mixins/OnSeries.js']], function (H, U, onSeriesMixin) {
         /* *
          *
          *  Wind barb series module
          *
-         *  (c) 2010-2019 Torstein Honsi
+         *  (c) 2010-2020 Torstein Honsi
          *
          *  License: www.highcharts.com/license
          *
          *  !!!!!!! SOURCE GETS TRANSPILED BY TYPESCRIPT. EDIT TS FILE ONLY. !!!!!!!
          *
          * */
-        var animObject = U.animObject, isNumber = U.isNumber, pick = U.pick;
-        var noop = H.noop, seriesType = H.seriesType;
+        var animObject = U.animObject,
+            isNumber = U.isNumber,
+            pick = U.pick,
+            seriesType = U.seriesType;
+        var noop = H.noop;
 
         // eslint-disable-next-line valid-jsdoc
         /**
@@ -193,7 +214,10 @@
         function registerApproximation() {
             if (H.approximations && !H.approximations.windbarb) {
                 H.approximations.windbarb = function (values, directions) {
-                    var vectorX = 0, vectorY = 0, i, len = values.length;
+                    var vectorX = 0,
+                        vectorY = 0,
+                        i,
+                        len = values.length;
                     for (i = 0; i < len; i++) {
                         vectorX += values[i] * Math.cos(directions[i] * H.deg2rad);
                         vectorY += values[i] * Math.sin(directions[i] * H.deg2rad);
@@ -209,7 +233,6 @@
                 };
             }
         }
-
         registerApproximation();
         /**
          * @private
@@ -230,7 +253,7 @@
              * @extends      plotOptions.column
              * @excluding    boostThreshold, marker, connectEnds, connectNulls,
              *               cropThreshold, dashStyle, dragDrop, gapSize, gapUnit,
-             *               linecap, shadow, stacking, step
+             *               linecap, shadow, stacking, step, boostBlending
              * @since        6.0.0
              * @product      highcharts highstock
              * @requires     modules/windbarb
@@ -340,7 +363,8 @@
                 },
                 // Get presentational attributes.
                 pointAttribs: function (point, state) {
-                    var options = this.options, stroke = point.color || this.color,
+                    var options = this.options,
+                        stroke = point.color || this.color,
                         strokeWidth = this.options.lineWidth;
                     if (state) {
                         stroke = options.states[state].color || stroke;
@@ -360,8 +384,12 @@
                 // Create a single wind arrow. It is later rotated around the zero
                 // centerpoint.
                 windArrow: function (point) {
-                    var knots = point.value * 1.943844, level = point.beaufortLevel, path, barbs,
-                        u = this.options.vectorLength / 20, pos = -10;
+                    var knots = point.value * 1.943844,
+                        level = point.beaufortLevel,
+                        path,
+                        barbs,
+                        u = this.options.vectorLength / 20,
+                        pos = -10;
                     if (point.isNull) {
                         return [];
                     }
@@ -370,18 +398,18 @@
                     }
                     // The stem and the arrow head
                     path = [
-                        'M', 0, 7 * u,
-                        'L', -1.5 * u, 7 * u,
-                        0, 10 * u,
-                        1.5 * u, 7 * u,
-                        0, 7 * u,
-                        0, -10 * u // top
+                        ['M', 0, 7 * u],
+                        ['L', -1.5 * u, 7 * u],
+                        ['L', 0, 10 * u],
+                        ['L', 1.5 * u, 7 * u],
+                        ['L', 0, 7 * u],
+                        ['L', 0, -10 * u] // top
                     ];
                     // For each full 50 knots, add a pennant
                     barbs = (knots - knots % 50) / 50; // pennants
                     if (barbs > 0) {
                         while (barbs--) {
-                            path.push(pos === -10 ? 'L' : 'M', 0, pos * u, 'L', 5 * u, pos * u + 2, 'L', 0, pos * u + 4);
+                            path.push(pos === -10 ? ['L', 0, pos * u] : ['M', 0, pos * u], ['L', 5 * u, pos * u + 2], ['L', 0, pos * u + 4]);
                             // Substract from the rest and move position for next
                             knots -= 50;
                             pos += 7;
@@ -391,7 +419,7 @@
                     barbs = (knots - knots % 10) / 10;
                     if (barbs > 0) {
                         while (barbs--) {
-                            path.push(pos === -10 ? 'L' : 'M', 0, pos * u, 'L', 7 * u, pos * u);
+                            path.push(pos === -10 ? ['L', 0, pos * u] : ['M', 0, pos * u], ['L', 7 * u, pos * u]);
                             knots -= 10;
                             pos += 3;
                         }
@@ -400,7 +428,7 @@
                     barbs = (knots - knots % 5) / 5; // half barbs
                     if (barbs > 0) {
                         while (barbs--) {
-                            path.push(pos === -10 ? 'L' : 'M', 0, pos * u, 'L', 4 * u, pos * u);
+                            path.push(pos === -10 ? ['L', 0, pos * u] : ['M', 0, pos * u], ['L', 4 * u, pos * u]);
                             knots -= 5;
                             pos += 3;
                         }
@@ -408,7 +436,8 @@
                     return path;
                 },
                 translate: function () {
-                    var beaufortFloor = this.beaufortFloor, beaufortName = this.beaufortName;
+                    var beaufortFloor = this.beaufortFloor,
+                        beaufortName = this.beaufortName;
                     onSeriesMixin.translate.call(this);
                     this.points.forEach(function (point) {
                         var level = 0;
@@ -423,10 +452,13 @@
                     });
                 },
                 drawPoints: function () {
-                    var chart = this.chart, yAxis = this.yAxis, inverted = chart.inverted,
+                    var chart = this.chart,
+                        yAxis = this.yAxis,
+                        inverted = chart.inverted,
                         shapeOffset = this.options.vectorLength / 2;
                     this.points.forEach(function (point) {
-                        var plotX = point.plotX, plotY = point.plotY;
+                        var plotX = point.plotX,
+                            plotY = point.plotY;
                         // Check if it's inside the plot area, but only for the X
                         // dimension.
                         if (this.options.clip === false ||
@@ -476,13 +508,14 @@
                         this.markerGroup.animate({
                             opacity: 1
                         }, animObject(this.options.animation));
-                        this.animate = null;
                     }
                 },
                 // Don't invert the marker group (#4960)
                 invertGroups: noop,
                 // No data extremes for the Y axis
-                getExtremes: noop
+                getExtremes: function () {
+                    return ({});
+                }
             }, {
                 isValid: function () {
                     return isNumber(this.value) && this.value >= 0;
@@ -493,7 +526,7 @@
          * specified, it is inherited from [chart.type](#chart.type).
          *
          * @extends   series,plotOptions.windbarb
-         * @excluding dataParser, dataURL
+         * @excluding dataParser, dataURL, boostThreshold, boostBlending
          * @product   highcharts highstock
          * @requires  modules/windbarb
          * @apioption series.windbarb
@@ -549,7 +582,7 @@
         /**
          * The wind speed in meters per second.
          *
-         * @type      {number}
+         * @type      {number|null}
          * @product   highcharts highstock
          * @apioption series.windbarb.data.value
          */

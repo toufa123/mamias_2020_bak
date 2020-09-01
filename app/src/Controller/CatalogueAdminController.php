@@ -7,10 +7,17 @@ namespace App\Controller;
 use Sonata\AdminBundle\Controller\CRUDController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use KunicMarko\SonataImporterBundle\Controller\ImportCRUDController as import;
+use Symfony\Component\Routing\Annotation\Route;
 
-final class CatalogueAdminController extends import
+final class CatalogueAdminController extends CRUDController
 {
+    /**
+     * @Route("/catalogue/import", name="importcatalogue")
+     */
 
+    public function importAction(Request $request)
+    {
+        return $this->renderWithExtraParams('admin/catalogue/import.html.twig');
+    }
 
 }

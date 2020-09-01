@@ -1,5 +1,5 @@
 /**
- * @license Highcharts JS v8.0.0 (2019-12-10)
+ * @license Highcharts JS v8.2.0 (2020-08-20)
  *
  * Dot plot series type for Highcharts
  *
@@ -23,17 +23,16 @@
     }
 }(function (Highcharts) {
     var _modules = Highcharts ? Highcharts._modules : {};
-
     function _registerModule(obj, path, args, fn) {
         if (!obj.hasOwnProperty(path)) {
             obj[path] = fn.apply(null, args);
         }
     }
 
-    _registerModule(_modules, 'modules/dotplot.src.js', [_modules['parts/Globals.js'], _modules['parts/Utilities.js']], function (H, U) {
+    _registerModule(_modules, 'Series/DotplotSeries.js', [_modules['Core/Renderer/SVG/SVGRenderer.js'], _modules['Core/Utilities.js']], function (SVGRenderer, U) {
         /* *
          *
-         *  (c) 2009-2019 Torstein Honsi
+         *  (c) 2009-2020 Torstein Honsi
          *
          *  Dot plot series type for Highcharts
          *
@@ -49,8 +48,10 @@
          * - Custom icons like persons, carts etc. Either as images, font icons or
          *   Highcharts symbols.
          */
-        var extend = U.extend, objectEach = U.objectEach, pick = U.pick;
-        var seriesType = H.seriesType;
+        var extend = U.extend,
+            objectEach = U.objectEach,
+            pick = U.pick,
+            seriesType = U.seriesType;
         /**
          * @private
          * @class
@@ -68,16 +69,31 @@
                 }
             }
         }, {
+            markerAttribs: void 0,
             drawPoints: function () {
-                var series = this, renderer = series.chart.renderer, seriesMarkerOptions = this.options.marker,
+                var series = this,
+                    renderer = series.chart.renderer,
+                    seriesMarkerOptions = this.options.marker,
                     itemPaddingTranslated = this.yAxis.transA *
-                        series.options.itemPadding, borderWidth = this.borderWidth, crisp = borderWidth % 2 ? 0.5 : 1;
+                        series.options.itemPadding,
+                    borderWidth = this.borderWidth,
+                    crisp = borderWidth % 2 ? 0.5 : 1;
                 this.points.forEach(function (point) {
-                    var yPos, attr, graphics, itemY, pointAttr, pointMarkerOptions = point.marker || {},
+                    var yPos,
+                        attr,
+                        graphics,
+                        itemY,
+                        pointAttr,
+                        pointMarkerOptions = point.marker || {},
                         symbol = (pointMarkerOptions.symbol ||
                             seriesMarkerOptions.symbol),
-                        radius = pick(pointMarkerOptions.radius, seriesMarkerOptions.radius), size, yTop,
-                        isSquare = symbol !== 'rect', x, y;
+                        radius = pick(pointMarkerOptions.radius,
+                            seriesMarkerOptions.radius),
+                        size,
+                        yTop,
+                        isSquare = symbol !== 'rect',
+                        x,
+                        y;
                     point.graphics = graphics = point.graphics || {};
                     pointAttr = point.pointAttr ?
                         (point.pointAttr[point.selected ? 'selected' : ''] ||
@@ -134,8 +150,8 @@
                 });
             }
         });
-        H.SVGRenderer.prototype.symbols.rect = function (x, y, w, h, options) {
-            return H.SVGRenderer.prototype.symbols.callout(x, y, w, h, options);
+        SVGRenderer.prototype.symbols.rect = function (x, y, w, h, options) {
+            return SVGRenderer.prototype.symbols.callout(x, y, w, h, options);
         };
 
     });

@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2009-2019 Øystein Moseng
+ *  (c) 2009-2020 Øystein Moseng
  *
  *  Utility functions for sonification.
  *
@@ -11,10 +11,8 @@
  * */
 'use strict';
 import musicalFrequencies from './musicalFrequencies.js';
-import U from '../../parts/Utilities.js';
-
+import U from '../../Core/Utilities.js';
 var clamp = U.clamp;
-
 /* eslint-disable no-invalid-this, valid-jsdoc */
 /**
  * The SignalHandler class. Stores signal callbacks (event handlers), and
@@ -33,7 +31,6 @@ var clamp = U.clamp;
 function SignalHandler(supportedSignals) {
     this.init(supportedSignals || []);
 }
-
 SignalHandler.prototype.init = function (supportedSignals) {
     this.supportedSignals = supportedSignals;
     this.signals = {};
@@ -149,17 +146,21 @@ var utilities = {
      * @private
      * @param {number} value
      * The relative data value to translate.
-     * @param {Highcharts.RangeObject} dataExtremes
+     * @param {Highcharts.RangeObject} DataExtremesObject
      * The possible extremes for this value.
      * @param {object} limits
      * Limits for the virtual axis.
+     * @param {boolean} [invert]
+     * Invert the virtual axis.
      * @return {number}
      * The value mapped to the virtual axis.
      */
-    virtualAxisTranslate: function (value, dataExtremes, limits) {
-        var lenValueAxis = dataExtremes.max - dataExtremes.min, lenVirtualAxis = limits.max - limits.min,
-            virtualAxisValue = limits.min +
-                lenVirtualAxis * (value - dataExtremes.min) / lenValueAxis;
+    virtualAxisTranslate: function (value, dataExtremes, limits, invert) {
+        var lenValueAxis = dataExtremes.max - dataExtremes.min, lenVirtualAxis = Math.abs(limits.max - limits.min),
+            valueDelta = invert ?
+                dataExtremes.max - value :
+                value - dataExtremes.min, virtualValueDelta = lenVirtualAxis * valueDelta / lenValueAxis,
+            virtualAxisValue = limits.min + virtualValueDelta;
         return lenValueAxis > 0 ?
             clamp(virtualAxisValue, limits.min, limits.max) :
             limits.min;

@@ -1,5 +1,5 @@
 /**
- * @license Highcharts JS v8.0.0 (2019-12-10)
+ * @license Highcharts JS v8.2.0 (2020-08-20)
  *
  * (c) 2017-2019 Highsoft AS
  * Authors: Jon Arild Nygard
@@ -22,14 +22,13 @@
     }
 }(function (Highcharts) {
     var _modules = Highcharts ? Highcharts._modules : {};
-
     function _registerModule(obj, path, args, fn) {
         if (!obj.hasOwnProperty(path)) {
             obj[path] = fn.apply(null, args);
         }
     }
 
-    _registerModule(_modules, 'mixins/draw-point.js', [], function () {
+    _registerModule(_modules, 'Mixins/DrawPoint.js', [], function () {
         /* *
          *
          *  !!!!!!! SOURCE GETS TRANSPILED BY TYPESCRIPT. EDIT TS FILE ONLY. !!!!!!!
@@ -53,8 +52,14 @@
          * @todo export this function to enable usage
          */
         var draw = function draw(params) {
-            var component = this, graphic = component.graphic, animatableAttribs = params.animatableAttribs,
-                onComplete = params.onComplete, css = params.css, renderer = params.renderer;
+            var _a;
+            var component = this,
+                graphic = component.graphic,
+                animatableAttribs = params.animatableAttribs,
+                onComplete = params.onComplete,
+                css = params.css,
+                renderer = params.renderer,
+                animation = (_a = component.series) === null || _a === void 0 ? void 0 : _a.options.animation;
             if (component.shouldDraw()) {
                 if (!graphic) {
                     component.graphic = graphic =
@@ -64,7 +69,7 @@
                 graphic
                     .css(css)
                     .attr(params.attribs)
-                    .animate(animatableAttribs, params.isNew ? false : void 0, onComplete);
+                    .animate(animatableAttribs, params.isNew ? false : animation, onComplete);
             } else if (graphic) {
                 var destroy = function () {
                     component.graphic = graphic = graphic.destroy();
@@ -89,17 +94,23 @@
          * @param {Highcharts.Dictionary<any>} params Parameters
          */
         var drawPoint = function drawPoint(params) {
-            var point = this, attribs = params.attribs = params.attribs || {};
+            var point = this,
+                attribs = params.attribs = params.attribs || {};
             // Assigning class in dot notation does go well in IE8
             // eslint-disable-next-line dot-notation
             attribs['class'] = point.getClassName();
             // Call draw to render component
             draw.call(point, params);
         };
+        var drawPointModule = {
+            draw: draw,
+            drawPoint: drawPoint,
+            isFn: isFn
+        };
 
-        return drawPoint;
+        return drawPointModule;
     });
-    _registerModule(_modules, 'mixins/geometry.js', [], function () {
+    _registerModule(_modules, 'Mixins/Geometry.js', [], function () {
         /* *
          *
          *  !!!!!!! SOURCE GETS TRANSPILED BY TYPESCRIPT. EDIT TS FILE ONLY. !!!!!!!
@@ -114,7 +125,8 @@
          *         Calculated center
          */
         var getCenterOfPoints = function getCenterOfPoints(points) {
-            var sum = points.reduce(function (sum, point) {
+            var sum = points.reduce(function (sum,
+                                              point) {
                 sum.x += point.x;
                 sum.y += point.y;
                 return sum;
@@ -135,7 +147,8 @@
          * @return {number}
          *         Returns the distance between the points.
          */
-        var getDistanceBetweenPoints = function getDistanceBetweenPoints(p1, p2) {
+        var getDistanceBetweenPoints = function getDistanceBetweenPoints(p1,
+                                                                         p2) {
             return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
         };
         /**
@@ -146,8 +159,10 @@
          * @param {Highcharts.PositionObject} p2 The second point.
          * @return {number} Returns the angle in radians.
          */
-        var getAngleBetweenPoints = function getAngleBetweenPoints(p1, p2) {
-            return Math.atan2(p2.x - p1.x, p2.y - p1.y);
+        var getAngleBetweenPoints = function getAngleBetweenPoints(p1,
+                                                                   p2) {
+            return Math.atan2(p2.x - p1.x,
+                p2.y - p1.y);
         };
         var geometry = {
             getAngleBetweenPoints: getAngleBetweenPoints,
@@ -157,14 +172,15 @@
 
         return geometry;
     });
-    _registerModule(_modules, 'mixins/geometry-circles.js', [_modules['mixins/geometry.js']], function (geometry) {
+    _registerModule(_modules, 'Mixins/GeometryCircles.js', [_modules['Mixins/Geometry.js']], function (Geometry) {
         /* *
          *
          *  !!!!!!! SOURCE GETS TRANSPILED BY TYPESCRIPT. EDIT TS FILE ONLY. !!!!!!!
          *
          * */
-        var getAngleBetweenPoints = geometry.getAngleBetweenPoints, getCenterOfPoints = geometry.getCenterOfPoints,
-            getDistanceBetweenPoints = geometry.getDistanceBetweenPoints;
+        var getAngleBetweenPoints = Geometry.getAngleBetweenPoints,
+            getCenterOfPoints = Geometry.getCenterOfPoints,
+            getDistanceBetweenPoints = Geometry.getDistanceBetweenPoints;
 
         /**
          * @private
@@ -176,10 +192,10 @@
          *         Rounded number
          */
         function round(x, decimals) {
-            var a = Math.pow(10, decimals);
+            var a = Math.pow(10,
+                decimals);
             return Math.round(x * a) / a;
         }
-
         /**
          * Calculates the area of a circle based on its radius.
          * @private
@@ -194,7 +210,6 @@
             }
             return Math.PI * r * r;
         }
-
         /**
          * Calculates the area of a circular segment based on the radius of the circle
          * and the height of the segment.
@@ -210,7 +225,6 @@
         function getCircularSegmentArea(r, h) {
             return r * r * Math.acos(1 - h / r) - (r - h) * Math.sqrt(h * (2 * r - h));
         }
-
         /**
          * Calculates the area of overlap between two circles based on their radiuses
          * and the distance between them.
@@ -247,7 +261,6 @@
             }
             return overlap;
         }
-
         /**
          * Calculates the intersection points of two circles.
          *
@@ -261,17 +274,27 @@
          *         Returns the resulting intersection points.
          */
         function getCircleCircleIntersection(c1, c2) {
-            var d = getDistanceBetweenPoints(c1, c2), r1 = c1.r, r2 = c2.r;
+            var d = getDistanceBetweenPoints(c1,
+                c2),
+                r1 = c1.r,
+                r2 = c2.r;
             var points = [];
             if (d < r1 + r2 && d > Math.abs(r1 - r2)) {
                 // If the circles are overlapping, but not completely overlapping, then
                 // it exists intersecting points.
-                var r1Square = r1 * r1, r2Square = r2 * r2,
+                var r1Square = r1 * r1,
+                    r2Square = r2 * r2,
                     // d^2 - r^2 + R^2 / 2d
                     x = (r1Square - r2Square + d * d) / (2 * d),
                     // y^2 = R^2 - x^2
-                    y = Math.sqrt(r1Square - x * x), x1 = c1.x, x2 = c2.x, y1 = c1.y, y2 = c2.y,
-                    x0 = x1 + x * (x2 - x1) / d, y0 = y1 + x * (y2 - y1) / d, rx = -(y2 - y1) * (y / d),
+                    y = Math.sqrt(r1Square - x * x),
+                    x1 = c1.x,
+                    x2 = c2.x,
+                    y1 = c1.y,
+                    y2 = c2.y,
+                    x0 = x1 + x * (x2 - x1) / d,
+                    y0 = y1 + x * (y2 - y1) / d,
+                    rx = -(y2 - y1) * (y / d),
                     ry = -(x2 - x1) * (y / d);
                 points = [
                     {x: round(x0 + rx, 14), y: round(y0 - ry, 14)},
@@ -280,7 +303,6 @@
             }
             return points;
         }
-
         /**
          * Calculates all the intersection points for between a list of circles.
          * @private
@@ -292,8 +314,11 @@
         function getCirclesIntersectionPoints(circles) {
             return circles.reduce(function (points, c1, i, arr) {
                 var additional = arr.slice(i + 1)
-                    .reduce(function (points, c2, j) {
-                        var indexes = [i, j + i + 1];
+                    .reduce(function (points,
+                                      c2,
+                                      j) {
+                        var indexes = [i,
+                            j + i + 1];
                         return points.concat(getCircleCircleIntersection(c1, c2)
                             .map(function (p) {
                                 p.indexes = indexes;
@@ -303,7 +328,6 @@
                 return points.concat(additional);
             }, []);
         }
-
         /**
          * Tests wether the first circle is completely overlapping the second circle.
          *
@@ -317,7 +341,6 @@
             return getDistanceBetweenPoints(circle1, circle2) + circle2.r <
                 circle1.r + 1e-10;
         }
-
         /**
          * Tests wether a point lies within a given circle.
          * @private
@@ -331,7 +354,6 @@
         function isPointInsideCircle(point, circle) {
             return getDistanceBetweenPoints(point, circle) <= circle.r + 1e-10;
         }
-
         /**
          * Tests wether a point lies within a set of circles.
          * @private
@@ -347,7 +369,6 @@
                 return !isPointInsideCircle(point, circle);
             });
         }
-
         /**
          * Tests wether a point lies outside a set of circles.
          *
@@ -365,7 +386,6 @@
                 return isPointInsideCircle(point, circle);
             });
         }
-
         /**
          * Calculates the points for the polygon of the intersection area between a set
          * of circles.
@@ -382,7 +402,6 @@
                     return isPointInsideAllCircles(p, circles);
                 });
         }
-
         /**
          * Calculate the path for the area of overlap between a set of circles.
          * @todo handle cases with only 1 or 0 arcs.
@@ -394,7 +413,8 @@
          *         there are no intersection between all the circles.
          */
         function getAreaOfIntersectionBetweenCircles(circles) {
-            var intersectionPoints = getCirclesIntersectionPolygon(circles), result;
+            var intersectionPoints = getCirclesIntersectionPolygon(circles),
+                result;
             if (intersectionPoints.length > 1) {
                 // Calculate the center of the intersection points.
                 var center_1 = getCenterOfPoints(intersectionPoints);
@@ -410,8 +430,11 @@
                     });
                 var startPoint = intersectionPoints[intersectionPoints.length - 1];
                 var arcs = intersectionPoints
-                    .reduce(function (data, p1) {
-                        var startPoint = data.startPoint, midPoint = getCenterOfPoints([startPoint, p1]);
+                    .reduce(function (data,
+                                      p1) {
+                        var startPoint = data.startPoint,
+                            midPoint = getCenterOfPoints([startPoint,
+                                p1]);
                         // Calculate the arc from the intersection points and their
                         // circles.
                         var arc = p1.indexes
@@ -423,9 +446,14 @@
                             // Iterate the circles of the intersection points and
                             // calculate arcs.
                             .reduce(function (arc, index) {
-                                var circle = circles[index], angle1 = getAngleBetweenPoints(circle, p1),
-                                    angle2 = getAngleBetweenPoints(circle, startPoint), angleDiff = angle2 - angle1 +
-                                    (angle2 < angle1 ? 2 * Math.PI : 0), angle = angle2 - angleDiff / 2;
+                                var circle = circles[index],
+                                    angle1 = getAngleBetweenPoints(circle,
+                                        p1),
+                                    angle2 = getAngleBetweenPoints(circle,
+                                        startPoint),
+                                    angleDiff = angle2 - angle1 +
+                                        (angle2 < angle1 ? 2 * Math.PI : 0),
+                                    angle = angle2 - angleDiff / 2;
                                 var width = getDistanceBetweenPoints(midPoint, {
                                     x: circle.x + circle.r * Math.sin(angle),
                                     y: circle.y + circle.r * Math.cos(angle)
@@ -492,7 +520,7 @@
 
         return geometryCircles;
     });
-    _registerModule(_modules, 'mixins/nelder-mead.js', [], function () {
+    _registerModule(_modules, 'Mixins/NelderMead.js', [], function () {
         /* *
          *
          *  !!!!!!! SOURCE GETS TRANSPILED BY TYPESCRIPT. EDIT TS FILE ONLY. !!!!!!!
@@ -500,10 +528,14 @@
          * */
         /* eslint-disable valid-jsdoc */
         var getCentroid = function (simplex) {
-            var arr = simplex.slice(0, -1), length = arr.length, result = [], sum = function (data, point) {
-                data.sum += point[data.i];
-                return data;
-            };
+            var arr = simplex.slice(0, -1),
+                length = arr.length,
+                result = [],
+                sum = function (data,
+                                point) {
+                    data.sum += point[data.i];
+                    return data;
+                };
             for (var i = 0; i < length; i++) {
                 result[i] = arr.reduce(sum, {sum: 0, i: i}).sum / length;
             }
@@ -521,8 +553,11 @@
          * @return {Highcharts.NelderMeadPointArray}
          *         Returns the opimized position of a point.
          */
-        var nelderMead = function nelderMead(fn, initial) {
-            var maxIterations = 100, sortByFx = function (a, b) {
+        var nelderMead = function nelderMead(fn,
+                                             initial) {
+            var maxIterations = 100,
+                sortByFx = function (a,
+                                     b) {
                     return a.fx - b.fx;
                 }, pRef = 1, // Reflection parameter
                 pExp = 2, // Expansion parameter
@@ -532,8 +567,12 @@
             /**
              * @private
              */
-            var weightedSum = function weightedSum(weight1, v1, weight2, v2) {
-                return v1.map(function (x, i) {
+            var weightedSum = function weightedSum(weight1,
+                                                   v1,
+                                                   weight2,
+                                                   v2) {
+                return v1.map(function (x,
+                                        i) {
                     return weight1 * x + weight2 * v2[i];
                 });
             };
@@ -541,7 +580,8 @@
              * @private
              */
             var getSimplex = function getSimplex(initial) {
-                var n = initial.length, simplex = new Array(n + 1);
+                var n = initial.length,
+                    simplex = new Array(n + 1);
                 // Initial point to the simplex.
                 simplex[0] = initial;
                 simplex[0].fx = fn(initial);
@@ -554,7 +594,8 @@
                 }
                 return simplex;
             };
-            var updateSimplex = function (simplex, point) {
+            var updateSimplex = function (simplex,
+                                          point) {
                 point.fx = fn(point);
                 simplex[simplex.length - 1] = point;
                 return simplex;
@@ -562,13 +603,22 @@
             var shrinkSimplex = function (simplex) {
                 var best = simplex[0];
                 return simplex.map(function (point) {
-                    var p = weightedSum(1 - pShrink, best, pShrink, point);
+                    var p = weightedSum(1 - pShrink,
+                        best,
+                        pShrink,
+                        point);
                     p.fx = fn(p);
                     return p;
                 });
             };
-            var getPoint = function (centroid, worst, a, b) {
-                var point = weightedSum(a, centroid, b, worst);
+            var getPoint = function (centroid,
+                                     worst,
+                                     a,
+                                     b) {
+                var point = weightedSum(a,
+                    centroid,
+                    b,
+                    worst);
                 point.fx = fn(point);
                 return point;
             };
@@ -582,10 +632,12 @@
                 var worst = simplex[simplex.length - 1];
                 var centroid = getCentroid(simplex);
                 // Calculate the reflected point.
-                var reflected = getPoint(centroid, worst, 1 + pRef, -pRef);
+                var reflected = getPoint(centroid,
+                    worst, 1 + pRef, -pRef);
                 if (reflected.fx < simplex[0].fx) {
                     // If reflected point is the best, then possibly expand.
-                    var expanded = getPoint(centroid, worst, 1 + pExp, -pExp);
+                    var expanded = getPoint(centroid,
+                        worst, 1 + pExp, -pExp);
                     simplex = updateSimplex(simplex, (expanded.fx < reflected.fx) ? expanded : reflected);
                 } else if (reflected.fx >= simplex[simplex.length - 2].fx) {
                     // If the reflected point is worse than the second worse, then
@@ -615,20 +667,20 @@
             }
             return simplex[0];
         };
-        var content = {
+        var nelderMeadMixin = {
             getCentroid: getCentroid,
             nelderMead: nelderMead
         };
 
-        return content;
+        return nelderMeadMixin;
     });
-    _registerModule(_modules, 'modules/venn.src.js', [_modules['parts/Globals.js'], _modules['mixins/draw-point.js'], _modules['mixins/geometry.js'], _modules['mixins/geometry-circles.js'], _modules['mixins/nelder-mead.js'], _modules['parts/Utilities.js']], function (H, draw, geometry, GeometryCircleMixin, NelderMeadModule, U) {
+    _registerModule(_modules, 'Series/VennSeries.js', [_modules['Core/Color.js'], _modules['Core/Globals.js'], _modules['Core/Utilities.js'], _modules['Mixins/DrawPoint.js'], _modules['Mixins/Geometry.js'], _modules['Mixins/GeometryCircles.js'], _modules['Mixins/NelderMead.js']], function (Color, H, U, drawPointModule, geometry, geometryCirclesModule, nelderMeadMixin) {
         /* *
          *
          *  Experimental Highcharts module which enables visualization of a Venn
          *  diagram.
          *
-         *  (c) 2016-2019 Highsoft AS
+         *  (c) 2016-2020 Highsoft AS
          *  Authors: Jon Arild Nygard
          *
          *  Layout algorithm by Ben Frederickson:
@@ -639,21 +691,29 @@
          *  !!!!!!! SOURCE GETS TRANSPILED BY TYPESCRIPT. EDIT TS FILE ONLY. !!!!!!!
          *
          * */
-        var getAreaOfCircle = GeometryCircleMixin.getAreaOfCircle,
-            getAreaOfIntersectionBetweenCircles = GeometryCircleMixin.getAreaOfIntersectionBetweenCircles,
-            getCircleCircleIntersection = GeometryCircleMixin.getCircleCircleIntersection,
-            getCirclesIntersectionPolygon = GeometryCircleMixin.getCirclesIntersectionPolygon,
-            getOverlapBetweenCirclesByDistance = GeometryCircleMixin.getOverlapBetweenCircles,
-            isCircle1CompletelyOverlappingCircle2 = GeometryCircleMixin.isCircle1CompletelyOverlappingCircle2,
-            isPointInsideAllCircles = GeometryCircleMixin.isPointInsideAllCircles,
-            isPointInsideCircle = GeometryCircleMixin.isPointInsideCircle,
-            isPointOutsideAllCircles = GeometryCircleMixin.isPointOutsideAllCircles;
-        // TODO: replace with individual imports
-        var nelderMead = NelderMeadModule.nelderMead;
-        var animObject = U.animObject, isArray = U.isArray, isNumber = U.isNumber, isObject = U.isObject,
-            isString = U.isString;
-        var addEvent = H.addEvent, color = H.Color, extend = H.extend, getCenterOfPoints = geometry.getCenterOfPoints,
-            getDistanceBetweenPoints = geometry.getDistanceBetweenPoints, merge = H.merge, seriesType = H.seriesType,
+        var color = Color.parse;
+        var addEvent = U.addEvent,
+            animObject = U.animObject,
+            extend = U.extend,
+            isArray = U.isArray,
+            isNumber = U.isNumber,
+            isObject = U.isObject,
+            isString = U.isString,
+            merge = U.merge,
+            seriesType = U.seriesType;
+        var draw = drawPointModule.draw;
+        var getAreaOfCircle = geometryCirclesModule.getAreaOfCircle,
+            getAreaOfIntersectionBetweenCircles = geometryCirclesModule.getAreaOfIntersectionBetweenCircles,
+            getCircleCircleIntersection = geometryCirclesModule.getCircleCircleIntersection,
+            getCirclesIntersectionPolygon = geometryCirclesModule.getCirclesIntersectionPolygon,
+            getOverlapBetweenCirclesByDistance = geometryCirclesModule.getOverlapBetweenCircles,
+            isCircle1CompletelyOverlappingCircle2 = geometryCirclesModule.isCircle1CompletelyOverlappingCircle2,
+            isPointInsideAllCircles = geometryCirclesModule.isPointInsideAllCircles,
+            isPointInsideCircle = geometryCirclesModule.isPointInsideCircle,
+            isPointOutsideAllCircles = geometryCirclesModule.isPointOutsideAllCircles;
+        var nelderMead = nelderMeadMixin.nelderMead;
+        var getCenterOfPoints = geometry.getCenterOfPoints,
+            getDistanceBetweenPoints = geometry.getDistanceBetweenPoints,
             seriesTypes = H.seriesTypes;
         var objectValues = function objectValues(obj) {
             return Object.keys(obj).map(function (x) {
@@ -691,7 +751,8 @@
          * @return {number}
          * Returns the loss between positions of the circles for the given relations.
          */
-        var loss = function loss(mapOfIdToCircle, relations) {
+        var loss = function loss(mapOfIdToCircle,
+                                 relations) {
             var precision = 10e10;
             // Iterate all the relations and calculate their individual loss.
             return relations.reduce(function (totalLoss, relation) {
@@ -732,8 +793,18 @@
          * @return {number}
          * Root number.
          */
-        var bisect = function bisect(f, a, b, tolerance, maxIterations) {
-            var fA = f(a), fB = f(b), nMax = maxIterations || 100, tol = tolerance || 1e-10, delta = b - a, n = 1, x,
+        var bisect = function bisect(f,
+                                     a,
+                                     b,
+                                     tolerance,
+                                     maxIterations) {
+            var fA = f(a),
+                fB = f(b),
+                nMax = maxIterations || 100,
+                tol = tolerance || 1e-10,
+                delta = b - a,
+                n = 1,
+                x,
                 fX;
             if (a >= b) {
                 throw new Error('a must be smaller than b.');
@@ -775,8 +846,11 @@
          * Returns the distance needed to get the wanted overlap between the two
          * circles.
          */
-        var getDistanceBetweenCirclesByOverlap = function getDistanceBetweenCirclesByOverlap(r1, r2, overlap) {
-            var maxDistance = r1 + r2, distance;
+        var getDistanceBetweenCirclesByOverlap = function getDistanceBetweenCirclesByOverlap(r1,
+                                                                                             r2,
+                                                                                             overlap) {
+            var maxDistance = r1 + r2,
+                distance;
             if (overlap <= 0) {
                 // If overlap is below or equal to zero, then there is no overlap.
                 distance = maxDistance;
@@ -786,7 +860,9 @@
                 distance = 0;
             } else {
                 distance = bisect(function (x) {
-                    var actualOverlap = getOverlapBetweenCirclesByDistance(r1, r2, x);
+                    var actualOverlap = getOverlapBetweenCirclesByDistance(r1,
+                        r2,
+                        x);
                     // Return the differance between wanted and actual overlap.
                     return overlap - actualOverlap;
                 }, 0, maxDistance);
@@ -811,13 +887,18 @@
          * @return {number}
          * Returns the margin.
          */
-        var getMarginFromCircles = function getMarginFromCircles(point, internal, external) {
-            var margin = internal.reduce(function (margin, circle) {
-                var m = circle.r - getDistanceBetweenPoints(point, circle);
+        var getMarginFromCircles = function getMarginFromCircles(point,
+                                                                 internal,
+                                                                 external) {
+            var margin = internal.reduce(function (margin,
+                                                   circle) {
+                var m = circle.r - getDistanceBetweenPoints(point,
+                    circle);
                 return (m <= margin) ? m : margin;
             }, Number.MAX_VALUE);
             margin = external.reduce(function (margin, circle) {
-                var m = getDistanceBetweenPoints(point, circle) - circle.r;
+                var m = getDistanceBetweenPoints(point,
+                    circle) - circle.r;
                 return (m <= margin) ? m : margin;
             }, margin);
             return margin;
@@ -836,9 +917,11 @@
          * @return {Highcharts.PositionObject}
          * Returns the found position.
          */
-        var getLabelPosition = function getLabelPosition(internal, external) {
+        var getLabelPosition = function getLabelPosition(internal,
+                                                         external) {
             // Get the best label position within the internal circles.
-            var best = internal.reduce(function (best, circle) {
+            var best = internal.reduce(function (best,
+                                                 circle) {
                 var d = circle.r / 2;
                 // Give a set of points with the circle to evaluate as the best label
                 // position.
@@ -852,7 +935,9 @@
                     // Iterate the given points and return the one with the largest
                     // margin.
                     .reduce(function (best, point) {
-                        var margin = getMarginFromCircles(point, internal, external);
+                        var margin = getMarginFromCircles(point,
+                            internal,
+                            external);
                         // If the margin better than the current best, then update best.
                         if (best.margin < margin) {
                             best.point = point;
@@ -866,7 +951,12 @@
             }).point;
             // Use nelder mead to optimize the initial label position.
             var optimal = nelderMead(function (p) {
-                return -(getMarginFromCircles({x: p[0], y: p[1]}, internal, external));
+                return -(getMarginFromCircles({
+                        x: p[0],
+                        y: p[1]
+                    },
+                    internal,
+                    external));
             }, [best.x, best.y]);
             // Update best to be the point which was found to have the best margin.
             best = {
@@ -904,21 +994,29 @@
          * @return {number}
          * Returns available width for the label.
          */
-        var getLabelWidth = function getLabelWidth(pos, internal, external) {
-            var radius = internal.reduce(function (min, circle) {
-                    return Math.min(circle.r, min);
+        var getLabelWidth = function getLabelWidth(pos,
+                                                   internal,
+                                                   external) {
+            var radius = internal.reduce(function (min,
+                                                   circle) {
+                    return Math.min(circle.r,
+                        min);
                 }, Infinity),
                 // Filter out external circles that are completely overlapping.
                 filteredExternals = external.filter(function (circle) {
                     return !isPointInsideCircle(pos, circle);
                 });
-            var findDistance = function (maxDistance, direction) {
+            var findDistance = function (maxDistance,
+                                         direction) {
                 return bisect(function (x) {
                     var testPos = {
-                        x: pos.x + (direction * x),
-                        y: pos.y
-                    }, isValid = (isPointInsideAllCircles(testPos, internal) &&
-                        isPointOutsideAllCircles(testPos, filteredExternals));
+                            x: pos.x + (direction * x),
+                            y: pos.y
+                        },
+                        isValid = (isPointInsideAllCircles(testPos,
+                            internal) &&
+                            isPointOutsideAllCircles(testPos,
+                                filteredExternals));
                     // If the position is valid, then we want to move towards the max
                     // distance. If not, then we want to  away from the max distance.
                     return -(maxDistance - x) + (isValid ? 0 : Number.MAX_VALUE);
@@ -927,7 +1025,6 @@
             // Find the smallest distance of left and right.
             return Math.min(findDistance(radius, -1), findDistance(radius, 1)) * 2;
         };
-
         /**
          * Calulates data label values for a given relations object.
          *
@@ -942,7 +1039,8 @@
         function getLabelValues(relation, setRelations) {
             var sets = relation.sets;
             // Create a list of internal and external circles.
-            var data = setRelations.reduce(function (data, set) {
+            var data = setRelations.reduce(function (data,
+                                                     set) {
                 // If the set exists in this relation, then it is internal,
                 // otherwise it will be external.
                 var isInternal = sets.indexOf(set.sets[0]) > -1;
@@ -961,15 +1059,17 @@
                 });
             });
             // Calulate the label position.
-            var position = getLabelPosition(data.internal, data.external);
+            var position = getLabelPosition(data.internal,
+                data.external);
             // Calculate the label width
-            var width = getLabelWidth(position, data.internal, data.external);
+            var width = getLabelWidth(position,
+                data.internal,
+                data.external);
             return {
                 position: position,
                 width: width
             };
         }
-
         /**
          * Takes an array of relations and adds the properties `totalOverlap` and
          * `overlapping` to each set. The property `totalOverlap` is the sum of value
@@ -1024,7 +1124,8 @@
          * @return {number} Returns 0 if a and b are equal, <0 if a is greater, >0 if b
          * is greater.
          */
-        var sortByTotalOverlap = function sortByTotalOverlap(a, b) {
+        var sortByTotalOverlap = function sortByTotalOverlap(a,
+                                                             b) {
             return b.totalOverlap - a.totalOverlap;
         };
         /**
@@ -1036,7 +1137,8 @@
          * @return {Array<object>} List of circles and their calculated positions.
          */
         var layoutGreedyVenn = function layoutGreedyVenn(relations) {
-            var positionedSets = [], mapOfIdToCircles = {};
+            var positionedSets = [],
+                mapOfIdToCircles = {};
             // Define a circle for each set.
             relations
                 .filter(function (relation) {
@@ -1058,7 +1160,8 @@
              * The coordinates to position the set at.
              * @return {void}
              */
-            var positionSet = function positionSet(set, coordinates) {
+            var positionSet = function positionSet(set,
+                                                   coordinates) {
                 var circle = set.circle;
                 circle.x = coordinates.x;
                 circle.y = coordinates.y;
@@ -1077,27 +1180,48 @@
             });
             // Iterate and position the remaining sets.
             sortedByOverlap.forEach(function (set) {
-                var circle = set.circle, radius = circle.r, overlapping = set.overlapping;
+                var circle = set.circle,
+                    radius = circle.r,
+                    overlapping = set.overlapping;
                 var bestPosition = positionedSets
-                    .reduce(function (best, positionedSet, i) {
-                        var positionedCircle = positionedSet.circle, overlap = overlapping[positionedSet.sets[0]];
+                    .reduce(function (best,
+                                      positionedSet,
+                                      i) {
+                        var positionedCircle = positionedSet.circle,
+                            overlap = overlapping[positionedSet.sets[0]];
                         // Calculate the distance between the sets to get the correct
                         // overlap
-                        var distance = getDistanceBetweenCirclesByOverlap(radius, positionedCircle.r, overlap);
+                        var distance = getDistanceBetweenCirclesByOverlap(radius,
+                            positionedCircle.r,
+                            overlap);
                         // Create a list of possible coordinates calculated from
                         // distance.
                         var possibleCoordinates = [
-                            {x: positionedCircle.x + distance, y: positionedCircle.y},
-                            {x: positionedCircle.x - distance, y: positionedCircle.y},
-                            {x: positionedCircle.x, y: positionedCircle.y + distance},
-                            {x: positionedCircle.x, y: positionedCircle.y - distance}
+                            {
+                                x: positionedCircle.x + distance,
+                                y: positionedCircle.y
+                            },
+                            {
+                                x: positionedCircle.x - distance,
+                                y: positionedCircle.y
+                            },
+                            {
+                                x: positionedCircle.x,
+                                y: positionedCircle.y + distance
+                            },
+                            {
+                                x: positionedCircle.x,
+                                y: positionedCircle.y - distance
+                            }
                         ];
                         // If there are more circles overlapping, then add the
                         // intersection points as possible positions.
                         positionedSets.slice(i + 1).forEach(function (positionedSet2) {
                             var positionedCircle2 = positionedSet2.circle,
                                 overlap2 = overlapping[positionedSet2.sets[0]],
-                                distance2 = getDistanceBetweenCirclesByOverlap(radius, positionedCircle2.r, overlap2);
+                                distance2 = getDistanceBetweenCirclesByOverlap(radius,
+                                    positionedCircle2.r,
+                                    overlap2);
                             // Add intersections to list of coordinates.
                             possibleCoordinates = possibleCoordinates.concat(getCircleCircleIntersection({
                                 x: positionedCircle.x,
@@ -1114,7 +1238,8 @@
                             circle.x = coordinates.x;
                             circle.y = coordinates.y;
                             // Calculate loss for the suggested coordinates.
-                            var currentLoss = loss(mapOfIdToCircles, relationsWithTwoSets);
+                            var currentLoss = loss(mapOfIdToCircles,
+                                relationsWithTwoSets);
                             // If the loss is better, then use these new coordinates.
                             if (currentLoss < best.loss) {
                                 best.loss = currentLoss;
@@ -1133,7 +1258,6 @@
             // Return the positions of each set.
             return mapOfIdToCircles;
         };
-
         /**
          * Calculates the positions, and the label values of all the sets in the venn
          * diagram.
@@ -1171,7 +1295,6 @@
             }
             return {mapOfIdToShape: mapOfIdToShape, mapOfIdToLabelValues: mapOfIdToLabelValues};
         }
-
         var isValidRelation = function (x) {
             var map = {};
             return (isObject(x) &&
@@ -1202,7 +1325,8 @@
         var processVennData = function processVennData(data) {
             var d = isArray(data) ? data : [];
             var validSets = d
-                .reduce(function (arr, x) {
+                .reduce(function (arr,
+                                  x) {
                     // Check if x is a valid set, and that it is not an duplicate.
                     if (isValidSet(x) && arr.indexOf(x.sets[0]) === -1) {
                         arr.push(x.sets[0]);
@@ -1210,7 +1334,8 @@
                     return arr;
                 }, [])
                 .sort();
-            var mapOfIdToRelation = d.reduce(function (mapOfIdToRelation, relation) {
+            var mapOfIdToRelation = d.reduce(function (mapOfIdToRelation,
+                                                       relation) {
                 if (isValidRelation(relation) &&
                     !relation.sets.some(function (set) {
                         return validSets.indexOf(set) === -1;
@@ -1252,11 +1377,17 @@
          * Returns the value to scale the playing field up to the size of the target
          * area, and center of x and y.
          */
-        var getScale = function getScale(targetWidth, targetHeight, field) {
+        var getScale = function getScale(targetWidth,
+                                         targetHeight,
+                                         field) {
             var height = field.bottom - field.top, // top is smaller than bottom
-                width = field.right - field.left, scaleX = width > 0 ? 1 / width * targetWidth : 1,
-                scaleY = height > 0 ? 1 / height * targetHeight : 1, adjustX = (field.right + field.left) / 2,
-                adjustY = (field.top + field.bottom) / 2, scale = Math.min(scaleX, scaleY);
+                width = field.right - field.left,
+                scaleX = width > 0 ? 1 / width * targetWidth : 1,
+                scaleY = height > 0 ? 1 / height * targetHeight : 1,
+                adjustX = (field.right + field.left) / 2,
+                adjustY = (field.top + field.bottom) / 2,
+                scale = Math.min(scaleX,
+                    scaleY);
             return {
                 scale: scale,
                 centerX: targetWidth / 2 - adjustX * scale,
@@ -1276,8 +1407,11 @@
          * @return {Highcharts.PolygonBoxObject}
          * Returns a modified field object.
          */
-        var updateFieldBoundaries = function updateFieldBoundaries(field, circle) {
-            var left = circle.x - circle.r, right = circle.x + circle.r, bottom = circle.y + circle.r,
+        var updateFieldBoundaries = function updateFieldBoundaries(field,
+                                                                   circle) {
+            var left = circle.x - circle.r,
+                right = circle.x + circle.r,
+                bottom = circle.y + circle.r,
                 top = circle.y - circle.r;
             // TODO improve type checking.
             if (!isNumber(field.left) || field.left > left) {
@@ -1311,7 +1445,8 @@
          *               findNearestPointBy, getExtremesFromAll, jitter, label, linecap,
          *               lineWidth, linkedTo, marker, negativeColor, pointInterval,
          *               pointIntervalUnit, pointPlacement, pointStart, softThreshold,
-         *               stacking, steps, threshold, xAxis, yAxis, zoneAxis, zones
+         *               stacking, steps, threshold, xAxis, yAxis, zoneAxis, zones,
+         *               dataSorting, boostThreshold, boostBlending
          * @product      highcharts
          * @requires     modules/venn
          * @optionparent plotOptions.venn
@@ -1353,6 +1488,9 @@
                     color: '#cccccc',
                     borderColor: '#000000',
                     animation: false
+                },
+                inactive: {
+                    opacity: 0.075
                 }
             },
             tooltip: {
@@ -1364,6 +1502,12 @@
             axisTypes: [],
             directTouch: true,
             pointArrayMap: ['value'],
+            init: function () {
+                seriesTypes.scatter.prototype.init.apply(this,
+                    arguments);
+                // Venn's opacity is a different option from other series
+                delete this.opacity;
+            },
             translate: function () {
                 var chart = this.chart;
                 this.processedXData = this.xData;
@@ -1371,7 +1515,8 @@
                 // Process the data before passing it into the layout function.
                 var relations = processVennData(this.options.data);
                 // Calculate the positions of each circle.
-                var _a = layout(relations), mapOfIdToShape = _a.mapOfIdToShape,
+                var _a = layout(relations),
+                    mapOfIdToShape = _a.mapOfIdToShape,
                     mapOfIdToLabelValues = _a.mapOfIdToLabelValues;
                 // Calculate the scale, and center of the plot area.
                 var field = Object.keys(mapOfIdToShape)
@@ -1386,9 +1531,13 @@
                     centerX = scaling.centerX, centerY = scaling.centerY;
                 // Iterate all points and calculate and draw their graphics.
                 this.points.forEach(function (point) {
-                    var sets = isArray(point.sets) ? point.sets : [], id = sets.join(), shape = mapOfIdToShape[id],
-                        shapeArgs, dataLabelValues = mapOfIdToLabelValues[id] || {},
-                        dataLabelWidth = dataLabelValues.width, dataLabelPosition = dataLabelValues.position,
+                    var sets = isArray(point.sets) ? point.sets : [],
+                        id = sets.join(),
+                        shape = mapOfIdToShape[id],
+                        shapeArgs,
+                        dataLabelValues = mapOfIdToLabelValues[id] || {},
+                        dataLabelWidth = dataLabelValues.width,
+                        dataLabelPosition = dataLabelValues.position,
                         dlOptions = point.options && point.options.dataLabels;
                     if (shape) {
                         if (shape.r) {
@@ -1398,23 +1547,19 @@
                                 r: shape.r * scale
                             };
                         } else if (shape.d) {
-                            // TODO: find a better way to handle scaling of a path.
-                            var d = shape.d.reduce(function (path, arr) {
-                                if (arr[0] === 'M') {
-                                    arr[1] = centerX + arr[1] * scale;
-                                    arr[2] = centerY + arr[2] * scale;
-                                } else if (arr[0] === 'A') {
-                                    arr[1] = arr[1] * scale;
-                                    arr[2] = arr[2] * scale;
-                                    arr[6] = centerX + arr[6] * scale;
-                                    arr[7] = centerY + arr[7] * scale;
+                            var d = shape.d;
+                            d.forEach(function (seg) {
+                                if (seg[0] === 'M') {
+                                    seg[1] = centerX + seg[1] * scale;
+                                    seg[2] = centerY + seg[2] * scale;
+                                } else if (seg[0] === 'A') {
+                                    seg[1] = seg[1] * scale;
+                                    seg[2] = seg[2] * scale;
+                                    seg[6] = centerX + seg[6] * scale;
+                                    seg[7] = centerY + seg[7] * scale;
                                 }
-                                return path.concat(arr);
-                            }, [])
-                                .join(' ');
-                            shapeArgs = {
-                                d: d
-                            };
+                            });
+                            shapeArgs = {d: d};
                         }
                         // Scale the position for the data label.
                         if (dataLabelPosition) {
@@ -1453,14 +1598,17 @@
             drawPoints: function () {
                 var series = this,
                     // Series properties
-                    chart = series.chart, group = series.group, points = series.points || [],
+                    chart = series.chart,
+                    group = series.group,
+                    points = series.points || [],
                     // Chart properties
                     renderer = chart.renderer;
                 // Iterate all points and calculate and draw their graphics.
                 points.forEach(function (point) {
                     var attribs = {
-                        zIndex: isArray(point.sets) ? point.sets.length : 0
-                    }, shapeArgs = point.shapeArgs;
+                            zIndex: isArray(point.sets) ? point.sets.length : 0
+                        },
+                        shapeArgs = point.shapeArgs;
                     // Add point attribs
                     if (!chart.styledMode) {
                         extend(attribs, series.pointAttribs(point, point.state));
@@ -1488,9 +1636,13 @@
              * Returns the calculated attributes.
              */
             pointAttribs: function (point, state) {
-                var series = this, seriesOptions = series.options || {}, pointOptions = point && point.options || {},
+                var series = this,
+                    seriesOptions = series.options || {},
+                    pointOptions = point && point.options || {},
                     stateOptions = (state && seriesOptions.states[state]) || {},
-                    options = merge(seriesOptions, {color: point && point.color}, pointOptions, stateOptions);
+                    options = merge(seriesOptions, {color: point && point.color},
+                        pointOptions,
+                        stateOptions);
                 // Return resulting values for the attributes.
                 return {
                     'fill': color(options.color)
@@ -1505,11 +1657,13 @@
             /* eslint-enable valid-jsdoc */
             animate: function (init) {
                 if (!init) {
-                    var series = this, animOptions = animObject(series.options.animation);
+                    var series = this,
+                        animOptions = animObject(series.options.animation);
                     series.points.forEach(function (point) {
                         var args = point.shapeArgs;
                         if (point.graphic && args) {
-                            var attr = {}, animate = {};
+                            var attr = {},
+                                animate = {};
                             if (args.d) {
                                 // If shape is a path, then animate opacity.
                                 attr.opacity = 0.001;
@@ -1534,19 +1688,18 @@
                             }
                         }
                     }, series);
-                    series.animate = null;
                 }
             },
             utils: {
                 addOverlapToSets: addOverlapToSets,
                 geometry: geometry,
-                geometryCircles: GeometryCircleMixin,
+                geometryCircles: geometryCirclesModule,
                 getLabelWidth: getLabelWidth,
                 getMarginFromCircles: getMarginFromCircles,
                 getDistanceBetweenCirclesByOverlap: getDistanceBetweenCirclesByOverlap,
                 layoutGreedyVenn: layoutGreedyVenn,
                 loss: loss,
-                nelderMead: NelderMeadModule,
+                nelderMead: nelderMeadMixin,
                 processVennData: processVennData,
                 sortByTotalOverlap: sortByTotalOverlap
             }
@@ -1571,7 +1724,8 @@
          *            findNearestPointBy, getExtremesFromAll, label, linecap, lineWidth,
          *            linkedTo, marker, negativeColor, pointInterval, pointIntervalUnit,
          *            pointPlacement, pointStart, softThreshold, stack, stacking, steps,
-         *            threshold, xAxis, yAxis, zoneAxis, zones
+         *            threshold, xAxis, yAxis, zoneAxis, zones, dataSorting,
+         *            boostThreshold, boostBlending
          * @product   highcharts
          * @requires  modules/venn
          * @apioption series.venn
@@ -1646,8 +1800,9 @@
         /* eslint-disable no-invalid-this */
         // Modify final series options.
         addEvent(seriesTypes.venn, 'afterSetOptions', function (e) {
-            var options = e.options, states = options.states;
-            if (this instanceof seriesTypes.venn) {
+            var options = e.options,
+                states = options.states;
+            if (this.is('venn')) {
                 // Explicitly disable all halo options.
                 Object.keys(states).forEach(function (state) {
                     states[state].halo = false;

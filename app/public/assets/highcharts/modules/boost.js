@@ -1,5 +1,5 @@
 /*
- Highcharts JS v8.0.0 (2019-12-10)
+ Highcharts JS v8.2.0 (2020-08-20)
 
  Boost module
 
@@ -26,7 +26,8 @@
  - Dash styles are not rendered on lines.
  - Columns are always one pixel wide. Don't set the threshold too low.
  - Disable animations
- - Marker shapes are not supported: markers will always be circles
+ - Marker shapes are not supported: markers will always be circles, except
+   heatmap series, where markers are always rectangles.
 
  Optimizing tips for users
  - Set extremes (min, max) explicitly on the axes in order for Highcharts to
@@ -69,67 +70,1040 @@
       usePreallocated: boolean - default: false
   }
 */
-(function(c){"object"===typeof module&&module.exports?(c["default"]=c,module.exports=c):"function"===typeof define&&define.amd?define("highcharts/modules/boost",["highcharts"],function(r){c(r);c.Highcharts=r;return c}):c("undefined"!==typeof Highcharts?Highcharts:void 0)})(function(c){function r(f,c,t,D){f.hasOwnProperty(c)||(f[c]=D.apply(null,t))}c=c?c._modules:{};r(c,"modules/boost/boostables.js",[],function(){return"area arearange column columnrange bar line scatter heatmap bubble treemap".split(" ")});
-r(c,"modules/boost/boostable-map.js",[c["modules/boost/boostables.js"]],function(f){var c={};f.forEach(function(f){c[f]=1});return c});r(c,"modules/boost/wgl-shader.js",[c["parts/Globals.js"],c["parts/Utilities.js"]],function(f,c){var t=c.clamp,v=f.pick;return function(b){function c(){D.length&&f.error("[highcharts boost] shader error - "+D.join("\n"))}function p(a,d){var e=b.createShader("vertex"===d?b.VERTEX_SHADER:b.FRAGMENT_SHADER);b.shaderSource(e,a);b.compileShader(e);return b.getShaderParameter(e,
-b.COMPILE_STATUS)?e:(D.push("when compiling "+d+" shader:\n"+b.getShaderInfoLog(e)),!1)}function q(){function a(a){return b.getUniformLocation(k,a)}var d=p("#version 100\n#define LN10 2.302585092994046\nprecision highp float;\nattribute vec4 aVertexPosition;\nattribute vec4 aColor;\nvarying highp vec2 position;\nvarying highp vec4 vColor;\nuniform mat4 uPMatrix;\nuniform float pSize;\nuniform float translatedThreshold;\nuniform bool hasThreshold;\nuniform bool skipTranslation;\nuniform float xAxisTrans;\nuniform float xAxisMin;\nuniform float xAxisMinPad;\nuniform float xAxisPointRange;\nuniform float xAxisLen;\nuniform bool  xAxisPostTranslate;\nuniform float xAxisOrdinalSlope;\nuniform float xAxisOrdinalOffset;\nuniform float xAxisPos;\nuniform bool  xAxisCVSCoord;\nuniform bool  xAxisIsLog;\nuniform bool  xAxisReversed;\nuniform float yAxisTrans;\nuniform float yAxisMin;\nuniform float yAxisMinPad;\nuniform float yAxisPointRange;\nuniform float yAxisLen;\nuniform bool  yAxisPostTranslate;\nuniform float yAxisOrdinalSlope;\nuniform float yAxisOrdinalOffset;\nuniform float yAxisPos;\nuniform bool  yAxisCVSCoord;\nuniform bool  yAxisIsLog;\nuniform bool  yAxisReversed;\nuniform bool  isBubble;\nuniform bool  bubbleSizeByArea;\nuniform float bubbleZMin;\nuniform float bubbleZMax;\nuniform float bubbleZThreshold;\nuniform float bubbleMinSize;\nuniform float bubbleMaxSize;\nuniform bool  bubbleSizeAbs;\nuniform bool  isInverted;\nfloat bubbleRadius(){\nfloat value = aVertexPosition.w;\nfloat zMax = bubbleZMax;\nfloat zMin = bubbleZMin;\nfloat radius = 0.0;\nfloat pos = 0.0;\nfloat zRange = zMax - zMin;\nif (bubbleSizeAbs){\nvalue = value - bubbleZThreshold;\nzMax = max(zMax - bubbleZThreshold, zMin - bubbleZThreshold);\nzMin = 0.0;\n}\nif (value < zMin){\nradius = bubbleZMin / 2.0 - 1.0;\n} else {\npos = zRange > 0.0 ? (value - zMin) / zRange : 0.5;\nif (bubbleSizeByArea && pos > 0.0){\npos = sqrt(pos);\n}\nradius = ceil(bubbleMinSize + pos * (bubbleMaxSize - bubbleMinSize)) / 2.0;\n}\nreturn radius * 2.0;\n}\nfloat translate(float val,\nfloat pointPlacement,\nfloat localA,\nfloat localMin,\nfloat minPixelPadding,\nfloat pointRange,\nfloat len,\nbool  cvsCoord,\nbool  isLog,\nbool  reversed\n){\nfloat sign = 1.0;\nfloat cvsOffset = 0.0;\nif (cvsCoord) {\nsign *= -1.0;\ncvsOffset = len;\n}\nif (isLog) {\nval = log(val) / LN10;\n}\nif (reversed) {\nsign *= -1.0;\ncvsOffset -= sign * len;\n}\nreturn sign * (val - localMin) * localA + cvsOffset + \n(sign * minPixelPadding);\n}\nfloat xToPixels(float value) {\nif (skipTranslation){\nreturn value;// + xAxisPos;\n}\nreturn translate(value, 0.0, xAxisTrans, xAxisMin, xAxisMinPad, xAxisPointRange, xAxisLen, xAxisCVSCoord, xAxisIsLog, xAxisReversed);// + xAxisPos;\n}\nfloat yToPixels(float value, float checkTreshold) {\nfloat v;\nif (skipTranslation){\nv = value;// + yAxisPos;\n} else {\nv = translate(value, 0.0, yAxisTrans, yAxisMin, yAxisMinPad, yAxisPointRange, yAxisLen, yAxisCVSCoord, yAxisIsLog, yAxisReversed);// + yAxisPos;\nif (v > yAxisLen) {\nv = yAxisLen;\n}\n}\nif (checkTreshold > 0.0 && hasThreshold) {\nv = min(v, translatedThreshold);\n}\nreturn v;\n}\nvoid main(void) {\nif (isBubble){\ngl_PointSize = bubbleRadius();\n} else {\ngl_PointSize = pSize;\n}\nvColor = aColor;\nif (skipTranslation && isInverted) {\ngl_Position = uPMatrix * vec4(aVertexPosition.y + yAxisPos, aVertexPosition.x + xAxisPos, 0.0, 1.0);\n} else if (isInverted) {\ngl_Position = uPMatrix * vec4(yToPixels(aVertexPosition.y, aVertexPosition.z) + yAxisPos, xToPixels(aVertexPosition.x) + xAxisPos, 0.0, 1.0);\n} else {\ngl_Position = uPMatrix * vec4(xToPixels(aVertexPosition.x) + xAxisPos, yToPixels(aVertexPosition.y, aVertexPosition.z) + yAxisPos, 0.0, 1.0);\n}\n}",
-"vertex"),f=p("precision highp float;\nuniform vec4 fillColor;\nvarying highp vec2 position;\nvarying highp vec4 vColor;\nuniform sampler2D uSampler;\nuniform bool isCircle;\nuniform bool hasColor;\nvoid main(void) {\nvec4 col = fillColor;\nvec4 tcol;\nif (hasColor) {\ncol = vColor;\n}\nif (isCircle) {\ntcol = texture2D(uSampler, gl_PointCoord.st);\ncol *= tcol;\nif (tcol.r < 0.0) {\ndiscard;\n} else {\ngl_FragColor = col;\n}\n} else {\ngl_FragColor = col;\n}\n}","fragment");if(!d||!f)return k=!1,
-c(),!1;k=b.createProgram();b.attachShader(k,d);b.attachShader(k,f);b.linkProgram(k);if(!b.getProgramParameter(k,b.LINK_STATUS))return D.push(b.getProgramInfoLog(k)),c(),k=!1;b.useProgram(k);b.bindAttribLocation(k,0,"aVertexPosition");B=a("uPMatrix");g=a("pSize");u=a("fillColor");e=a("isBubble");h=a("bubbleSizeAbs");G=a("bubbleSizeByArea");m=a("uSampler");l=a("skipTranslation");N=a("isCircle");H=a("isInverted");return!0}function a(a,d){b&&k&&(a=n[a]=n[a]||b.getUniformLocation(k,a),b.uniform1f(a,d))}
-var n={},k,B,g,u,e,h,G,l,N,H,D=[],m;return b&&!q()?!1:{psUniform:function(){return g},pUniform:function(){return B},fillColorUniform:function(){return u},setBubbleUniforms:function(l,d,f){var m=l.options,c=Number.MAX_VALUE,g=-Number.MAX_VALUE;b&&k&&"bubble"===l.type&&(c=v(m.zMin,t(d,!1===m.displayNegative?m.zThreshold:-Number.MAX_VALUE,c)),g=v(m.zMax,Math.max(g,f)),b.uniform1i(e,1),b.uniform1i(N,1),b.uniform1i(G,"width"!==l.options.sizeBy),b.uniform1i(h,l.options.sizeByAbsoluteValue),a("bubbleZMin",
-c),a("bubbleZMax",g),a("bubbleZThreshold",l.options.zThreshold),a("bubbleMinSize",l.minPxSize),a("bubbleMaxSize",l.maxPxSize))},bind:function(){b&&k&&b.useProgram(k)},program:function(){return k},create:q,setUniform:a,setPMatrix:function(a){b&&k&&b.uniformMatrix4fv(B,!1,a)},setColor:function(a){b&&k&&b.uniform4f(u,a[0]/255,a[1]/255,a[2]/255,a[3])},setPointSize:function(a){b&&k&&b.uniform1f(g,a)},setSkipTranslation:function(a){b&&k&&b.uniform1i(l,!0===a?1:0)},setTexture:function(a){b&&k&&b.uniform1i(m,
-a)},setDrawAsCircle:function(a){b&&k&&b.uniform1i(N,a?1:0)},reset:function(){b&&k&&(b.uniform1i(e,0),b.uniform1i(N,0))},setInverted:function(a){b&&k&&b.uniform1i(H,a)},destroy:function(){b&&k&&(b.deleteProgram(k),k=!1)}}}});r(c,"modules/boost/wgl-vbuffer.js",[],function(){return function(f,c,t){function v(){b&&(f.deleteBuffer(b),I=b=!1);a=0;p=t||2;n=[]}var b=!1,I=!1,p=t||2,q=!1,a=0,n;return{destroy:v,bind:function(){if(!b)return!1;f.vertexAttribPointer(I,p,f.FLOAT,!1,0,0)},data:n,build:function(a,
-t,g){var k;n=a||[];if(!(n&&0!==n.length||q))return v(),!1;p=g||p;b&&f.deleteBuffer(b);q||(k=new Float32Array(n));b=f.createBuffer();f.bindBuffer(f.ARRAY_BUFFER,b);f.bufferData(f.ARRAY_BUFFER,q||k,f.STATIC_DRAW);I=f.getAttribLocation(c.program(),t);f.enableVertexAttribArray(I);return!0},render:function(a,c,g){var k=q?q.length:n.length;if(!b||!k)return!1;if(!a||a>k||0>a)a=0;if(!c||c>k)c=k;f.drawArrays(f[(g||"points").toUpperCase()],a/p,(c-a)/p);return!0},allocate:function(b){a=-1;q=new Float32Array(4*
-b)},push:function(b,f,c,u){q&&(q[++a]=b,q[++a]=f,q[++a]=c,q[++a]=u)}}}});r(c,"modules/boost/wgl-renderer.js",[c["parts/Globals.js"],c["modules/boost/wgl-shader.js"],c["modules/boost/wgl-vbuffer.js"],c["parts/Utilities.js"]],function(f,c,t,D){var b=D.isNumber,I=D.objectEach,p=f.win.document,q=f.merge,a=f.some,n=f.Color,k=f.pick;return function(v){function g(a){if(a.isSeriesBoosting){var b=!!a.options.stacking;var d=a.xData||a.options.xData||a.processedXData;b=(b?a.data:d||a.options.data).length;"treemap"===
-a.type?b*=12:"heatmap"===a.type?b*=6:W[a.type]&&(b*=2);return b}return 0}function u(){d.clear(d.COLOR_BUFFER_BIT|d.DEPTH_BUFFER_BIT)}function e(b,d){function e(a){a&&(d.colorData.push(a[0]),d.colorData.push(a[1]),d.colorData.push(a[2]),d.colorData.push(a[3]))}function l(a,b,d,l,h){e(h);x.usePreallocated?K.push(a,b,d?1:0,l||1):(L.push(a),L.push(b),L.push(d?1:0),L.push(l||1))}function h(){d.segments.length&&(d.segments[d.segments.length-1].to=L.length)}function c(){d.segments.length&&d.segments[d.segments.length-
-1].from===L.length||(h(),d.segments.push({from:L.length}))}function m(a,b,d,h,c){e(c);l(a+d,b);e(c);l(a,b);e(c);l(a,b+h);e(c);l(a,b+h);e(c);l(a+d,b+h);e(c);l(a+d,b)}function g(a,b){x.useGPUTranslations||(d.skipTranslation=!0,a.x=r.toPixels(a.x,!0),a.y=I.toPixels(a.y,!0));b?L=[a.x,a.y,0,2].concat(L):l(a.x,a.y,0,2)}var Z=b.pointArrayMap&&"low,high"===b.pointArrayMap.join(","),G=b.chart,z=b.options,k=!!z.stacking,u=z.data,n=b.xAxis.getExtremes(),p=n.min;n=n.max;var H=b.yAxis.getExtremes(),t=H.min;H=
-H.max;var q=b.xData||z.xData||b.processedXData,N=b.yData||z.yData||b.processedYData,v=b.zData||z.zData||b.processedZData,I=b.yAxis,r=b.xAxis,qa=b.chart.plotWidth,D=!q||0===q.length,B=z.connectNulls,w=b.points||!1,C=!1,J=!1,E,P;u=k?b.data:q||u;q={x:Number.MAX_VALUE,y:0};var V={x:-Number.MAX_VALUE,y:0},ja=0,S=!1,F=-1,R=!1,T=!1,Y="undefined"===typeof G.index,O=!1,fa=!1,M=!1,va=W[b.type],ha=!1,ra=!0,sa=!0,X=z.zones||!1,U=!1,ta=z.threshold,ia=!1;if(!(z.boostData&&0<z.boostData.length)){z.gapSize&&(ia=
-"value"!==z.gapUnit?z.gapSize*b.closestPointRange:z.gapSize);X&&(a(X,function(a){if("undefined"===typeof a.value)return U=new f.Color(a.color),!0}),U||(U=b.pointAttribs&&b.pointAttribs().fill||b.color,U=new f.Color(U)));G.inverted&&(qa=b.chart.plotHeight);b.closestPointRangePx=Number.MAX_VALUE;c();if(w&&0<w.length)d.skipTranslation=!0,d.drawMode="triangles",w[0].node&&w[0].node.levelDynamic&&w.sort(function(a,b){if(a.node){if(a.node.levelDynamic>b.node.levelDynamic)return 1;if(a.node.levelDynamic<
-b.node.levelDynamic)return-1}return 0}),w.forEach(function(a){var d=a.plotY;if("undefined"!==typeof d&&!isNaN(d)&&null!==a.y){d=a.shapeArgs;var l=G.styledMode?a.series.colorAttribs(a):l=a.series.pointAttribs(a);a=l["stroke-width"]||0;E=f.color(l.fill).rgba;E[0]/=255;E[1]/=255;E[2]/=255;"treemap"===b.type&&(a=a||1,P=f.color(l.stroke).rgba,P[0]/=255,P[1]/=255,P[2]/=255,m(d.x,d.y,d.width,d.height,P),a/=2);"heatmap"===b.type&&G.inverted&&(d.x=r.len-d.x,d.y=I.len-d.y,d.width=-d.width,d.height=-d.height);
-m(d.x+a,d.y+a,d.width-2*a,d.height-2*a,E)}});else{for(;F<u.length-1;){var A=u[++F];if(Y)break;if(D){w=A[0];var y=A[1];u[F+1]&&(T=u[F+1][0]);u[F-1]&&(R=u[F-1][0]);if(3<=A.length){var ua=A[2];A[2]>d.zMax&&(d.zMax=A[2]);A[2]<d.zMin&&(d.zMin=A[2])}}else w=A,y=N[F],u[F+1]&&(T=u[F+1]),u[F-1]&&(R=u[F-1]),v&&v.length&&(ua=v[F],v[F]>d.zMax&&(d.zMax=v[F]),v[F]<d.zMin&&(d.zMin=v[F]));if(B||null!==w&&null!==y){T&&T>=p&&T<=n&&(O=!0);R&&R>=p&&R<=n&&(fa=!0);if(Z){D&&(y=A.slice(1,3));var ba=y[0];y=y[1]}else k&&(w=
-A.x,y=A.stackY,ba=y-A.y);null!==t&&"undefined"!==typeof t&&null!==H&&"undefined"!==typeof H&&(ra=y>=t&&y<=H);w>n&&V.x<n&&(V.x=w,V.y=y);w<p&&q.x>p&&(q.x=w,q.y=y);if(null!==y||!B)if(null!==y&&(ra||O||fa)){if((T>=p||w>=p)&&(R<=n||w<=n)&&(ha=!0),ha||O||fa){ia&&w-R>ia&&c();X&&(M=U.rgba,a(X,function(a,b){b=X[b-1];if("undefined"!==typeof a.value&&y<=a.value){if(!b||y>=b.value)M=f.color(a.color).rgba;return!0}}),M[0]/=255,M[1]/=255,M[2]/=255);if(!x.useGPUTranslations&&(d.skipTranslation=!0,w=r.toPixels(w,
-!0),y=I.toPixels(y,!0),w>qa&&"points"===d.drawMode))continue;if(va){A=ba;if(!1===ba||"undefined"===typeof ba)A=0>y?y:0;Z||k||(A=Math.max(null===ta?t:ta,t));x.useGPUTranslations||(A=I.toPixels(A,!0));l(w,A,0,0,M)}d.hasMarkers&&ha&&!1!==C&&(b.closestPointRangePx=Math.min(b.closestPointRangePx,Math.abs(w-C)));!x.useGPUTranslations&&!x.usePreallocated&&C&&1>Math.abs(w-C)&&J&&1>Math.abs(y-J)?x.debug.showSkipSummary&&++ja:(z.step&&!sa&&l(w,J,0,2,M),l(w,y,0,"bubble"===b.type?ua||1:2,M),C=w,J=y,S=!0,sa=!1)}}else c()}else c()}x.debug.showSkipSummary&&
-console.log("skipped points:",ja);S||!1===B||"line_strip"!==b.drawMode||(q.x<Number.MAX_VALUE&&g(q,!0),V.x>-Number.MAX_VALUE&&g(V))}h()}}function h(){C=[];Y.data=L=[];B=[];K&&K.destroy()}function G(a){m&&(m.setUniform("xAxisTrans",a.transA),m.setUniform("xAxisMin",a.min),m.setUniform("xAxisMinPad",a.minPixelPadding),m.setUniform("xAxisPointRange",a.pointRange),m.setUniform("xAxisLen",a.len),m.setUniform("xAxisPos",a.pos),m.setUniform("xAxisCVSCoord",!a.horiz),m.setUniform("xAxisIsLog",a.isLog),m.setUniform("xAxisReversed",
-!!a.reversed))}function l(a){m&&(m.setUniform("yAxisTrans",a.transA),m.setUniform("yAxisMin",a.min),m.setUniform("yAxisMinPad",a.minPixelPadding),m.setUniform("yAxisPointRange",a.pointRange),m.setUniform("yAxisLen",a.len),m.setUniform("yAxisPos",a.pos),m.setUniform("yAxisCVSCoord",!a.horiz),m.setUniform("yAxisIsLog",a.isLog),m.setUniform("yAxisReversed",!!a.reversed))}function N(a,b){m.setUniform("hasThreshold",a);m.setUniform("translatedThreshold",b)}function H(a){if(a)r=a.chartWidth||800,J=a.chartHeight||
-400;else return!1;if(!(d&&r&&J&&m))return!1;x.debug.timeRendering&&console.time("gl rendering");d.canvas.width=r;d.canvas.height=J;m.bind();d.viewport(0,0,r,J);m.setPMatrix([2/r,0,0,0,0,-(2/J),0,0,0,0,-2,0,-1,1,-1,1]);1<x.lineWidth&&!f.isMS&&d.lineWidth(x.lineWidth);K.build(Y.data,"aVertexPosition",4);K.bind();m.setInverted(a.inverted);C.forEach(function(e,h){var c=e.series.options,g=c.marker;var u="undefined"!==typeof c.lineWidth?c.lineWidth:1;var p=c.threshold,q=b(p),H=e.series.yAxis.getThreshold(p);
-p=k(c.marker?c.marker.enabled:null,e.series.xAxis.isRadial?!0:null,e.series.closestPointRangePx>2*((c.marker?c.marker.radius:10)||10));g=E[g&&g.symbol||e.series.symbol]||E.circle;if(!(0===e.segments.length||e.segmentslength&&e.segments[0].from===e.segments[0].to)){g.isReady&&(d.bindTexture(d.TEXTURE_2D,g.handle),m.setTexture(g.handle));a.styledMode?g=e.series.markerGroup&&e.series.markerGroup.getStyle("fill"):(g=e.series.pointAttribs&&e.series.pointAttribs().fill||e.series.color,c.colorByPoint&&(g=
-e.series.chart.options.colors[h]));e.series.fillOpacity&&c.fillOpacity&&(g=(new n(g)).setOpacity(k(c.fillOpacity,1)).get());g=f.color(g).rgba;x.useAlpha||(g[3]=1);"lines"===e.drawMode&&x.useAlpha&&1>g[3]&&(g[3]/=10);"add"===c.boostBlending?(d.blendFunc(d.SRC_ALPHA,d.ONE),d.blendEquation(d.FUNC_ADD)):"mult"===c.boostBlending||"multiply"===c.boostBlending?d.blendFunc(d.DST_COLOR,d.ZERO):"darken"===c.boostBlending?(d.blendFunc(d.ONE,d.ONE),d.blendEquation(d.FUNC_MIN)):d.blendFuncSeparate(d.SRC_ALPHA,
-d.ONE_MINUS_SRC_ALPHA,d.ONE,d.ONE_MINUS_SRC_ALPHA);m.reset();0<e.colorData.length&&(m.setUniform("hasColor",1),h=t(d,m),h.build(e.colorData,"aColor",4),h.bind());m.setColor(g);G(e.series.xAxis);l(e.series.yAxis);N(q,H);"points"===e.drawMode&&(c.marker&&c.marker.radius?m.setPointSize(2*c.marker.radius):m.setPointSize(1));m.setSkipTranslation(e.skipTranslation);"bubble"===e.series.type&&m.setBubbleUniforms(e.series,e.zMin,e.zMax);m.setDrawAsCircle(O[e.series.type]||!1);if(0<u||"line_strip"!==e.drawMode)for(u=
-0;u<e.segments.length;u++)K.render(e.segments[u].from,e.segments[u].to,e.drawMode);if(e.hasMarkers&&p)for(c.marker&&c.marker.radius?m.setPointSize(2*c.marker.radius):m.setPointSize(10),m.setDrawAsCircle(!0),u=0;u<e.segments.length;u++)K.render(e.segments[u].from,e.segments[u].to,"POINTS")}});x.debug.timeRendering&&console.timeEnd("gl rendering");v&&v();h()}function D(a){u();if(a.renderer.forExport)return H(a);S?H(a):setTimeout(function(){D(a)},1)}var m=!1,K=!1,d=!1,r=0,J=0,L=!1,B=!1,Y={},S=!1,C=[],
-E={},W={column:!0,columnrange:!0,bar:!0,area:!0,arearange:!0},O={scatter:!0,bubble:!0},x={pointSize:1,lineWidth:1,fillColor:"#AA00AA",useAlpha:!0,usePreallocated:!1,useGPUTranslations:!1,debug:{timeRendering:!1,timeSeriesProcessing:!1,timeSetup:!1,timeBufferCopy:!1,timeKDTree:!1,showSkipSummary:!1}};return Y={allocateBufferForSingleSeries:function(a){var b=0;x.usePreallocated&&(a.isSeriesBoosting&&(b=g(a)),K.allocate(b))},pushSeries:function(a){0<C.length&&C[C.length-1].hasMarkers&&(C[C.length-1].markerTo=
-B.length);x.debug.timeSeriesProcessing&&console.time("building "+a.type+" series");C.push({segments:[],markerFrom:B.length,colorData:[],series:a,zMin:Number.MAX_VALUE,zMax:-Number.MAX_VALUE,hasMarkers:a.options.marker?!1!==a.options.marker.enabled:!1,showMarkers:!0,drawMode:{area:"lines",arearange:"lines",areaspline:"line_strip",column:"lines",columnrange:"lines",bar:"lines",line:"line_strip",scatter:"points",heatmap:"triangles",treemap:"triangles",bubble:"points"}[a.type]||"line_strip"});e(a,C[C.length-
-1]);x.debug.timeSeriesProcessing&&console.timeEnd("building "+a.type+" series")},setSize:function(a,b){r===a&&J===b||!m||(r=a,J=b,m.bind(),m.setPMatrix([2/r,0,0,0,0,-(2/J),0,0,0,0,-2,0,-1,1,-1,1]))},inited:function(){return S},setThreshold:N,init:function(a,b){function e(a,b){var e={isReady:!1,texture:p.createElement("canvas"),handle:d.createTexture()},c=e.texture.getContext("2d");E[a]=e;e.texture.width=512;e.texture.height=512;c.mozImageSmoothingEnabled=!1;c.webkitImageSmoothingEnabled=!1;c.msImageSmoothingEnabled=
-!1;c.imageSmoothingEnabled=!1;c.strokeStyle="rgba(255, 255, 255, 0)";c.fillStyle="#FFF";b(c);try{d.activeTexture(d.TEXTURE0),d.bindTexture(d.TEXTURE_2D,e.handle),d.texImage2D(d.TEXTURE_2D,0,d.RGBA,d.RGBA,d.UNSIGNED_BYTE,e.texture),d.texParameteri(d.TEXTURE_2D,d.TEXTURE_WRAP_S,d.CLAMP_TO_EDGE),d.texParameteri(d.TEXTURE_2D,d.TEXTURE_WRAP_T,d.CLAMP_TO_EDGE),d.texParameteri(d.TEXTURE_2D,d.TEXTURE_MAG_FILTER,d.LINEAR),d.texParameteri(d.TEXTURE_2D,d.TEXTURE_MIN_FILTER,d.LINEAR),d.bindTexture(d.TEXTURE_2D,
-null),e.isReady=!0}catch(Q){}}var l=0,g=["webgl","experimental-webgl","moz-webgl","webkit-3d"];S=!1;if(!a)return!1;for(x.debug.timeSetup&&console.time("gl setup");l<g.length&&!(d=a.getContext(g[l],{}));l++);if(d)b||h();else return!1;d.enable(d.BLEND);d.blendFunc(d.SRC_ALPHA,d.ONE_MINUS_SRC_ALPHA);d.disable(d.DEPTH_TEST);d.depthFunc(d.LESS);m=c(d);if(!m)return!1;K=t(d,m);e("circle",function(a){a.beginPath();a.arc(256,256,256,0,2*Math.PI);a.stroke();a.fill()});e("square",function(a){a.fillRect(0,0,
-512,512)});e("diamond",function(a){a.beginPath();a.moveTo(256,0);a.lineTo(512,256);a.lineTo(256,512);a.lineTo(0,256);a.lineTo(256,0);a.fill()});e("triangle",function(a){a.beginPath();a.moveTo(0,512);a.lineTo(256,0);a.lineTo(512,512);a.lineTo(0,512);a.fill()});e("triangle-down",function(a){a.beginPath();a.moveTo(0,0);a.lineTo(256,512);a.lineTo(512,0);a.lineTo(0,0);a.fill()});S=!0;x.debug.timeSetup&&console.timeEnd("gl setup");return!0},render:D,settings:x,valid:function(){return!1!==d},clear:u,flush:h,
-setXAxis:G,setYAxis:l,data:L,gl:function(){return d},allocateBuffer:function(a){var b=0;x.usePreallocated&&(a.series.forEach(function(a){a.isSeriesBoosting&&(b+=g(a))}),K.allocate(b))},destroy:function(){h();K.destroy();m.destroy();d&&(I(E,function(a){E[a].handle&&d.deleteTexture(E[a].handle)}),d.canvas.width=1,d.canvas.height=1)},setOptions:function(a){q(!0,x,a)}}}});r(c,"modules/boost/boost-attach.js",[c["parts/Globals.js"],c["modules/boost/wgl-renderer.js"]],function(c,v){var f=c.win.document,
-r=f.createElement("canvas");return function(b,t){var p=b.chartWidth,q=b.chartHeight,a=b,n=b.seriesGroup||t.group,k=f.implementation.hasFeature("www.http://w3.org/TR/SVG11/feature#Extensibility","1.1");a=b.isChartSeriesBoosting()?b:t;k=!1;a.renderTarget||(a.canvas=r,b.renderer.forExport||!k?(a.renderTarget=b.renderer.image("",0,0,p,q).addClass("highcharts-boost-canvas").add(n),a.boostClear=function(){a.renderTarget.attr({href:""})},a.boostCopy=function(){a.boostResizeTarget();a.renderTarget.attr({href:a.canvas.toDataURL("image/png")})}):
-(a.renderTargetFo=b.renderer.createElement("foreignObject").add(n),a.renderTarget=f.createElement("canvas"),a.renderTargetCtx=a.renderTarget.getContext("2d"),a.renderTargetFo.element.appendChild(a.renderTarget),a.boostClear=function(){a.renderTarget.width=a.canvas.width;a.renderTarget.height=a.canvas.height},a.boostCopy=function(){a.renderTarget.width=a.canvas.width;a.renderTarget.height=a.canvas.height;a.renderTargetCtx.drawImage(a.canvas,0,0)}),a.boostResizeTarget=function(){p=b.chartWidth;q=b.chartHeight;
-(a.renderTargetFo||a.renderTarget).attr({x:0,y:0,width:p,height:q}).css({pointerEvents:"none",mixedBlendMode:"normal",opacity:1});a instanceof c.Chart&&a.markerGroup.translate(b.plotLeft,b.plotTop)},a.boostClipRect=b.renderer.clipRect(),(a.renderTargetFo||a.renderTarget).clip(a.boostClipRect),a instanceof c.Chart&&(a.markerGroup=a.renderer.g().add(n),a.markerGroup.translate(t.xAxis.pos,t.yAxis.pos)));a.canvas.width=p;a.canvas.height=q;a.boostClipRect.attr(b.getBoostClipRect(a));a.boostResizeTarget();
-a.boostClear();a.ogl||(a.ogl=v(function(){a.ogl.settings.debug.timeBufferCopy&&console.time("buffer copy");a.boostCopy();a.ogl.settings.debug.timeBufferCopy&&console.timeEnd("buffer copy")}),a.ogl.init(a.canvas)||c.error("[highcharts boost] - unable to init WebGL renderer"),a.ogl.setOptions(b.options.boost||{}),a instanceof c.Chart&&a.ogl.allocateBuffer(b));a.ogl.setSize(p,q);return a.ogl}});r(c,"modules/boost/boost-utils.js",[c["parts/Globals.js"],c["modules/boost/boostable-map.js"],c["modules/boost/boost-attach.js"]],
-function(c,v,t){function f(){for(var a=[],b=0;b<arguments.length;b++)a[b]=arguments[b];var e=-Number.MAX_VALUE;a.forEach(function(a){if("undefined"!==typeof a&&null!==a&&"undefined"!==typeof a.length&&0<a.length)return e=a.length,!0});return e}function b(a,b,e){a&&b.renderTarget&&b.canvas&&!(e||b.chart).isChartSeriesBoosting()&&a.render(e||b.chart)}function r(a,b){a&&b.renderTarget&&b.canvas&&!b.chart.isChartSeriesBoosting()&&a.allocateBufferForSingleSeries(b)}function p(b,c,e,h,f,l){f=f||0;h=h||
-3E3;for(var g=f+h,k=!0;k&&f<g&&f<b.length;)k=c(b[f],f),++f;k&&(f<b.length?l?p(b,c,e,h,f,l):a.requestAnimationFrame?a.requestAnimationFrame(function(){p(b,c,e,h,f)}):setTimeout(function(){p(b,c,e,h,f)}):e&&e())}function q(){var b=0,c,e=["webgl","experimental-webgl","moz-webgl","webkit-3d"],h=!1;if("undefined"!==typeof a.WebGLRenderingContext)for(c=n.createElement("canvas");b<e.length;b++)try{if(h=c.getContext(e[b]),"undefined"!==typeof h&&null!==h)return!0}catch(G){}return!1}var a=c.win,n=a.document,
-k=c.pick,B={patientMax:f,boostEnabled:function(a){return k(a&&a.options&&a.options.boost&&a.options.boost.enabled,!0)},shouldForceChartSeriesBoosting:function(a){var b=0,e=0,c=k(a.options.boost&&a.options.boost.allowForce,!0);if("undefined"!==typeof a.boostForceChartBoost)return a.boostForceChartBoost;if(1<a.series.length)for(var g=0;g<a.series.length;g++){var l=a.series[g];0!==l.options.boostThreshold&&!1!==l.visible&&"heatmap"!==l.type&&(v[l.type]&&++e,f(l.processedXData,l.options.data,l.points)>=
-(l.options.boostThreshold||Number.MAX_VALUE)&&++b)}a.boostForceChartBoost=c&&(e===a.series.length&&0<b||5<b);return a.boostForceChartBoost},renderIfNotSeriesBoosting:b,allocateIfNotSeriesBoosting:r,eachAsync:p,hasWebGLSupport:q,pointDrawHandler:function(a){var c=!0;this.chart.options&&this.chart.options.boost&&(c="undefined"===typeof this.chart.options.boost.enabled?!0:this.chart.options.boost.enabled);if(!c||!this.isSeriesBoosting)return a.call(this);this.chart.isBoosting=!0;if(a=t(this.chart,this))r(a,
-this),a.pushSeries(this);b(a,this)}};c.hasWebGLSupport=q;return B});r(c,"modules/boost/boost-init.js",[c["parts/Globals.js"],c["parts/Utilities.js"],c["modules/boost/boost-utils.js"],c["modules/boost/boost-attach.js"]],function(c,v,t,r){var b=v.extend,f=v.wrap,p=c.addEvent,q=c.fireEvent,a=c.Series,n=c.seriesTypes,k=function(){},B=t.eachAsync,g=t.pointDrawHandler,u=t.allocateIfNotSeriesBoosting,e=t.renderIfNotSeriesBoosting,h=t.shouldForceChartSeriesBoosting,G;return function(){b(a.prototype,{renderCanvas:function(){function a(a,
-b){var c=!1,e="undefined"===typeof g.index,l=!0;if(!e){if(na){var f=a[0];var h=a[1]}else f=a,h=t[b];ka?(na&&(h=a.slice(1,3)),c=h[0],h=h[1]):la&&(f=a.x,h=a.stackY,c=h-a.y);wa||(l=h>=C&&h<=E);if(null!==h&&f>=I&&f<=D&&l)if(a=d.toPixels(f,!0),x){if("undefined"===typeof Q||a===O){ka||(c=h);if("undefined"===typeof aa||h>da)da=h,aa=b;if("undefined"===typeof Q||c<ca)ca=c,Q=b}a!==O&&("undefined"!==typeof Q&&(h=n.toPixels(da,!0),z=n.toPixels(ca,!0),ea(a,h,aa),z!==h&&ea(a,z,Q)),Q=aa=void 0,O=a)}else h=Math.ceil(n.toPixels(h,
-!0)),ea(a,h,b)}return!e}function b(){q(c,"renderedCanvas");delete c.buildKDTree;c.buildKDTree();pa.debug.timeKDTree&&console.timeEnd("kd tree building")}var c=this,h=c.options||{},f=!1,g=c.chart,d=this.xAxis,n=this.yAxis,p=h.xData||c.processedXData,t=h.yData||c.processedYData,v=h.data;f=d.getExtremes();var I=f.min,D=f.max;f=n.getExtremes();var C=f.min,E=f.max,W={},O,x=!!c.sampling,Z=!1!==h.enableMouseTracking,z=n.getThreshold(h.threshold),ka=c.pointArrayMap&&"low,high"===c.pointArrayMap.join(","),
-la=!!h.stacking,ma=c.cropStart||0,wa=c.requireSorting,na=!p,ca,da,Q,aa,xa="x"===h.findNearestPointBy,oa=this.xData||this.options.xData||this.processedXData||!1,ea=function(a,b,c){a=Math.ceil(a);G=xa?a:a+","+b;Z&&!W[G]&&(W[G]=!0,g.inverted&&(a=d.len-a,b=n.len-b),ya.push({x:oa?oa[ma+c]:!1,clientX:a,plotX:a,plotY:b,i:ma+c}))};f=r(g,c);g.isBoosting=!0;var pa=f.settings;if(this.visible){if(this.points||this.graph)this.animate=null,this.destroyGraphics();g.isChartSeriesBoosting()?(this.markerGroup&&this.markerGroup!==
-g.markerGroup&&this.markerGroup.destroy(),this.markerGroup=g.markerGroup,this.renderTarget&&(this.renderTarget=this.renderTarget.destroy())):(this.markerGroup===g.markerGroup&&(this.markerGroup=void 0),this.markerGroup=c.plotGroup("markerGroup","markers",!0,1,g.seriesGroup));var ya=this.points=[];c.buildKDTree=k;f&&(u(f,this),f.pushSeries(c),e(f,this,g));g.renderer.forExport||(pa.debug.timeKDTree&&console.time("kd tree building"),B(la?c.data:p||v,a,b))}}});["heatmap","treemap"].forEach(function(a){n[a]&&
-f(n[a].prototype,"drawPoints",g)});n.bubble&&(delete n.bubble.prototype.buildKDTree,f(n.bubble.prototype,"markerAttribs",function(a){return this.isSeriesBoosting?!1:a.apply(this,[].slice.call(arguments,1))}));n.scatter.prototype.fill=!0;b(n.area.prototype,{fill:!0,fillOpacity:!0,sampling:!0});b(n.column.prototype,{fill:!0,sampling:!0});c.Chart.prototype.callbacks.push(function(a){p(a,"predraw",function(){a.boostForceChartBoost=void 0;a.boostForceChartBoost=h(a);a.isBoosting=!1;!a.isChartSeriesBoosting()&&
-a.didBoost&&(a.didBoost=!1);a.boostClear&&a.boostClear();a.canvas&&a.ogl&&a.isChartSeriesBoosting()&&(a.didBoost=!0,a.ogl.allocateBuffer(a));a.markerGroup&&a.xAxis&&0<a.xAxis.length&&a.yAxis&&0<a.yAxis.length&&a.markerGroup.translate(a.xAxis[0].pos,a.yAxis[0].pos)});p(a,"render",function(){a.ogl&&a.isChartSeriesBoosting()&&a.ogl.render(a)})})}});r(c,"modules/boost/boost-overrides.js",[c["parts/Globals.js"],c["parts/Utilities.js"],c["modules/boost/boost-utils.js"],c["modules/boost/boostables.js"],
-c["modules/boost/boostable-map.js"]],function(c,v,t,r,b){var f=v.isNumber,p=v.wrap,q=t.boostEnabled,a=t.shouldForceChartSeriesBoosting;v=c.Chart;var n=c.Series;t=c.Point;var k=c.seriesTypes,B=c.addEvent,g=c.pick,u=c.getOptions().plotOptions;v.prototype.isChartSeriesBoosting=function(){return g(this.options.boost&&this.options.boost.seriesThreshold,50)<=this.series.length||a(this)};v.prototype.getBoostClipRect=function(a){var b={x:this.plotLeft,y:this.plotTop,width:this.plotWidth,height:this.plotHeight};
-a===this&&this.yAxis.forEach(function(a){b.y=Math.min(a.pos,b.y);b.height=Math.max(a.pos-this.plotTop+a.len,b.height)},this);return b};n.prototype.getPoint=function(a){var b=a,c=this.xData||this.options.xData||this.processedXData||!1;!a||a instanceof this.pointClass||(b=(new this.pointClass).init(this,this.options.data[a.i],c?c[a.i]:void 0),b.category=g(this.xAxis.categories?this.xAxis.categories[b.x]:b.x,b.x),b.dist=a.dist,b.distX=a.distX,b.plotX=a.plotX,b.plotY=a.plotY,b.index=a.i);return b};p(n.prototype,
-"searchPoint",function(a){return this.getPoint(a.apply(this,[].slice.call(arguments,1)))});p(t.prototype,"haloPath",function(a){var b=this.series,c=this.plotX,e=this.plotY,f=b.chart.inverted;b.isSeriesBoosting&&f&&(this.plotX=b.yAxis.len-e,this.plotY=b.xAxis.len-c);var g=a.apply(this,Array.prototype.slice.call(arguments,1));b.isSeriesBoosting&&f&&(this.plotX=c,this.plotY=e);return g});p(n.prototype,"markerAttribs",function(a,b){var c=b.plotX,e=b.plotY,f=this.chart.inverted;this.isSeriesBoosting&&
-f&&(b.plotX=this.yAxis.len-e,b.plotY=this.xAxis.len-c);var h=a.apply(this,Array.prototype.slice.call(arguments,1));this.isSeriesBoosting&&f&&(b.plotX=c,b.plotY=e);return h});B(n,"destroy",function(){var a=this,b=a.chart;b.markerGroup===a.markerGroup&&(a.markerGroup=null);b.hoverPoints&&(b.hoverPoints=b.hoverPoints.filter(function(b){return b.series===a}));b.hoverPoint&&b.hoverPoint.series===a&&(b.hoverPoint=null)});p(n.prototype,"getExtremes",function(a){if(!this.isSeriesBoosting||!this.hasExtremes||
-!this.hasExtremes())return a.apply(this,Array.prototype.slice.call(arguments,1))});["translate","generatePoints","drawTracker","drawPoints","render"].forEach(function(a){function c(c){var e=this.options.stacking&&("translate"===a||"generatePoints"===a);if(!this.isSeriesBoosting||e||!q(this.chart)||"heatmap"===this.type||"treemap"===this.type||!b[this.type]||0===this.options.boostThreshold)c.call(this);else if(this[a+"Canvas"])this[a+"Canvas"]()}p(n.prototype,a,c);"translate"===a&&"column bar arearange columnrange heatmap treemap".split(" ").forEach(function(b){k[b]&&
-p(k[b].prototype,a,c)})});p(n.prototype,"processData",function(a){function e(a){return g.chart.isChartSeriesBoosting()||(a?a.length:0)>=(g.options.boostThreshold||Number.MAX_VALUE)}var g=this,l=this.options.data;q(this.chart)&&b[this.type]?(e(l)&&"heatmap"!==this.type&&"treemap"!==this.type&&!this.options.stacking&&this.hasExtremes&&this.hasExtremes(!0)||(a.apply(this,Array.prototype.slice.call(arguments,1)),l=this.processedXData),(this.isSeriesBoosting=e(l))?(l=this.getFirstValidPoint(this.options.data),
-f(l)||c.isArray(l)||c.error(12,!1,this.chart),this.enterBoost()):this.exitBoost&&this.exitBoost()):a.apply(this,Array.prototype.slice.call(arguments,1))});B(n,"hide",function(){this.canvas&&this.renderTarget&&(this.ogl&&this.ogl.clear(),this.boostClear())});n.prototype.enterBoost=function(){this.alteredByBoost=[];["allowDG","directTouch","stickyTracking"].forEach(function(a){this.alteredByBoost.push({prop:a,val:this[a],own:Object.hasOwnProperty.call(this,a)})},this);this.directTouch=this.allowDG=
-!1;this.stickyTracking=!0;this.animate=null;this.labelBySeries&&(this.labelBySeries=this.labelBySeries.destroy())};n.prototype.exitBoost=function(){(this.alteredByBoost||[]).forEach(function(a){a.own?this[a.prop]=a.val:delete this[a.prop]},this);this.boostClear&&this.boostClear()};n.prototype.hasExtremes=function(a){var b=this.options,c=this.xAxis&&this.xAxis.options,e=this.yAxis&&this.yAxis.options,g=this.colorAxis&&this.colorAxis.options;return b.data.length>(b.boostThreshold||Number.MAX_VALUE)&&
-f(e.min)&&f(e.max)&&(!a||f(c.min)&&f(c.max))&&(!g||f(g.min)&&f(g.max))};n.prototype.destroyGraphics=function(){var a=this,b=this.points,c,f;if(b)for(f=0;f<b.length;f+=1)(c=b[f])&&c.destroyElements&&c.destroyElements();["graph","area","tracker"].forEach(function(b){a[b]&&(a[b]=a[b].destroy())})};r.forEach(function(a){u[a]&&(u[a].boostThreshold=5E3,u[a].boostData=[],k[a].prototype.fillOpacity=!0)})});r(c,"modules/boost/named-colors.js",[c["parts/Globals.js"]],function(c){var f={aliceblue:"#f0f8ff",
-antiquewhite:"#faebd7",aqua:"#00ffff",aquamarine:"#7fffd4",azure:"#f0ffff",beige:"#f5f5dc",bisque:"#ffe4c4",black:"#000000",blanchedalmond:"#ffebcd",blue:"#0000ff",blueviolet:"#8a2be2",brown:"#a52a2a",burlywood:"#deb887",cadetblue:"#5f9ea0",chartreuse:"#7fff00",chocolate:"#d2691e",coral:"#ff7f50",cornflowerblue:"#6495ed",cornsilk:"#fff8dc",crimson:"#dc143c",cyan:"#00ffff",darkblue:"#00008b",darkcyan:"#008b8b",darkgoldenrod:"#b8860b",darkgray:"#a9a9a9",darkgreen:"#006400",darkkhaki:"#bdb76b",darkmagenta:"#8b008b",
-darkolivegreen:"#556b2f",darkorange:"#ff8c00",darkorchid:"#9932cc",darkred:"#8b0000",darksalmon:"#e9967a",darkseagreen:"#8fbc8f",darkslateblue:"#483d8b",darkslategray:"#2f4f4f",darkturquoise:"#00ced1",darkviolet:"#9400d3",deeppink:"#ff1493",deepskyblue:"#00bfff",dimgray:"#696969",dodgerblue:"#1e90ff",feldspar:"#d19275",firebrick:"#b22222",floralwhite:"#fffaf0",forestgreen:"#228b22",fuchsia:"#ff00ff",gainsboro:"#dcdcdc",ghostwhite:"#f8f8ff",gold:"#ffd700",goldenrod:"#daa520",gray:"#808080",green:"#008000",
-greenyellow:"#adff2f",honeydew:"#f0fff0",hotpink:"#ff69b4",indianred:"#cd5c5c",indigo:"#4b0082",ivory:"#fffff0",khaki:"#f0e68c",lavender:"#e6e6fa",lavenderblush:"#fff0f5",lawngreen:"#7cfc00",lemonchiffon:"#fffacd",lightblue:"#add8e6",lightcoral:"#f08080",lightcyan:"#e0ffff",lightgoldenrodyellow:"#fafad2",lightgrey:"#d3d3d3",lightgreen:"#90ee90",lightpink:"#ffb6c1",lightsalmon:"#ffa07a",lightseagreen:"#20b2aa",lightskyblue:"#87cefa",lightslateblue:"#8470ff",lightslategray:"#778899",lightsteelblue:"#b0c4de",
-lightyellow:"#ffffe0",lime:"#00ff00",limegreen:"#32cd32",linen:"#faf0e6",magenta:"#ff00ff",maroon:"#800000",mediumaquamarine:"#66cdaa",mediumblue:"#0000cd",mediumorchid:"#ba55d3",mediumpurple:"#9370d8",mediumseagreen:"#3cb371",mediumslateblue:"#7b68ee",mediumspringgreen:"#00fa9a",mediumturquoise:"#48d1cc",mediumvioletred:"#c71585",midnightblue:"#191970",mintcream:"#f5fffa",mistyrose:"#ffe4e1",moccasin:"#ffe4b5",navajowhite:"#ffdead",navy:"#000080",oldlace:"#fdf5e6",olive:"#808000",olivedrab:"#6b8e23",
-orange:"#ffa500",orangered:"#ff4500",orchid:"#da70d6",palegoldenrod:"#eee8aa",palegreen:"#98fb98",paleturquoise:"#afeeee",palevioletred:"#d87093",papayawhip:"#ffefd5",peachpuff:"#ffdab9",peru:"#cd853f",pink:"#ffc0cb",plum:"#dda0dd",powderblue:"#b0e0e6",purple:"#800080",red:"#ff0000",rosybrown:"#bc8f8f",royalblue:"#4169e1",saddlebrown:"#8b4513",salmon:"#fa8072",sandybrown:"#f4a460",seagreen:"#2e8b57",seashell:"#fff5ee",sienna:"#a0522d",silver:"#c0c0c0",skyblue:"#87ceeb",slateblue:"#6a5acd",slategray:"#708090",
-snow:"#fffafa",springgreen:"#00ff7f",steelblue:"#4682b4",tan:"#d2b48c",teal:"#008080",thistle:"#d8bfd8",tomato:"#ff6347",turquoise:"#40e0d0",violet:"#ee82ee",violetred:"#d02090",wheat:"#f5deb3",white:"#ffffff",whitesmoke:"#f5f5f5",yellow:"#ffff00",yellowgreen:"#9acd32"};return c.Color.prototype.names=f});r(c,"modules/boost/boost.js",[c["parts/Globals.js"],c["modules/boost/boost-utils.js"],c["modules/boost/boost-init.js"]],function(c,r,t){r=r.hasWebGLSupport;r()?t():"undefined"!==typeof c.initCanvasBoost?
-c.initCanvasBoost():c.error(26)});r(c,"masters/modules/boost.src.js",[],function(){})});
+(function (b) {
+    "object" === typeof module && module.exports ? (b["default"] = b, module.exports = b) : "function" === typeof define && define.amd ? define("highcharts/modules/boost", ["highcharts"], function (n) {
+        b(n);
+        b.Highcharts = n;
+        return b
+    }) : b("undefined" !== typeof Highcharts ? Highcharts : void 0)
+})(function (b) {
+    function n(b, l, E, m) {
+        b.hasOwnProperty(l) || (b[l] = m.apply(null, E))
+    }
+
+    b = b ? b._modules : {};
+    n(b, "Extensions/Boost/Boostables.js", [], function () {
+        return "area arearange column columnrange bar line scatter heatmap bubble treemap".split(" ")
+    });
+    n(b, "Extensions/Boost/BoostableMap.js", [b["Extensions/Boost/Boostables.js"]], function (b) {
+        var v = {};
+        b.forEach(function (b) {
+            v[b] = 1
+        });
+        return v
+    });
+    n(b, "Extensions/Boost/WGLShader.js", [b["Core/Utilities.js"]], function (b) {
+        var v = b.clamp, E = b.error, m = b.pick;
+        return function (d) {
+            function b() {
+                k.length && E("[highcharts boost] shader error - " + k.join("\n"))
+            }
+
+            function g(c, a) {
+                var e = d.createShader("vertex" === a ? d.VERTEX_SHADER : d.FRAGMENT_SHADER);
+                d.shaderSource(e, c);
+                d.compileShader(e);
+                return d.getShaderParameter(e, d.COMPILE_STATUS) ?
+                    e : (k.push("when compiling " + a + " shader:\n" + d.getShaderInfoLog(e)), !1)
+            }
+
+            function z() {
+                function c(c) {
+                    return d.getUniformLocation(a, c)
+                }
+
+                var H = g("#version 100\n#define LN10 2.302585092994046\nprecision highp float;\nattribute vec4 aVertexPosition;\nattribute vec4 aColor;\nvarying highp vec2 position;\nvarying highp vec4 vColor;\nuniform mat4 uPMatrix;\nuniform float pSize;\nuniform float translatedThreshold;\nuniform bool hasThreshold;\nuniform bool skipTranslation;\nuniform float xAxisTrans;\nuniform float xAxisMin;\nuniform float xAxisMinPad;\nuniform float xAxisPointRange;\nuniform float xAxisLen;\nuniform bool  xAxisPostTranslate;\nuniform float xAxisOrdinalSlope;\nuniform float xAxisOrdinalOffset;\nuniform float xAxisPos;\nuniform bool  xAxisCVSCoord;\nuniform bool  xAxisIsLog;\nuniform bool  xAxisReversed;\nuniform float yAxisTrans;\nuniform float yAxisMin;\nuniform float yAxisMinPad;\nuniform float yAxisPointRange;\nuniform float yAxisLen;\nuniform bool  yAxisPostTranslate;\nuniform float yAxisOrdinalSlope;\nuniform float yAxisOrdinalOffset;\nuniform float yAxisPos;\nuniform bool  yAxisCVSCoord;\nuniform bool  yAxisIsLog;\nuniform bool  yAxisReversed;\nuniform bool  isBubble;\nuniform bool  bubbleSizeByArea;\nuniform float bubbleZMin;\nuniform float bubbleZMax;\nuniform float bubbleZThreshold;\nuniform float bubbleMinSize;\nuniform float bubbleMaxSize;\nuniform bool  bubbleSizeAbs;\nuniform bool  isInverted;\nfloat bubbleRadius(){\nfloat value = aVertexPosition.w;\nfloat zMax = bubbleZMax;\nfloat zMin = bubbleZMin;\nfloat radius = 0.0;\nfloat pos = 0.0;\nfloat zRange = zMax - zMin;\nif (bubbleSizeAbs){\nvalue = value - bubbleZThreshold;\nzMax = max(zMax - bubbleZThreshold, zMin - bubbleZThreshold);\nzMin = 0.0;\n}\nif (value < zMin){\nradius = bubbleZMin / 2.0 - 1.0;\n} else {\npos = zRange > 0.0 ? (value - zMin) / zRange : 0.5;\nif (bubbleSizeByArea && pos > 0.0){\npos = sqrt(pos);\n}\nradius = ceil(bubbleMinSize + pos * (bubbleMaxSize - bubbleMinSize)) / 2.0;\n}\nreturn radius * 2.0;\n}\nfloat translate(float val,\nfloat pointPlacement,\nfloat localA,\nfloat localMin,\nfloat minPixelPadding,\nfloat pointRange,\nfloat len,\nbool  cvsCoord,\nbool  isLog,\nbool  reversed\n){\nfloat sign = 1.0;\nfloat cvsOffset = 0.0;\nif (cvsCoord) {\nsign *= -1.0;\ncvsOffset = len;\n}\nif (isLog) {\nval = log(val) / LN10;\n}\nif (reversed) {\nsign *= -1.0;\ncvsOffset -= sign * len;\n}\nreturn sign * (val - localMin) * localA + cvsOffset + \n(sign * minPixelPadding);\n}\nfloat xToPixels(float value) {\nif (skipTranslation){\nreturn value;// + xAxisPos;\n}\nreturn translate(value, 0.0, xAxisTrans, xAxisMin, xAxisMinPad, xAxisPointRange, xAxisLen, xAxisCVSCoord, xAxisIsLog, xAxisReversed);// + xAxisPos;\n}\nfloat yToPixels(float value, float checkTreshold) {\nfloat v;\nif (skipTranslation){\nv = value;// + yAxisPos;\n} else {\nv = translate(value, 0.0, yAxisTrans, yAxisMin, yAxisMinPad, yAxisPointRange, yAxisLen, yAxisCVSCoord, yAxisIsLog, yAxisReversed);// + yAxisPos;\nif (v > yAxisLen) {\nv = yAxisLen;\n}\n}\nif (checkTreshold > 0.0 && hasThreshold) {\nv = min(v, translatedThreshold);\n}\nreturn v;\n}\nvoid main(void) {\nif (isBubble){\ngl_PointSize = bubbleRadius();\n} else {\ngl_PointSize = pSize;\n}\nvColor = aColor;\nif (skipTranslation && isInverted) {\ngl_Position = uPMatrix * vec4(aVertexPosition.y + yAxisPos, aVertexPosition.x + xAxisPos, 0.0, 1.0);\n} else if (isInverted) {\ngl_Position = uPMatrix * vec4(yToPixels(aVertexPosition.y, aVertexPosition.z) + yAxisPos, xToPixels(aVertexPosition.x) + xAxisPos, 0.0, 1.0);\n} else {\ngl_Position = uPMatrix * vec4(xToPixels(aVertexPosition.x) + xAxisPos, yToPixels(aVertexPosition.y, aVertexPosition.z) + yAxisPos, 0.0, 1.0);\n}\n}",
+                    "vertex"),
+                    e = g("precision highp float;\nuniform vec4 fillColor;\nvarying highp vec2 position;\nvarying highp vec4 vColor;\nuniform sampler2D uSampler;\nuniform bool isCircle;\nuniform bool hasColor;\nvoid main(void) {\nvec4 col = fillColor;\nvec4 tcol;\nif (hasColor) {\ncol = vColor;\n}\nif (isCircle) {\ntcol = texture2D(uSampler, gl_PointCoord.st);\ncol *= tcol;\nif (tcol.r < 0.0) {\ndiscard;\n} else {\ngl_FragColor = col;\n}\n} else {\ngl_FragColor = col;\n}\n}", "fragment");
+                if (!H || !e) return a = !1,
+                    b(), !1;
+                a = d.createProgram();
+                d.attachShader(a, H);
+                d.attachShader(a, e);
+                d.linkProgram(a);
+                if (!d.getProgramParameter(a, d.LINK_STATUS)) return k.push(d.getProgramInfoLog(a)), b(), a = !1;
+                d.useProgram(a);
+                d.bindAttribLocation(a, 0, "aVertexPosition");
+                w = c("uPMatrix");
+                p = c("pSize");
+                f = c("fillColor");
+                B = c("isBubble");
+                O = c("bubbleSizeAbs");
+                h = c("bubbleSizeByArea");
+                I = c("uSampler");
+                l = c("skipTranslation");
+                G = c("isCircle");
+                t = c("isInverted");
+                return !0
+            }
+
+            function q(c, k) {
+                d && a && (c = r[c] = r[c] || d.getUniformLocation(a, c), d.uniform1f(c, k))
+            }
+
+            var r = {}, a, w, p, f, B, O, h, l, G, t, k = [], I;
+            return d && !z() ? !1 : {
+                psUniform: function () {
+                    return p
+                }, pUniform: function () {
+                    return w
+                }, fillColorUniform: function () {
+                    return f
+                }, setBubbleUniforms: function (c, k, e) {
+                    var t = c.options, b = Number.MAX_VALUE, p = -Number.MAX_VALUE;
+                    d && a && "bubble" === c.type && (b = m(t.zMin, v(k, !1 === t.displayNegative ? t.zThreshold : -Number.MAX_VALUE, b)), p = m(t.zMax, Math.max(p, e)), d.uniform1i(B, 1), d.uniform1i(G, 1), d.uniform1i(h, "width" !== c.options.sizeBy), d.uniform1i(O, c.options.sizeByAbsoluteValue), q("bubbleZMin",
+                        b), q("bubbleZMax", p), q("bubbleZThreshold", c.options.zThreshold), q("bubbleMinSize", c.minPxSize), q("bubbleMaxSize", c.maxPxSize))
+                }, bind: function () {
+                    d && a && d.useProgram(a)
+                }, program: function () {
+                    return a
+                }, create: z, setUniform: q, setPMatrix: function (c) {
+                    d && a && d.uniformMatrix4fv(w, !1, c)
+                }, setColor: function (c) {
+                    d && a && d.uniform4f(f, c[0] / 255, c[1] / 255, c[2] / 255, c[3])
+                }, setPointSize: function (c) {
+                    d && a && d.uniform1f(p, c)
+                }, setSkipTranslation: function (c) {
+                    d && a && d.uniform1i(l, !0 === c ? 1 : 0)
+                }, setTexture: function (c) {
+                    d && a && d.uniform1i(I,
+                        c)
+                }, setDrawAsCircle: function (c) {
+                    d && a && d.uniform1i(G, c ? 1 : 0)
+                }, reset: function () {
+                    d && a && (d.uniform1i(B, 0), d.uniform1i(G, 0))
+                }, setInverted: function (c) {
+                    d && a && d.uniform1i(t, c)
+                }, destroy: function () {
+                    d && a && (d.deleteProgram(a), a = !1)
+                }
+            }
+        }
+    });
+    n(b, "Extensions/Boost/WGLVBuffer.js", [], function () {
+        return function (b, l, E) {
+            function m() {
+                d && (b.deleteBuffer(d), v = d = !1);
+                q = 0;
+                g = E || 2;
+                r = []
+            }
+
+            var d = !1, v = !1, g = E || 2, z = !1, q = 0, r;
+            return {
+                destroy: m, bind: function () {
+                    if (!d) return !1;
+                    b.vertexAttribPointer(v, g, b.FLOAT, !1, 0, 0)
+                }, data: r, build: function (a,
+                                             w, p) {
+                    var f;
+                    r = a || [];
+                    if (!(r && 0 !== r.length || z)) return m(), !1;
+                    g = p || g;
+                    d && b.deleteBuffer(d);
+                    z || (f = new Float32Array(r));
+                    d = b.createBuffer();
+                    b.bindBuffer(b.ARRAY_BUFFER, d);
+                    b.bufferData(b.ARRAY_BUFFER, z || f, b.STATIC_DRAW);
+                    v = b.getAttribLocation(l.program(), w);
+                    b.enableVertexAttribArray(v);
+                    return !0
+                }, render: function (a, m, p) {
+                    var f = z ? z.length : r.length;
+                    if (!d || !f) return !1;
+                    if (!a || a > f || 0 > a) a = 0;
+                    if (!m || m > f) m = f;
+                    b.drawArrays(b[(p || "points").toUpperCase()], a / g, (m - a) / g);
+                    return !0
+                }, allocate: function (a) {
+                    q = -1;
+                    z = new Float32Array(4 *
+                        a)
+                }, push: function (a, b, d, f) {
+                    z && (z[++q] = a, z[++q] = b, z[++q] = d, z[++q] = f)
+                }
+            }
+        }
+    });
+    n(b, "Extensions/Boost/WGLRenderer.js", [b["Core/Globals.js"], b["Extensions/Boost/WGLShader.js"], b["Extensions/Boost/WGLVBuffer.js"], b["Core/Color.js"], b["Core/Utilities.js"]], function (b, l, E, m, d) {
+        var v = m.parse, g = d.isNumber, z = d.isObject, q = d.merge, r = d.objectEach, a = d.pick, w = b.win.document;
+        return function (d) {
+            function p(c) {
+                if (c.isSeriesBoosting) {
+                    var a = !!c.options.stacking;
+                    var e = c.xData || c.options.xData || c.processedXData;
+                    a = (a ? c.data :
+                        e || c.options.data).length;
+                    "treemap" === c.type ? a *= 12 : "heatmap" === c.type ? a *= 6 : ma[c.type] && (a *= 2);
+                    return a
+                }
+                return 0
+            }
+
+            function B() {
+                e.clear(e.COLOR_BUFFER_BIT | e.DEPTH_BUFFER_BIT)
+            }
+
+            function O(c, a) {
+                function e(c) {
+                    c && (a.colorData.push(c[0]), a.colorData.push(c[1]), a.colorData.push(c[2]), a.colorData.push(c[3]))
+                }
+
+                function b(c, a, b, k, d) {
+                    e(d);
+                    y.usePreallocated ? H.push(c, a, b ? 1 : 0, k || 1) : (N.push(c), N.push(a), N.push(b ? 1 : 0), N.push(k || 1))
+                }
+
+                function k() {
+                    a.segments.length && (a.segments[a.segments.length - 1].to = N.length)
+                }
+
+                function d() {
+                    a.segments.length &&
+                    a.segments[a.segments.length - 1].from === N.length || (k(), a.segments.push({from: N.length}))
+                }
+
+                function t(c, a, k, d, t) {
+                    e(t);
+                    b(c + k, a);
+                    e(t);
+                    b(c, a);
+                    e(t);
+                    b(c, a + d);
+                    e(t);
+                    b(c, a + d);
+                    e(t);
+                    b(c + k, a + d);
+                    e(t);
+                    b(c + k, a)
+                }
+
+                function p(c, e) {
+                    y.useGPUTranslations || (a.skipTranslation = !0, c.x = w.toPixels(c.x, !0), c.y = n.toPixels(c.y, !0));
+                    e ? N = [c.x, c.y, 0, 2].concat(N) : b(c.x, c.y, 0, 2)
+                }
+
+                var Z = c.pointArrayMap && "low,high" === c.pointArrayMap.join(","), P = c.chart, f = c.options,
+                    G = !!f.stacking, I = f.data, g = c.xAxis.getExtremes(), h = g.min;
+                g = g.max;
+                var B = c.yAxis.getExtremes(),
+                    q = B.min;
+                B = B.max;
+                var l = c.xData || f.xData || c.processedXData, O = c.yData || f.yData || c.processedYData,
+                    r = c.zData || f.zData || c.processedZData, n = c.yAxis, w = c.xAxis, E = c.chart.plotWidth,
+                    J = !l || 0 === l.length, L = f.connectNulls, u = c.points || !1, F = !1, K = !1, Q;
+                l = G ? c.data : l || I;
+                var X = {x: Number.MAX_VALUE, y: 0}, M = {x: -Number.MAX_VALUE, y: 0}, T = 0, W = !1, D = -1, S = !1,
+                    U = !1, ka = "undefined" === typeof P.index, fa = !1, ha = !1;
+                var x = !1;
+                var za = ma[c.type], ia = !1, sa = !0, ta = !0, Y = f.zones || !1, V = !1, ua = f.threshold, ja = !1;
+                if (!(f.boostData && 0 < f.boostData.length)) {
+                    f.gapSize &&
+                    (ja = "value" !== f.gapUnit ? f.gapSize * c.closestPointRange : f.gapSize);
+                    Y && (Y.some(function (c) {
+                        return "undefined" === typeof c.value ? (V = new m(c.color), !0) : !1
+                    }), V || (V = c.pointAttribs && c.pointAttribs().fill || c.color, V = new m(V)));
+                    P.inverted && (E = c.chart.plotHeight);
+                    c.closestPointRangePx = Number.MAX_VALUE;
+                    d();
+                    if (u && 0 < u.length) a.skipTranslation = !0, a.drawMode = "triangles", u[0].node && u[0].node.levelDynamic && u.sort(function (c, a) {
+                        if (c.node) {
+                            if (c.node.levelDynamic > a.node.levelDynamic) return 1;
+                            if (c.node.levelDynamic < a.node.levelDynamic) return -1
+                        }
+                        return 0
+                    }),
+                        u.forEach(function (a) {
+                            var e = a.plotY;
+                            if ("undefined" !== typeof e && !isNaN(e) && null !== a.y) {
+                                e = a.shapeArgs;
+                                var b = P.styledMode ? a.series.colorAttribs(a) : b = a.series.pointAttribs(a);
+                                a = b["stroke-width"] || 0;
+                                x = v(b.fill).rgba;
+                                x[0] /= 255;
+                                x[1] /= 255;
+                                x[2] /= 255;
+                                "treemap" === c.type && (a = a || 1, Q = v(b.stroke).rgba, Q[0] /= 255, Q[1] /= 255, Q[2] /= 255, t(e.x, e.y, e.width, e.height, Q), a /= 2);
+                                "heatmap" === c.type && P.inverted && (e.x = w.len - e.x, e.y = n.len - e.y, e.width = -e.width, e.height = -e.height);
+                                t(e.x + a, e.y + a, e.width - 2 * a, e.height - 2 * a, x)
+                            }
+                        }); else {
+                        for (; D <
+                               l.length - 1;) {
+                            var C = l[++D];
+                            if (ka) break;
+                            u = I && I[D];
+                            !J && z(u, !0) && u.color && (x = v(u.color).rgba, x[0] /= 255, x[1] /= 255, x[2] /= 255);
+                            if (J) {
+                                u = C[0];
+                                var A = C[1];
+                                l[D + 1] && (U = l[D + 1][0]);
+                                l[D - 1] && (S = l[D - 1][0]);
+                                if (3 <= C.length) {
+                                    var va = C[2];
+                                    C[2] > a.zMax && (a.zMax = C[2]);
+                                    C[2] < a.zMin && (a.zMin = C[2])
+                                }
+                            } else u = C, A = O[D], l[D + 1] && (U = l[D + 1]), l[D - 1] && (S = l[D - 1]), r && r.length && (va = r[D], r[D] > a.zMax && (a.zMax = r[D]), r[D] < a.zMin && (a.zMin = r[D]));
+                            if (L || null !== u && null !== A) {
+                                U && U >= h && U <= g && (fa = !0);
+                                S && S >= h && S <= g && (ha = !0);
+                                if (Z) {
+                                    J && (A = C.slice(1, 3));
+                                    var ba =
+                                        A[0];
+                                    A = A[1]
+                                } else G && (u = C.x, A = C.stackY, ba = A - C.y);
+                                null !== q && "undefined" !== typeof q && null !== B && "undefined" !== typeof B && (sa = A >= q && A <= B);
+                                u > g && M.x < g && (M.x = u, M.y = A);
+                                u < h && X.x > h && (X.x = u, X.y = A);
+                                if (null !== A || !L) if (null !== A && (sa || fa || ha)) {
+                                    if ((U >= h || u >= h) && (S <= g || u <= g) && (ia = !0), ia || fa || ha) {
+                                        ja && u - S > ja && d();
+                                        Y && (x = V.rgba, Y.some(function (c, a) {
+                                            a = Y[a - 1];
+                                            if ("undefined" !== typeof c.value && A <= c.value) {
+                                                if (!a || A >= a.value) x = v(c.color).rgba;
+                                                return !0
+                                            }
+                                            return !1
+                                        }), x[0] /= 255, x[1] /= 255, x[2] /= 255);
+                                        if (!y.useGPUTranslations && (a.skipTranslation =
+                                            !0, u = w.toPixels(u, !0), A = n.toPixels(A, !0), u > E && "points" === a.drawMode)) continue;
+                                        if (za) {
+                                            C = ba;
+                                            if (!1 === ba || "undefined" === typeof ba) C = 0 > A ? A : 0;
+                                            Z || G || (C = Math.max(null === ua ? q : ua, q));
+                                            y.useGPUTranslations || (C = n.toPixels(C, !0));
+                                            b(u, C, 0, 0, x)
+                                        }
+                                        a.hasMarkers && ia && !1 !== F && (c.closestPointRangePx = Math.min(c.closestPointRangePx, Math.abs(u - F)));
+                                        !y.useGPUTranslations && !y.usePreallocated && F && 1 > Math.abs(u - F) && K && 1 > Math.abs(A - K) ? y.debug.showSkipSummary && ++T : (f.step && !ta && b(u, K, 0, 2, x), b(u, A, 0, "bubble" === c.type ? va || 1 : 2, x), F =
+                                            u, K = A, W = !0, ta = !1)
+                                    }
+                                } else d()
+                            } else d()
+                        }
+                        y.debug.showSkipSummary && console.log("skipped points:", T);
+                        W || !1 === L || "line_strip" !== c.drawMode || (X.x < Number.MAX_VALUE && p(X, !0), M.x > -Number.MAX_VALUE && p(M))
+                    }
+                    k()
+                }
+            }
+
+            function h() {
+                F = [];
+                W.data = N = [];
+                L = [];
+                H && H.destroy()
+            }
+
+            function J(a) {
+                c && (c.setUniform("xAxisTrans", a.transA), c.setUniform("xAxisMin", a.min), c.setUniform("xAxisMinPad", a.minPixelPadding), c.setUniform("xAxisPointRange", a.pointRange), c.setUniform("xAxisLen", a.len), c.setUniform("xAxisPos", a.pos), c.setUniform("xAxisCVSCoord",
+                    !a.horiz), c.setUniform("xAxisIsLog", !!a.logarithmic), c.setUniform("xAxisReversed", !!a.reversed))
+            }
+
+            function G(a) {
+                c && (c.setUniform("yAxisTrans", a.transA), c.setUniform("yAxisMin", a.min), c.setUniform("yAxisMinPad", a.minPixelPadding), c.setUniform("yAxisPointRange", a.pointRange), c.setUniform("yAxisLen", a.len), c.setUniform("yAxisPos", a.pos), c.setUniform("yAxisCVSCoord", !a.horiz), c.setUniform("yAxisIsLog", !!a.logarithmic), c.setUniform("yAxisReversed", !!a.reversed))
+            }
+
+            function t(a, e) {
+                c.setUniform("hasThreshold",
+                    a);
+                c.setUniform("translatedThreshold", e)
+            }
+
+            function k(k) {
+                if (k) n = k.chartWidth || 800, K = k.chartHeight || 400; else return !1;
+                if (!(e && n && K && c)) return !1;
+                y.debug.timeRendering && console.time("gl rendering");
+                e.canvas.width = n;
+                e.canvas.height = K;
+                c.bind();
+                e.viewport(0, 0, n, K);
+                c.setPMatrix([2 / n, 0, 0, 0, 0, -(2 / K), 0, 0, 0, 0, -2, 0, -1, 1, -1, 1]);
+                1 < y.lineWidth && !b.isMS && e.lineWidth(y.lineWidth);
+                H.build(W.data, "aVertexPosition", 4);
+                H.bind();
+                c.setInverted(k.inverted);
+                F.forEach(function (b, d) {
+                    var f = b.series.options, p = f.marker;
+                    var h = "undefined" !==
+                    typeof f.lineWidth ? f.lineWidth : 1;
+                    var I = f.threshold, l = g(I), B = b.series.yAxis.getThreshold(I);
+                    I = a(f.marker ? f.marker.enabled : null, b.series.xAxis.isRadial ? !0 : null, b.series.closestPointRangePx > 2 * ((f.marker ? f.marker.radius : 10) || 10));
+                    p = M[p && p.symbol || b.series.symbol] || M.circle;
+                    if (!(0 === b.segments.length || b.segmentslength && b.segments[0].from === b.segments[0].to)) {
+                        p.isReady && (e.bindTexture(e.TEXTURE_2D, p.handle), c.setTexture(p.handle));
+                        k.styledMode ? p = b.series.markerGroup && b.series.markerGroup.getStyle("fill") :
+                            (p = b.series.pointAttribs && b.series.pointAttribs().fill || b.series.color, f.colorByPoint && (p = b.series.chart.options.colors[d]));
+                        b.series.fillOpacity && f.fillOpacity && (p = (new m(p)).setOpacity(a(f.fillOpacity, 1)).get());
+                        p = v(p).rgba;
+                        y.useAlpha || (p[3] = 1);
+                        "lines" === b.drawMode && y.useAlpha && 1 > p[3] && (p[3] /= 10);
+                        "add" === f.boostBlending ? (e.blendFunc(e.SRC_ALPHA, e.ONE), e.blendEquation(e.FUNC_ADD)) : "mult" === f.boostBlending || "multiply" === f.boostBlending ? e.blendFunc(e.DST_COLOR, e.ZERO) : "darken" === f.boostBlending ? (e.blendFunc(e.ONE,
+                            e.ONE), e.blendEquation(e.FUNC_MIN)) : e.blendFuncSeparate(e.SRC_ALPHA, e.ONE_MINUS_SRC_ALPHA, e.ONE, e.ONE_MINUS_SRC_ALPHA);
+                        c.reset();
+                        0 < b.colorData.length && (c.setUniform("hasColor", 1), d = E(e, c), d.build(b.colorData, "aColor", 4), d.bind());
+                        c.setColor(p);
+                        J(b.series.xAxis);
+                        G(b.series.yAxis);
+                        t(l, B);
+                        "points" === b.drawMode && (f.marker && g(f.marker.radius) ? c.setPointSize(2 * f.marker.radius) : c.setPointSize(1));
+                        c.setSkipTranslation(b.skipTranslation);
+                        "bubble" === b.series.type && c.setBubbleUniforms(b.series, b.zMin, b.zMax);
+                        c.setDrawAsCircle(ka[b.series.type] || !1);
+                        if (0 < h || "line_strip" !== b.drawMode) for (h = 0; h < b.segments.length; h++) H.render(b.segments[h].from, b.segments[h].to, b.drawMode);
+                        if (b.hasMarkers && I) for (f.marker && g(f.marker.radius) ? c.setPointSize(2 * f.marker.radius) : c.setPointSize(10), c.setDrawAsCircle(!0), h = 0; h < b.segments.length; h++) H.render(b.segments[h].from, b.segments[h].to, "POINTS")
+                    }
+                });
+                y.debug.timeRendering && console.timeEnd("gl rendering");
+                d && d();
+                h()
+            }
+
+            function I(a) {
+                B();
+                if (a.renderer.forExport) return k(a);
+                T ? k(a) :
+                    setTimeout(function () {
+                        I(a)
+                    }, 1)
+            }
+
+            var c = !1, H = !1, e = !1, n = 0, K = 0, N = !1, L = !1, W = {}, T = !1, F = [], M = {},
+                ma = {column: !0, columnrange: !0, bar: !0, area: !0, arearange: !0}, ka = {scatter: !0, bubble: !0},
+                y = {
+                    pointSize: 1,
+                    lineWidth: 1,
+                    fillColor: "#AA00AA",
+                    useAlpha: !0,
+                    usePreallocated: !1,
+                    useGPUTranslations: !1,
+                    debug: {
+                        timeRendering: !1,
+                        timeSeriesProcessing: !1,
+                        timeSetup: !1,
+                        timeBufferCopy: !1,
+                        timeKDTree: !1,
+                        showSkipSummary: !1
+                    }
+                };
+            return W = {
+                allocateBufferForSingleSeries: function (a) {
+                    var c = 0;
+                    y.usePreallocated && (a.isSeriesBoosting && (c = p(a)), H.allocate(c))
+                },
+                pushSeries: function (a) {
+                    0 < F.length && F[F.length - 1].hasMarkers && (F[F.length - 1].markerTo = L.length);
+                    y.debug.timeSeriesProcessing && console.time("building " + a.type + " series");
+                    F.push({
+                        segments: [],
+                        markerFrom: L.length,
+                        colorData: [],
+                        series: a,
+                        zMin: Number.MAX_VALUE,
+                        zMax: -Number.MAX_VALUE,
+                        hasMarkers: a.options.marker ? !1 !== a.options.marker.enabled : !1,
+                        showMarkers: !0,
+                        drawMode: {
+                            area: "lines",
+                            arearange: "lines",
+                            areaspline: "line_strip",
+                            column: "lines",
+                            columnrange: "lines",
+                            bar: "lines",
+                            line: "line_strip",
+                            scatter: "points",
+                            heatmap: "triangles",
+                            treemap: "triangles",
+                            bubble: "points"
+                        }[a.type] || "line_strip"
+                    });
+                    O(a, F[F.length - 1]);
+                    y.debug.timeSeriesProcessing && console.timeEnd("building " + a.type + " series")
+                }, setSize: function (a, b) {
+                    n === a && K === b || !c || (n = a, K = b, c.bind(), c.setPMatrix([2 / n, 0, 0, 0, 0, -(2 / K), 0, 0, 0, 0, -2, 0, -1, 1, -1, 1]))
+                }, inited: function () {
+                    return T
+                }, setThreshold: t, init: function (a, b) {
+                    function k(a, c) {
+                        var b = {isReady: !1, texture: w.createElement("canvas"), handle: e.createTexture()},
+                            k = b.texture.getContext("2d");
+                        M[a] = b;
+                        b.texture.width = 512;
+                        b.texture.height =
+                            512;
+                        k.mozImageSmoothingEnabled = !1;
+                        k.webkitImageSmoothingEnabled = !1;
+                        k.msImageSmoothingEnabled = !1;
+                        k.imageSmoothingEnabled = !1;
+                        k.strokeStyle = "rgba(255, 255, 255, 0)";
+                        k.fillStyle = "#FFF";
+                        c(k);
+                        try {
+                            e.activeTexture(e.TEXTURE0), e.bindTexture(e.TEXTURE_2D, b.handle), e.texImage2D(e.TEXTURE_2D, 0, e.RGBA, e.RGBA, e.UNSIGNED_BYTE, b.texture), e.texParameteri(e.TEXTURE_2D, e.TEXTURE_WRAP_S, e.CLAMP_TO_EDGE), e.texParameteri(e.TEXTURE_2D, e.TEXTURE_WRAP_T, e.CLAMP_TO_EDGE), e.texParameteri(e.TEXTURE_2D, e.TEXTURE_MAG_FILTER, e.LINEAR),
+                                e.texParameteri(e.TEXTURE_2D, e.TEXTURE_MIN_FILTER, e.LINEAR), e.bindTexture(e.TEXTURE_2D, null), b.isReady = !0
+                        } catch (R) {
+                        }
+                    }
+
+                    var d = 0, f = ["webgl", "experimental-webgl", "moz-webgl", "webkit-3d"];
+                    T = !1;
+                    if (!a) return !1;
+                    for (y.debug.timeSetup && console.time("gl setup"); d < f.length && !(e = a.getContext(f[d], {})); d++) ;
+                    if (e) b || h(); else return !1;
+                    e.enable(e.BLEND);
+                    e.blendFunc(e.SRC_ALPHA, e.ONE_MINUS_SRC_ALPHA);
+                    e.disable(e.DEPTH_TEST);
+                    e.depthFunc(e.LESS);
+                    c = l(e);
+                    if (!c) return !1;
+                    H = E(e, c);
+                    k("circle", function (a) {
+                        a.beginPath();
+                        a.arc(256,
+                            256, 256, 0, 2 * Math.PI);
+                        a.stroke();
+                        a.fill()
+                    });
+                    k("square", function (a) {
+                        a.fillRect(0, 0, 512, 512)
+                    });
+                    k("diamond", function (a) {
+                        a.beginPath();
+                        a.moveTo(256, 0);
+                        a.lineTo(512, 256);
+                        a.lineTo(256, 512);
+                        a.lineTo(0, 256);
+                        a.lineTo(256, 0);
+                        a.fill()
+                    });
+                    k("triangle", function (a) {
+                        a.beginPath();
+                        a.moveTo(0, 512);
+                        a.lineTo(256, 0);
+                        a.lineTo(512, 512);
+                        a.lineTo(0, 512);
+                        a.fill()
+                    });
+                    k("triangle-down", function (a) {
+                        a.beginPath();
+                        a.moveTo(0, 0);
+                        a.lineTo(256, 512);
+                        a.lineTo(512, 0);
+                        a.lineTo(0, 0);
+                        a.fill()
+                    });
+                    T = !0;
+                    y.debug.timeSetup && console.timeEnd("gl setup");
+                    return !0
+                }, render: I, settings: y, valid: function () {
+                    return !1 !== e
+                }, clear: B, flush: h, setXAxis: J, setYAxis: G, data: N, gl: function () {
+                    return e
+                }, allocateBuffer: function (a) {
+                    var c = 0;
+                    y.usePreallocated && (a.series.forEach(function (a) {
+                        a.isSeriesBoosting && (c += p(a))
+                    }), H.allocate(c))
+                }, destroy: function () {
+                    h();
+                    H.destroy();
+                    c.destroy();
+                    e && (r(M, function (a) {
+                        a.handle && e.deleteTexture(a.handle)
+                    }), e.canvas.width = 1, e.canvas.height = 1)
+                }, setOptions: function (a) {
+                    q(!0, y, a)
+                }
+            }
+        }
+    });
+    n(b, "Extensions/Boost/BoostAttach.js", [b["Extensions/Boost/WGLRenderer.js"],
+        b["Core/Globals.js"], b["Core/Utilities.js"]], function (b, l, n) {
+        var m = l.doc, d = n.error, v = m.createElement("canvas");
+        return function (g, n) {
+            var q = g.chartWidth, r = g.chartHeight, a = g, w = g.seriesGroup || n.group,
+                p = m.implementation.hasFeature("www.http://w3.org/TR/SVG11/feature#Extensibility", "1.1");
+            a = g.isChartSeriesBoosting() ? g : n;
+            p = !1;
+            a.renderTarget || (a.canvas = v, g.renderer.forExport || !p ? (a.renderTarget = g.renderer.image("", 0, 0, q, r).addClass("highcharts-boost-canvas").add(w), a.boostClear = function () {
+                a.renderTarget.attr({href: ""})
+            },
+                a.boostCopy = function () {
+                    a.boostResizeTarget();
+                    a.renderTarget.attr({href: a.canvas.toDataURL("image/png")})
+                }) : (a.renderTargetFo = g.renderer.createElement("foreignObject").add(w), a.renderTarget = m.createElement("canvas"), a.renderTargetCtx = a.renderTarget.getContext("2d"), a.renderTargetFo.element.appendChild(a.renderTarget), a.boostClear = function () {
+                a.renderTarget.width = a.canvas.width;
+                a.renderTarget.height = a.canvas.height
+            }, a.boostCopy = function () {
+                a.renderTarget.width = a.canvas.width;
+                a.renderTarget.height = a.canvas.height;
+                a.renderTargetCtx.drawImage(a.canvas, 0, 0)
+            }), a.boostResizeTarget = function () {
+                q = g.chartWidth;
+                r = g.chartHeight;
+                (a.renderTargetFo || a.renderTarget).attr({x: 0, y: 0, width: q, height: r}).css({
+                    pointerEvents: "none",
+                    mixedBlendMode: "normal",
+                    opacity: 1
+                });
+                a instanceof l.Chart && a.markerGroup.translate(g.plotLeft, g.plotTop)
+            }, a.boostClipRect = g.renderer.clipRect(), (a.renderTargetFo || a.renderTarget).clip(a.boostClipRect), a instanceof l.Chart && (a.markerGroup = a.renderer.g().add(w), a.markerGroup.translate(n.xAxis.pos, n.yAxis.pos)));
+            a.canvas.width = q;
+            a.canvas.height = r;
+            a.boostClipRect.attr(g.getBoostClipRect(a));
+            a.boostResizeTarget();
+            a.boostClear();
+            a.ogl || (a.ogl = b(function () {
+                a.ogl.settings.debug.timeBufferCopy && console.time("buffer copy");
+                a.boostCopy();
+                a.ogl.settings.debug.timeBufferCopy && console.timeEnd("buffer copy")
+            }), a.ogl.init(a.canvas) || d("[highcharts boost] - unable to init WebGL renderer"), a.ogl.setOptions(g.options.boost || {}), a instanceof l.Chart && a.ogl.allocateBuffer(g));
+            a.ogl.setSize(q, r);
+            return a.ogl
+        }
+    });
+    n(b, "Extensions/Boost/BoostUtils.js",
+        [b["Core/Globals.js"], b["Extensions/Boost/BoostableMap.js"], b["Extensions/Boost/BoostAttach.js"], b["Core/Utilities.js"]], function (b, l, n, m) {
+            function d() {
+                for (var a = [], b = 0; b < arguments.length; b++) a[b] = arguments[b];
+                var d = -Number.MAX_VALUE;
+                a.forEach(function (a) {
+                    if ("undefined" !== typeof a && null !== a && "undefined" !== typeof a.length && 0 < a.length) return d = a.length, !0
+                });
+                return d
+            }
+
+            function v(a, b, d) {
+                a && b.renderTarget && b.canvas && !(d || b.chart).isChartSeriesBoosting() && a.render(d || b.chart)
+            }
+
+            function g(a, b) {
+                a && b.renderTarget &&
+                b.canvas && !b.chart.isChartSeriesBoosting() && a.allocateBufferForSingleSeries(b)
+            }
+
+            function z(a, b, d, g, h, l) {
+                h = h || 0;
+                g = g || 3E3;
+                for (var f = h + g, t = !0; t && h < f && h < a.length;) t = b(a[h], h), ++h;
+                t && (h < a.length ? l ? z(a, b, d, g, h, l) : r.requestAnimationFrame ? r.requestAnimationFrame(function () {
+                    z(a, b, d, g, h)
+                }) : setTimeout(function () {
+                    z(a, b, d, g, h)
+                }) : d && d())
+            }
+
+            function q() {
+                var b = 0, d, g = ["webgl", "experimental-webgl", "moz-webgl", "webkit-3d"], l = !1;
+                if ("undefined" !== typeof r.WebGLRenderingContext) for (d = a.createElement("canvas"); b < g.length; b++) try {
+                    if (l =
+                        d.getContext(g[b]), "undefined" !== typeof l && null !== l) return !0
+                } catch (h) {
+                }
+                return !1
+            }
+
+            var r = b.win, a = b.doc, w = m.pick;
+            m = {
+                patientMax: d,
+                boostEnabled: function (a) {
+                    return w(a && a.options && a.options.boost && a.options.boost.enabled, !0)
+                },
+                shouldForceChartSeriesBoosting: function (a) {
+                    var b = 0, g = 0, p = w(a.options.boost && a.options.boost.allowForce, !0);
+                    if ("undefined" !== typeof a.boostForceChartBoost) return a.boostForceChartBoost;
+                    if (1 < a.series.length) for (var h = 0; h < a.series.length; h++) {
+                        var m = a.series[h];
+                        0 !== m.options.boostThreshold &&
+                        !1 !== m.visible && "heatmap" !== m.type && (l[m.type] && ++g, d(m.processedXData, m.options.data, m.points) >= (m.options.boostThreshold || Number.MAX_VALUE) && ++b)
+                    }
+                    a.boostForceChartBoost = p && (g === a.series.length && 0 < b || 5 < b);
+                    return a.boostForceChartBoost
+                },
+                renderIfNotSeriesBoosting: v,
+                allocateIfNotSeriesBoosting: g,
+                eachAsync: z,
+                hasWebGLSupport: q,
+                pointDrawHandler: function (a) {
+                    var b = !0;
+                    this.chart.options && this.chart.options.boost && (b = "undefined" === typeof this.chart.options.boost.enabled ? !0 : this.chart.options.boost.enabled);
+                    if (!b || !this.isSeriesBoosting) return a.call(this);
+                    this.chart.isBoosting = !0;
+                    if (a = n(this.chart, this)) g(a, this), a.pushSeries(this);
+                    v(a, this)
+                }
+            };
+            b.hasWebGLSupport = q;
+            return m
+        });
+    n(b, "Extensions/Boost/BoostInit.js", [b["Core/Chart/Chart.js"], b["Core/Globals.js"], b["Core/Utilities.js"], b["Extensions/Boost/BoostUtils.js"], b["Extensions/Boost/BoostAttach.js"]], function (b, l, n, m, d) {
+        var v = n.addEvent, g = n.extend, z = n.fireEvent, q = n.wrap, r = l.Series, a = l.seriesTypes,
+            w = function () {
+            }, p = m.eachAsync, f = m.pointDrawHandler, B =
+                m.allocateIfNotSeriesBoosting, E = m.renderIfNotSeriesBoosting, h = m.shouldForceChartSeriesBoosting, J;
+        return function () {
+            g(r.prototype, {
+                renderCanvas: function () {
+                    function a(a, c) {
+                        var b = !1, d = "undefined" === typeof g.index, k = !0;
+                        if (!d) {
+                            if (pa) {
+                                var t = a[0];
+                                var f = a[1]
+                            } else t = a, f = m[c];
+                            la ? (pa && (f = a.slice(1, 3)), b = f[0], f = f[1]) : na && (t = a.x, f = a.stackY, b = f - a.y);
+                            wa || (k = f >= v && f <= M);
+                            if (null !== f && t >= q && t <= r && k) if (a = e.toPixels(t, !0), y) {
+                                if ("undefined" === typeof R || a === O) {
+                                    la || (b = f);
+                                    if ("undefined" === typeof aa || f > da) da = f, aa = c;
+                                    if ("undefined" ===
+                                        typeof R || b < ca) ca = b, R = c
+                                }
+                                a !== O && ("undefined" !== typeof R && (f = h.toPixels(da, !0), P = h.toPixels(ca, !0), ea(a, f, aa), P !== f && ea(a, P, R)), R = aa = void 0, O = a)
+                            } else f = Math.ceil(h.toPixels(f, !0)), ea(a, f, c)
+                        }
+                        return !d
+                    }
+
+                    function b() {
+                        z(k, "renderedCanvas");
+                        delete k.buildKDTree;
+                        k.buildKDTree();
+                        ra.debug.timeKDTree && console.timeEnd("kd tree building")
+                    }
+
+                    var k = this, f = k.options || {}, c = !1, g = k.chart, e = this.xAxis, h = this.yAxis,
+                        l = f.xData || k.processedXData, m = f.yData || k.processedYData, n = f.data;
+                    c = e.getExtremes();
+                    var q = c.min, r = c.max;
+                    c = h.getExtremes();
+                    var v = c.min, M = c.max, L = {}, O, y = !!k.sampling, Z = !1 !== f.enableMouseTracking,
+                        P = h.getThreshold(f.threshold),
+                        la = k.pointArrayMap && "low,high" === k.pointArrayMap.join(","), na = !!f.stacking,
+                        oa = k.cropStart || 0, wa = k.requireSorting, pa = !l, ca, da, R, aa,
+                        xa = "x" === f.findNearestPointBy,
+                        qa = this.xData || this.options.xData || this.processedXData || !1, ea = function (a, c, b) {
+                            a = Math.ceil(a);
+                            J = xa ? a : a + "," + c;
+                            Z && !L[J] && (L[J] = !0, g.inverted && (a = e.len - a, c = h.len - c), ya.push({
+                                x: qa ? qa[oa + b] : !1,
+                                clientX: a,
+                                plotX: a,
+                                plotY: c,
+                                i: oa + b
+                            }))
+                        };
+                    c = d(g, k);
+                    g.isBoosting =
+                        !0;
+                    var ra = c.settings;
+                    if (this.visible) {
+                        (this.points || this.graph) && this.destroyGraphics();
+                        g.isChartSeriesBoosting() ? (this.markerGroup && this.markerGroup !== g.markerGroup && this.markerGroup.destroy(), this.markerGroup = g.markerGroup, this.renderTarget && (this.renderTarget = this.renderTarget.destroy())) : (this.markerGroup === g.markerGroup && (this.markerGroup = void 0), this.markerGroup = k.plotGroup("markerGroup", "markers", !0, 1, g.seriesGroup));
+                        var ya = this.points = [];
+                        k.buildKDTree = w;
+                        c && (B(c, this), c.pushSeries(k), E(c, this,
+                            g));
+                        g.renderer.forExport || (ra.debug.timeKDTree && console.time("kd tree building"), p(na ? k.data : l || n, a, b))
+                    }
+                }
+            });
+            ["heatmap", "treemap"].forEach(function (b) {
+                a[b] && q(a[b].prototype, "drawPoints", f)
+            });
+            a.bubble && (delete a.bubble.prototype.buildKDTree, q(a.bubble.prototype, "markerAttribs", function (a) {
+                return this.isSeriesBoosting ? !1 : a.apply(this, [].slice.call(arguments, 1))
+            }));
+            a.scatter.prototype.fill = !0;
+            g(a.area.prototype, {fill: !0, fillOpacity: !0, sampling: !0});
+            g(a.column.prototype, {fill: !0, sampling: !0});
+            b.prototype.callbacks.push(function (a) {
+                v(a,
+                    "predraw", function () {
+                        a.boostForceChartBoost = void 0;
+                        a.boostForceChartBoost = h(a);
+                        a.isBoosting = !1;
+                        !a.isChartSeriesBoosting() && a.didBoost && (a.didBoost = !1);
+                        a.boostClear && a.boostClear();
+                        a.canvas && a.ogl && a.isChartSeriesBoosting() && (a.didBoost = !0, a.ogl.allocateBuffer(a));
+                        a.markerGroup && a.xAxis && 0 < a.xAxis.length && a.yAxis && 0 < a.yAxis.length && a.markerGroup.translate(a.xAxis[0].pos, a.yAxis[0].pos)
+                    });
+                v(a, "render", function () {
+                    a.ogl && a.isChartSeriesBoosting() && a.ogl.render(a)
+                })
+            })
+        }
+    });
+    n(b, "Extensions/Boost/BoostOverrides.js",
+        [b["Core/Chart/Chart.js"], b["Core/Globals.js"], b["Core/Series/Point.js"], b["Core/Utilities.js"], b["Extensions/Boost/BoostUtils.js"], b["Extensions/Boost/Boostables.js"], b["Extensions/Boost/BoostableMap.js"]], function (b, l, n, m, d, L, g) {
+            var v = m.addEvent, q = m.error, r = m.getOptions, a = m.isArray, w = m.isNumber, p = m.pick, f = m.wrap,
+                B = d.boostEnabled, E = d.shouldForceChartSeriesBoosting, h = l.Series, J = l.seriesTypes,
+                G = r().plotOptions;
+            b.prototype.isChartSeriesBoosting = function () {
+                return p(this.options.boost && this.options.boost.seriesThreshold,
+                    50) <= this.series.length || E(this)
+            };
+            b.prototype.getBoostClipRect = function (a) {
+                var b = {x: this.plotLeft, y: this.plotTop, width: this.plotWidth, height: this.plotHeight};
+                a === this && this.yAxis.forEach(function (a) {
+                    b.y = Math.min(a.pos, b.y);
+                    b.height = Math.max(a.pos - this.plotTop + a.len, b.height)
+                }, this);
+                return b
+            };
+            h.prototype.getPoint = function (a) {
+                var b = a, d = this.xData || this.options.xData || this.processedXData || !1;
+                !a || a instanceof this.pointClass || (b = (new this.pointClass).init(this, this.options.data[a.i], d ? d[a.i] : void 0),
+                    b.category = p(this.xAxis.categories ? this.xAxis.categories[b.x] : b.x, b.x), b.dist = a.dist, b.distX = a.distX, b.plotX = a.plotX, b.plotY = a.plotY, b.index = a.i, b.isInside = this.isPointInside(a));
+                return b
+            };
+            f(h.prototype, "searchPoint", function (a) {
+                return this.getPoint(a.apply(this, [].slice.call(arguments, 1)))
+            });
+            f(n.prototype, "haloPath", function (a) {
+                var b = this.series, d = this.plotX, c = this.plotY, f = b.chart.inverted;
+                b.isSeriesBoosting && f && (this.plotX = b.yAxis.len - c, this.plotY = b.xAxis.len - d);
+                var e = a.apply(this, Array.prototype.slice.call(arguments,
+                    1));
+                b.isSeriesBoosting && f && (this.plotX = d, this.plotY = c);
+                return e
+            });
+            f(h.prototype, "markerAttribs", function (a, b) {
+                var d = b.plotX, c = b.plotY, f = this.chart.inverted;
+                this.isSeriesBoosting && f && (b.plotX = this.yAxis.len - c, b.plotY = this.xAxis.len - d);
+                var e = a.apply(this, Array.prototype.slice.call(arguments, 1));
+                this.isSeriesBoosting && f && (b.plotX = d, b.plotY = c);
+                return e
+            });
+            v(h, "destroy", function () {
+                var a = this, b = a.chart;
+                b.markerGroup === a.markerGroup && (a.markerGroup = null);
+                b.hoverPoints && (b.hoverPoints = b.hoverPoints.filter(function (b) {
+                    return b.series ===
+                        a
+                }));
+                b.hoverPoint && b.hoverPoint.series === a && (b.hoverPoint = null)
+            });
+            f(h.prototype, "getExtremes", function (a) {
+                return this.isSeriesBoosting && this.hasExtremes && this.hasExtremes() ? {} : a.apply(this, Array.prototype.slice.call(arguments, 1))
+            });
+            ["translate", "generatePoints", "drawTracker", "drawPoints", "render"].forEach(function (a) {
+                function b(b) {
+                    var c = this.options.stacking && ("translate" === a || "generatePoints" === a);
+                    if (!this.isSeriesBoosting || c || !B(this.chart) || "heatmap" === this.type || "treemap" === this.type || !g[this.type] ||
+                        0 === this.options.boostThreshold) b.call(this); else if (this[a + "Canvas"]) this[a + "Canvas"]()
+                }
+
+                f(h.prototype, a, b);
+                "translate" === a && "column bar arearange columnrange heatmap treemap".split(" ").forEach(function (d) {
+                    J[d] && f(J[d].prototype, a, b)
+                })
+            });
+            f(h.prototype, "processData", function (b) {
+                function d(a) {
+                    return f.chart.isChartSeriesBoosting() || (a ? a.length : 0) >= (f.options.boostThreshold || Number.MAX_VALUE)
+                }
+
+                var f = this, c = this.options.data;
+                B(this.chart) && g[this.type] ? (d(c) && "heatmap" !== this.type && "treemap" !== this.type &&
+                !this.options.stacking && this.hasExtremes && this.hasExtremes(!0) || (b.apply(this, Array.prototype.slice.call(arguments, 1)), c = this.processedXData), (this.isSeriesBoosting = d(c)) ? (c = this.getFirstValidPoint(this.options.data), w(c) || a(c) || q(12, !1, this.chart), this.enterBoost()) : this.exitBoost && this.exitBoost()) : b.apply(this, Array.prototype.slice.call(arguments, 1))
+            });
+            v(h, "hide", function () {
+                this.canvas && this.renderTarget && (this.ogl && this.ogl.clear(), this.boostClear())
+            });
+            h.prototype.enterBoost = function () {
+                this.alteredByBoost =
+                    [];
+                ["allowDG", "directTouch", "stickyTracking"].forEach(function (a) {
+                    this.alteredByBoost.push({prop: a, val: this[a], own: Object.hasOwnProperty.call(this, a)})
+                }, this);
+                this.directTouch = this.allowDG = !1;
+                this.finishedAnimating = this.stickyTracking = !0;
+                this.labelBySeries && (this.labelBySeries = this.labelBySeries.destroy())
+            };
+            h.prototype.exitBoost = function () {
+                (this.alteredByBoost || []).forEach(function (a) {
+                    a.own ? this[a.prop] = a.val : delete this[a.prop]
+                }, this);
+                this.boostClear && this.boostClear()
+            };
+            h.prototype.hasExtremes = function (a) {
+                var b =
+                        this.options, d = this.xAxis && this.xAxis.options, c = this.yAxis && this.yAxis.options,
+                    f = this.colorAxis && this.colorAxis.options;
+                return b.data.length > (b.boostThreshold || Number.MAX_VALUE) && w(c.min) && w(c.max) && (!a || w(d.min) && w(d.max)) && (!f || w(f.min) && w(f.max))
+            };
+            h.prototype.destroyGraphics = function () {
+                var a = this, b = this.points, d, c;
+                if (b) for (c = 0; c < b.length; c += 1) (d = b[c]) && d.destroyElements && d.destroyElements();
+                ["graph", "area", "tracker"].forEach(function (b) {
+                    a[b] && (a[b] = a[b].destroy())
+                })
+            };
+            L.forEach(function (a) {
+                G[a] &&
+                (G[a].boostThreshold = 5E3, G[a].boostData = [], J[a].prototype.fillOpacity = !0)
+            })
+        });
+    n(b, "Extensions/Boost/NamedColors.js", [b["Core/Color.js"]], function (b) {
+        var l = {
+            aliceblue: "#f0f8ff",
+            antiquewhite: "#faebd7",
+            aqua: "#00ffff",
+            aquamarine: "#7fffd4",
+            azure: "#f0ffff",
+            beige: "#f5f5dc",
+            bisque: "#ffe4c4",
+            black: "#000000",
+            blanchedalmond: "#ffebcd",
+            blue: "#0000ff",
+            blueviolet: "#8a2be2",
+            brown: "#a52a2a",
+            burlywood: "#deb887",
+            cadetblue: "#5f9ea0",
+            chartreuse: "#7fff00",
+            chocolate: "#d2691e",
+            coral: "#ff7f50",
+            cornflowerblue: "#6495ed",
+            cornsilk: "#fff8dc",
+            crimson: "#dc143c",
+            cyan: "#00ffff",
+            darkblue: "#00008b",
+            darkcyan: "#008b8b",
+            darkgoldenrod: "#b8860b",
+            darkgray: "#a9a9a9",
+            darkgreen: "#006400",
+            darkkhaki: "#bdb76b",
+            darkmagenta: "#8b008b",
+            darkolivegreen: "#556b2f",
+            darkorange: "#ff8c00",
+            darkorchid: "#9932cc",
+            darkred: "#8b0000",
+            darksalmon: "#e9967a",
+            darkseagreen: "#8fbc8f",
+            darkslateblue: "#483d8b",
+            darkslategray: "#2f4f4f",
+            darkturquoise: "#00ced1",
+            darkviolet: "#9400d3",
+            deeppink: "#ff1493",
+            deepskyblue: "#00bfff",
+            dimgray: "#696969",
+            dodgerblue: "#1e90ff",
+            feldspar: "#d19275",
+            firebrick: "#b22222",
+            floralwhite: "#fffaf0",
+            forestgreen: "#228b22",
+            fuchsia: "#ff00ff",
+            gainsboro: "#dcdcdc",
+            ghostwhite: "#f8f8ff",
+            gold: "#ffd700",
+            goldenrod: "#daa520",
+            gray: "#808080",
+            green: "#008000",
+            greenyellow: "#adff2f",
+            honeydew: "#f0fff0",
+            hotpink: "#ff69b4",
+            indianred: "#cd5c5c",
+            indigo: "#4b0082",
+            ivory: "#fffff0",
+            khaki: "#f0e68c",
+            lavender: "#e6e6fa",
+            lavenderblush: "#fff0f5",
+            lawngreen: "#7cfc00",
+            lemonchiffon: "#fffacd",
+            lightblue: "#add8e6",
+            lightcoral: "#f08080",
+            lightcyan: "#e0ffff",
+            lightgoldenrodyellow: "#fafad2",
+            lightgrey: "#d3d3d3",
+            lightgreen: "#90ee90",
+            lightpink: "#ffb6c1",
+            lightsalmon: "#ffa07a",
+            lightseagreen: "#20b2aa",
+            lightskyblue: "#87cefa",
+            lightslateblue: "#8470ff",
+            lightslategray: "#778899",
+            lightsteelblue: "#b0c4de",
+            lightyellow: "#ffffe0",
+            lime: "#00ff00",
+            limegreen: "#32cd32",
+            linen: "#faf0e6",
+            magenta: "#ff00ff",
+            maroon: "#800000",
+            mediumaquamarine: "#66cdaa",
+            mediumblue: "#0000cd",
+            mediumorchid: "#ba55d3",
+            mediumpurple: "#9370d8",
+            mediumseagreen: "#3cb371",
+            mediumslateblue: "#7b68ee",
+            mediumspringgreen: "#00fa9a",
+            mediumturquoise: "#48d1cc",
+            mediumvioletred: "#c71585",
+            midnightblue: "#191970",
+            mintcream: "#f5fffa",
+            mistyrose: "#ffe4e1",
+            moccasin: "#ffe4b5",
+            navajowhite: "#ffdead",
+            navy: "#000080",
+            oldlace: "#fdf5e6",
+            olive: "#808000",
+            olivedrab: "#6b8e23",
+            orange: "#ffa500",
+            orangered: "#ff4500",
+            orchid: "#da70d6",
+            palegoldenrod: "#eee8aa",
+            palegreen: "#98fb98",
+            paleturquoise: "#afeeee",
+            palevioletred: "#d87093",
+            papayawhip: "#ffefd5",
+            peachpuff: "#ffdab9",
+            peru: "#cd853f",
+            pink: "#ffc0cb",
+            plum: "#dda0dd",
+            powderblue: "#b0e0e6",
+            purple: "#800080",
+            red: "#ff0000",
+            rosybrown: "#bc8f8f",
+            royalblue: "#4169e1",
+            saddlebrown: "#8b4513",
+            salmon: "#fa8072",
+            sandybrown: "#f4a460",
+            seagreen: "#2e8b57",
+            seashell: "#fff5ee",
+            sienna: "#a0522d",
+            silver: "#c0c0c0",
+            skyblue: "#87ceeb",
+            slateblue: "#6a5acd",
+            slategray: "#708090",
+            snow: "#fffafa",
+            springgreen: "#00ff7f",
+            steelblue: "#4682b4",
+            tan: "#d2b48c",
+            teal: "#008080",
+            thistle: "#d8bfd8",
+            tomato: "#ff6347",
+            turquoise: "#40e0d0",
+            violet: "#ee82ee",
+            violetred: "#d02090",
+            wheat: "#f5deb3",
+            white: "#ffffff",
+            whitesmoke: "#f5f5f5",
+            yellow: "#ffff00",
+            yellowgreen: "#9acd32"
+        };
+        return b.names = l
+    });
+    n(b, "Extensions/Boost/Boost.js", [b["Core/Globals.js"], b["Extensions/Boost/BoostUtils.js"],
+        b["Extensions/Boost/BoostInit.js"], b["Core/Utilities.js"]], function (b, l, n, m) {
+        m = m.error;
+        l = l.hasWebGLSupport;
+        l() ? n() : "undefined" !== typeof b.initCanvasBoost ? b.initCanvasBoost() : m(26)
+    });
+    n(b, "masters/modules/boost.src.js", [], function () {
+    })
+});
 //# sourceMappingURL=boost.js.map

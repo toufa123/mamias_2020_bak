@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2009-2019 Øystein Moseng
+ *  (c) 2009-2020 Øystein Moseng
  *
  *  Sonification module for Highcharts
  *
@@ -10,12 +10,14 @@
  *
  * */
 'use strict';
-import H from '../../parts/Globals.js';
+import H from '../../Core/Globals.js';
+import O from '../../Core/Options.js';
 
-var addEvent = H.addEvent;
-import U from '../../parts/Utilities.js';
+var defaultOptions = O.defaultOptions;
+import Point from '../../Core/Series/Point.js';
+import U from '../../Core/Utilities.js';
 
-var extend = U.extend;
+var addEvent = U.addEvent, extend = U.extend, merge = U.merge;
 import Instrument from './Instrument.js';
 import instruments from './instrumentDefinitions.js';
 import Earcon from './Earcon.js';
@@ -23,6 +25,8 @@ import pointSonifyFunctions from './pointSonify.js';
 import chartSonifyFunctions from './chartSonify.js';
 import utilities from './utilities.js';
 import TimelineClasses from './Timeline.js';
+import sonificationOptions from './options.js';
+import '../../Core/Series/Series.js';
 // Expose on the Highcharts object
 /**
  * Global classes and objects related to sonification.
@@ -90,9 +94,11 @@ H.sonification = {
     TimelinePath: TimelineClasses.TimelinePath,
     Timeline: TimelineClasses.Timeline
 };
+// Add default options
+merge(true, defaultOptions, sonificationOptions);
 // Chart specific
-H.Point.prototype.sonify = pointSonifyFunctions.pointSonify;
-H.Point.prototype.cancelSonify = pointSonifyFunctions.pointCancelSonify;
+Point.prototype.sonify = pointSonifyFunctions.pointSonify;
+Point.prototype.cancelSonify = pointSonifyFunctions.pointCancelSonify;
 H.Series.prototype.sonify = chartSonifyFunctions.seriesSonify;
 extend(H.Chart.prototype, {
     sonify: chartSonifyFunctions.chartSonify,
@@ -109,4 +115,11 @@ extend(H.Chart.prototype, {
 // Prepare charts for sonification on init
 addEvent(H.Chart, 'init', function () {
     this.sonification = {};
+});
+// Update with chart/series/point updates
+addEvent(H.Chart, 'update', function (e) {
+    var newOptions = e.options.sonification;
+    if (newOptions) {
+        merge(true, this.options.sonification, newOptions);
+    }
 });

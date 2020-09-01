@@ -1,5 +1,5 @@
 /**
- * @license Highcharts JS v8.0.0 (2019-12-10)
+ * @license Highcharts JS v8.2.0 (2020-08-20)
  *
  * Vector plot series module
  *
@@ -23,27 +23,28 @@
     }
 }(function (Highcharts) {
     var _modules = Highcharts ? Highcharts._modules : {};
-
     function _registerModule(obj, path, args, fn) {
         if (!obj.hasOwnProperty(path)) {
             obj[path] = fn.apply(null, args);
         }
     }
 
-    _registerModule(_modules, 'modules/vector.src.js', [_modules['parts/Globals.js'], _modules['parts/Utilities.js']], function (H, U) {
+    _registerModule(_modules, 'Series/VectorSeries.js', [_modules['Core/Globals.js'], _modules['Core/Utilities.js']], function (H, U) {
         /* *
          *
          *  Vector plot series module
          *
-         *  (c) 2010-2019 Torstein Honsi
+         *  (c) 2010-2020 Torstein Honsi
          *
          *  License: www.highcharts.com/license
          *
          *  !!!!!!! SOURCE GETS TRANSPILED BY TYPESCRIPT. EDIT TS FILE ONLY. !!!!!!!
          *
          * */
-        var animObject = U.animObject, arrayMax = U.arrayMax, pick = U.pick;
-        var seriesType = H.seriesType;
+        var animObject = U.animObject,
+            arrayMax = U.arrayMax,
+            pick = U.pick,
+            seriesType = U.seriesType;
         /**
          * The vector series class.
          *
@@ -65,7 +66,8 @@
              * @extends      plotOptions.scatter
              * @excluding    boostThreshold, marker, connectEnds, connectNulls,
              *               cropThreshold, dashStyle, dragDrop, gapSize, gapUnit,
-             *               dataGrouping, linecap, shadow, stacking, step, jitter
+             *               dataGrouping, linecap, shadow, stacking, step, jitter,
+             *               boostBlending
              * @product      highcharts highstock
              * @requires     modules/vector
              * @optionparent plotOptions.vector
@@ -128,7 +130,8 @@
                  * @return {Highcharts.SVGAttributes}
                  */
                 pointAttribs: function (point, state) {
-                    var options = this.options, stroke = point.color || this.color,
+                    var options = this.options,
+                        stroke = point.color || this.color,
                         strokeWidth = this.options.lineWidth;
                     if (state) {
                         stroke = options.states[state].color || stroke;
@@ -165,7 +168,9 @@
                  * @return {Highcharts.SVGPathArray}
                  */
                 arrow: function (point) {
-                    var path, fraction = point.length / this.lengthMax, u = fraction * this.options.vectorLength / 20,
+                    var path,
+                        fraction = point.length / this.lengthMax,
+                        u = fraction * this.options.vectorLength / 20,
                         o = {
                             start: 10 * u,
                             center: 0,
@@ -174,12 +179,12 @@
                     // The stem and the arrow head. Draw the arrow first with rotation
                     // 0, which is the arrow pointing down (vector from north to south).
                     path = [
-                        'M', 0, 7 * u + o,
-                        'L', -1.5 * u, 7 * u + o,
-                        0, 10 * u + o,
-                        1.5 * u, 7 * u + o,
-                        0, 7 * u + o,
-                        0, -10 * u + o // top
+                        ['M', 0, 7 * u + o],
+                        ['L', -1.5 * u, 7 * u + o],
+                        ['L', 0, 10 * u + o],
+                        ['L', 1.5 * u, 7 * u + o],
+                        ['L', 0, 7 * u + o],
+                        ['L', 0, -10 * u + o] // top
                     ];
                     return path;
                 },
@@ -198,7 +203,8 @@
                 drawPoints: function () {
                     var chart = this.chart;
                     this.points.forEach(function (point) {
-                        var plotX = point.plotX, plotY = point.plotY;
+                        var plotX = point.plotX,
+                            plotY = point.plotY;
                         if (this.options.clip === false ||
                             chart.isInsidePlot(plotX, plotY, chart.inverted)) {
                             if (!point.graphic) {
@@ -234,17 +240,17 @@
                 /*
                 drawLegendSymbol: function (legend, item) {
                     var options = legend.options,
-                        symbolHeight = legend.symbolHeight,
-                        square = options.squareSymbol,
-                        symbolWidth = square ? symbolHeight : legend.symbolWidth,
-                        path = this.arrow.call({
-                            lengthMax: 1,
-                            options: {
-                                vectorLength: symbolWidth
-                            }
-                        }, {
-                            length: 1
-                        });
+                            symbolHeight = legend.symbolHeight,
+                            square = options.squareSymbol,
+                            symbolWidth = square ? symbolHeight : legend.symbolWidth,
+                            path = this.arrow.call({
+                                lengthMax: 1,
+                                options: {
+                                    vectorLength: symbolWidth
+                                }
+                            }, {
+                                length: 1
+                            });
 
                     item.legendLine = this.chart.renderer.path(path)
                     .addClass('highcharts-point')
@@ -275,7 +281,6 @@
                         this.markerGroup.animate({
                             opacity: 1
                         }, animObject(this.options.animation));
-                        this.animate = null;
                     }
                 }
                 /* eslint-enable valid-jsdoc */
@@ -285,7 +290,7 @@
          * specified, it is inherited from [chart.type](#chart.type).
          *
          * @extends   series,plotOptions.vector
-         * @excluding dataParser, dataURL
+         * @excluding dataParser, dataURL, boostThreshold, boostBlending
          * @product   highcharts highstock
          * @requires  modules/vector
          * @apioption series.vector

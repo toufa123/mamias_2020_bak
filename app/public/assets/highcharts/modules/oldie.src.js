@@ -1,5 +1,5 @@
 /**
- * @license Highcharts JS v8.0.0 (2019-12-10)
+ * @license Highcharts JS v8.2.0 (2020-08-20)
  *
  * Old IE (v6, v7, v8) module for Highcharts v6+.
  *
@@ -24,17 +24,16 @@
     }
 }(function (Highcharts) {
     var _modules = Highcharts ? Highcharts._modules : {};
-
     function _registerModule(obj, path, args, fn) {
         if (!obj.hasOwnProperty(path)) {
             obj[path] = fn.apply(null, args);
         }
     }
 
-    _registerModule(_modules, 'modules/oldie.src.js', [_modules['parts/Globals.js'], _modules['parts/Utilities.js']], function (H, U) {
+    _registerModule(_modules, 'Extensions/Oldie.js', [_modules['Core/Chart/Chart.js'], _modules['Core/Color.js'], _modules['Core/Globals.js'], _modules['Core/Pointer.js'], _modules['Core/Renderer/SVG/SVGElement.js'], _modules['Core/Renderer/SVG/SVGRenderer.js'], _modules['Core/Utilities.js']], function (Chart, Color, H, Pointer, SVGElement, SVGRenderer, U) {
         /* *
          *
-         *  (c) 2010-2019 Torstein Honsi
+         *  (c) 2010-2020 Torstein Honsi
          *
          *  License: www.highcharts.com/license
          *
@@ -43,12 +42,32 @@
          *  !!!!!!! SOURCE GETS TRANSPILED BY TYPESCRIPT. EDIT TS FILE ONLY. !!!!!!!
          *
          * */
-        var defined = U.defined, discardElement = U.discardElement, erase = U.erase, extend = U.extend,
-            extendClass = U.extendClass, isArray = U.isArray, isNumber = U.isNumber, isObject = U.isObject,
-            offset = U.offset, pick = U.pick, pInt = U.pInt;
-        var VMLRenderer, VMLRendererExtension, VMLElement, Chart = H.Chart, createElement = H.createElement,
-            css = H.css, deg2rad = H.deg2rad, doc = H.doc, merge = H.merge, noop = H.noop, svg = H.svg,
-            SVGElement = H.SVGElement, SVGRenderer = H.SVGRenderer, win = H.win;
+        var color = Color.parse;
+        var deg2rad = H.deg2rad,
+            doc = H.doc,
+            noop = H.noop,
+            svg = H.svg,
+            win = H.win;
+        var addEvent = U.addEvent,
+            createElement = U.createElement,
+            css = U.css,
+            defined = U.defined,
+            discardElement = U.discardElement,
+            erase = U.erase,
+            extend = U.extend,
+            extendClass = U.extendClass,
+            getOptions = U.getOptions,
+            isArray = U.isArray,
+            isNumber = U.isNumber,
+            isObject = U.isObject,
+            merge = U.merge,
+            offset = U.offset,
+            pick = U.pick,
+            pInt = U.pInt,
+            uniqueKey = U.uniqueKey;
+        var VMLRenderer,
+            VMLRendererExtension,
+            VMLElement;
         /**
          * Path to the pattern image required by VML browsers in order to
          * draw radial gradients.
@@ -59,15 +78,16 @@
          * @requires  modules/oldie
          * @apioption global.VMLRadialGradientURL
          */
-        H.getOptions().global.VMLRadialGradientURL =
-            'http://code.highcharts.com/8.0.0/gfx/vml-radial-gradient.png';
+        getOptions().global.VMLRadialGradientURL =
+            'http://code.highcharts.com/8.2.0/gfx/vml-radial-gradient.png';
         // Utilites
         if (doc && !doc.defaultView) {
-            H.getStyle = function (el, prop) {
-                var val, alias = {
-                    width: 'clientWidth',
-                    height: 'clientHeight'
-                }[prop];
+            H.getStyle = U.getStyle = function (el, prop) {
+                var val,
+                    alias = {
+                        width: 'clientWidth',
+                        height: 'clientHeight'
+                    }[prop];
                 if (el.style[prop]) {
                     return pInt(el.style[prop]);
                 }
@@ -77,7 +97,7 @@
                 // Getting the rendered width and height
                 if (alias) {
                     el.style.zoom = 1;
-                    return Math.max(el[alias] - 2 * H.getStyle(el, 'padding'), 0);
+                    return Math.max(el[alias] - 2 * U.getStyle(el, 'padding'), 0);
                 }
                 val = el.currentStyle[prop.replace(/\-(\w)/g, function (a, b) {
                     return b.toUpperCase();
@@ -96,7 +116,7 @@
             // This applies only to charts for export, where IE runs the SVGRenderer
             // instead of the VMLRenderer
             // (#1079, #1063)
-            H.addEvent(SVGElement, 'afterInit', function () {
+            addEvent(SVGElement, 'afterInit', function () {
                 if (this.element.nodeName === 'text') {
                     this.css({
                         position: 'absolute'
@@ -113,7 +133,7 @@
              * @param {boolean} [chartPosition=false]
              * @return {Highcharts.PointerEventObject}
              */
-            H.Pointer.prototype.normalize = function (e, chartPosition) {
+            Pointer.prototype.normalize = function (e, chartPosition) {
                 e = e || win.event;
                 if (!e.target) {
                     e.target = e.srcElement;
@@ -194,7 +214,6 @@
              */
             H.addEventListenerPolyfill = function (type, fn) {
                 var el = this;
-
                 /**
                  * @private
                  */
@@ -202,14 +221,13 @@
                     e.target = e.srcElement || win; // #2820
                     fn.call(el, e);
                 }
-
                 if (el.attachEvent) {
                     if (!el.hcEventsIE) {
                         el.hcEventsIE = {};
                     }
                     // unique function string (#6746)
                     if (!fn.hcKey) {
-                        fn.hcKey = H.uniqueKey();
+                        fn.hcKey = uniqueKey();
                     }
                     // Link wrapped fn with original fn, so we can get this in
                     // removeEvent
@@ -275,7 +293,10 @@
                  * @return {Highcharts.VMLElement}
                  */
                 add: function (parent) {
-                    var wrapper = this, renderer = wrapper.renderer, element = wrapper.element, box = renderer.box,
+                    var wrapper = this,
+                        renderer = wrapper.renderer,
+                        element = wrapper.element,
+                        box = renderer.box,
                         inverted = parent && parent.inverted,
                         // get the parent node
                         parentNode = parent ?
@@ -325,7 +346,8 @@
                     // transform. The getBBox method also needs to be updated to
                     // compensate for the rotation, like it currently does for SVG.
                     // Test case: https://jsfiddle.net/highcharts/Ybt44/
-                    var rotation = this.rotation, costheta = Math.cos(rotation * deg2rad),
+                    var rotation = this.rotation,
+                        costheta = Math.cos(rotation * deg2rad),
                         sintheta = Math.sin(rotation * deg2rad);
                     css(this.element, {
                         filter: rotation ? [
@@ -343,7 +365,9 @@
                 getSpanCorrection: function (width, baseline, alignCorrection, rotation, align) {
                     var costheta = rotation ? Math.cos(rotation * deg2rad) : 1,
                         sintheta = rotation ? Math.sin(rotation * deg2rad) : 0,
-                        height = pick(this.elemHeight, this.element.offsetHeight), quad,
+                        height = pick(this.elemHeight,
+                            this.element.offsetHeight),
+                        quad,
                         nonLeft = align && align !== 'left';
                     // correct x and y
                     this.xCorr = (costheta < 0 && -width);
@@ -378,7 +402,8 @@
                  */
                 pathToVML: function (value) {
                     // convert paths
-                    var i = value.length, path = [];
+                    var i = value.length,
+                        path = [];
                     while (i--) {
                         // Multiply by 10 to allow subpixel precision.
                         // Substracting half a pixel seems to make the coordinates
@@ -418,7 +443,9 @@
                  * @return {Highcharts.VMLElement}
                  */
                 clip: function (clipRect) {
-                    var wrapper = this, clipMembers, cssRet;
+                    var wrapper = this,
+                        clipMembers,
+                        cssRet;
                     if (clipRect) {
                         clipMembers = clipRect.members;
                         // Ensure unique list of elements (#1258)
@@ -485,9 +512,9 @@
                 on: function (eventType, handler) {
                     // simplest possible event model for internal use
                     this.element['on' + eventType] = function () {
-                        var evt = win.event;
-                        evt.target = evt.srcElement;
-                        handler(evt);
+                        var e = win.event;
+                        e.target = e.srcElement;
+                        handler(e);
                     };
                     return this;
                 },
@@ -522,8 +549,17 @@
                  * @return {Highcharts.VMLElement}
                  */
                 shadow: function (shadowOptions, group, cutOff) {
-                    var shadows = [], i, element = this.element, renderer = this.renderer, shadow,
-                        elemStyle = element.style, markup, path = element.path, strokeWidth, modifiedPath, shadowWidth,
+                    var shadows = [],
+                        i,
+                        element = this.element,
+                        renderer = this.renderer,
+                        shadow,
+                        elemStyle = element.style,
+                        markup,
+                        path = element.path,
+                        strokeWidth,
+                        modifiedPath,
+                        shadowWidth,
                         shadowElementOpacity;
                     // some times empty paths are not strings
                     if (path && typeof path.value !== 'string') {
@@ -598,14 +634,18 @@
                 },
                 dashstyleSetter: function (value, key, element) {
                     var strokeElem = element.getElementsByTagName('stroke')[0] ||
-                        createElement(this.renderer.prepVML(['<stroke/>']), null, null, element);
+                        createElement(this.renderer.prepVML(['<stroke/>']),
+                            null,
+                            null,
+                            element);
                     strokeElem[key] = value || 'solid';
                     // Because changing stroke-width will change the dash length and
                     // cause an epileptic effect
                     this[key] = value;
                 },
                 dSetter: function (value, key, element) {
-                    var i, shadows = this.shadows;
+                    var i,
+                        shadows = this.shadows;
                     value = value || [];
                     // Used in getter for animation
                     this.d = value.join && value.join(' ');
@@ -747,7 +787,12 @@
                  * @return {void}
                  */
                 init: function (container, width, height) {
-                    var renderer = this, boxWrapper, box, css;
+                    var renderer = this,
+                        boxWrapper,
+                        box,
+                        css;
+                    // Extended SVGRenderer member
+                    this.crispPolyLine = SVGRenderer.prototype.crispPolyLine;
                     renderer.alignedObjects = [];
                     boxWrapper = renderer.createElement('div')
                         .css({position: 'relative'});
@@ -800,7 +845,8 @@
                  */
                 clipRect: function (x, y, width, height) {
                     // create a dummy element
-                    var clipRect = this.createElement(), isObj = isObject(x);
+                    var clipRect = this.createElement(),
+                        isObj = isObject(x);
                     // mimic a rectangle with its style object for automatic updating in
                     // attr
                     return extend(clipRect, {
@@ -855,20 +901,26 @@
                  *
                  * @return {T}
                  */
-                color: function (color, elem, prop, wrapper) {
-                    var renderer = this, colorObject, regexRgba = /^rgba/, markup, fillType, ret = 'none';
+                color: function (colorOption, elem, prop, wrapper) {
+                    var renderer = this,
+                        colorObject,
+                        regexRgba = /^rgba/,
+                        markup,
+                        fillType,
+                        ret = 'none';
                     // Check for linear or radial gradient
-                    if (color &&
-                        color.linearGradient) {
+                    if (colorOption &&
+                        colorOption.linearGradient) {
                         fillType = 'gradient';
-                    } else if (color &&
-                        color.radialGradient) {
+                    } else if (colorOption &&
+                        colorOption.radialGradient) {
                         fillType = 'pattern';
                     }
                     if (fillType) {
-                        var stopColor, stopOpacity, gradient = (color.linearGradient ||
-                            color.radialGradient), x1, y1, x2, y2, opacity1, opacity2, color1, color2, fillAttr = '',
-                            stops = color.stops, firstStop, lastStop, colors = [], addFillNode = function () {
+                        var stopColor, stopOpacity, gradient = (colorOption.linearGradient ||
+                            colorOption.radialGradient), x1, y1, x2, y2, opacity1, opacity2, color1, color2,
+                            fillAttr = '', stops = colorOption.stops, firstStop, lastStop, colors = [],
+                            addFillNode = function () {
                                 // Add the fill subnode. When colors attribute is used,
                                 // the meanings of opacity and o:opacity2 are reversed.
                                 markup = ['<fill colors="' + colors.join(',') +
@@ -895,7 +947,7 @@
                         // Compute the stops
                         stops.forEach(function (stop, i) {
                             if (regexRgba.test(stop[1])) {
-                                colorObject = H.color(stop[1]);
+                                colorObject = color(stop[1]);
                                 stopColor = colorObject.get('rgb');
                                 stopOpacity = colorObject.get('a');
                             } else {
@@ -928,8 +980,14 @@
                                 addFillNode();
                                 // Radial (circular) gradient
                             } else {
-                                var r = gradient.r, sizex = r * 2, sizey = r * 2, cx = gradient.cx, cy = gradient.cy,
-                                    radialReference = elem.radialReference, bBox, applyRadialGradient = function () {
+                                var r = gradient.r,
+                                    sizex = r * 2,
+                                    sizey = r * 2,
+                                    cx = gradient.cx,
+                                    cy = gradient.cy,
+                                    radialReference = elem.radialReference,
+                                    bBox,
+                                    applyRadialGradient = function () {
                                         if (radialReference) {
                                             bBox = wrapper.getBBox();
                                             cx += (radialReference[0] - bBox.x) /
@@ -940,7 +998,7 @@
                                             sizey *= radialReference[2] / bBox.height;
                                         }
                                         fillAttr =
-                                            'src="' + H.getOptions().global.VMLRadialGradientURL +
+                                            'src="' + getOptions().global.VMLRadialGradientURL +
                                             '" ' +
                                             'size="' + sizex + ',' + sizey + '" ' +
                                             'origin="0.5,0.5" ' +
@@ -968,8 +1026,8 @@
                         }
                         // If the color is an rgba color, split it and add a fill node
                         // to hold the opacity component
-                    } else if (regexRgba.test(color) && elem.tagName !== 'IMG') {
-                        colorObject = H.color(color);
+                    } else if (regexRgba.test(colorOption) && elem.tagName !== 'IMG') {
+                        colorObject = color(colorOption);
                         wrapper[prop + '-opacitySetter'](colorObject.get('a'), prop, elem);
                         ret = colorObject.get('rgb');
                     } else {
@@ -979,7 +1037,7 @@
                             propNodes[0].opacity = 1;
                             propNodes[0].type = 'solid';
                         }
-                        ret = color;
+                        ret = colorOption;
                     }
                     return ret;
                 },
@@ -994,7 +1052,8 @@
                  * @return {string}
                  */
                 prepVML: function (markup) {
-                    var vmlStyle = 'display:inline-block;behavior:url(#default#VML);', isIE8 = this.isIE8;
+                    var vmlStyle = 'display:inline-block;behavior:url(#default#VML);',
+                        isIE8 = this.isIE8;
                     markup = markup.join('');
                     if (isIE8) { // add xmlns and style inline
                         markup = markup.replace('/>', ' xmlns="urn:schemas-microsoft-com:vml" />');
@@ -1074,7 +1133,8 @@
                  * @return {Highcharts.VMLElement}
                  */
                 g: function (name) {
-                    var wrapper, attribs;
+                    var wrapper,
+                        attribs;
                     // set the class name
                     if (name) {
                         attribs = {
@@ -1138,7 +1198,8 @@
                  * @param {Highcharts.HTMLDOMElement} parentNode
                  */
                 invertChild: function (element, parentNode) {
-                    var ren = this, parentStyle = parentNode.style,
+                    var ren = this,
+                        parentStyle = parentNode.style,
                         imgStyle = element.tagName === 'IMG' && element.style; // #1111
                     css(element, {
                         flip: 'x',
@@ -1163,9 +1224,15 @@
                 symbols: {
                     // VML specific arc function
                     arc: function (x, y, w, h, options) {
-                        var start = options.start, end = options.end, radius = options.r || w || h,
-                            innerRadius = options.innerR, cosStart = Math.cos(start), sinStart = Math.sin(start),
-                            cosEnd = Math.cos(end), sinEnd = Math.sin(end), ret;
+                        var start = options.start,
+                            end = options.end,
+                            radius = options.r || w || h,
+                            innerRadius = options.innerR,
+                            cosStart = Math.cos(start),
+                            sinStart = Math.sin(start),
+                            cosEnd = Math.cos(end),
+                            sinEnd = Math.sin(end),
+                            ret;
                         if (end - start === 0) { // no angle, don't show it.
                             return ['x'];
                         }
@@ -1244,7 +1311,9 @@
             H.Renderer = VMLRenderer;
         }
         SVGRenderer.prototype.getSpanWidth = function (wrapper, tspan) {
-            var renderer = this, bBox = wrapper.getBBox(true), actualWidth = bBox.width;
+            var renderer = this,
+                bBox = wrapper.getBBox(true),
+                actualWidth = bBox.width;
             // Old IE cannot measure the actualWidth for SVG elements (#2314)
             if (!svg && renderer.forExport) {
                 actualWidth = renderer.measureSpanWidth(tspan.firstChild.data, wrapper.styles);
@@ -1253,7 +1322,9 @@
         };
         // This method is used with exporting in old IE, when emulating SVG (see #2314)
         SVGRenderer.prototype.measureSpanWidth = function (text, styles) {
-            var measuringSpan = doc.createElement('span'), offsetWidth, textNode = doc.createTextNode(text);
+            var measuringSpan = doc.createElement('span'),
+                offsetWidth,
+                textNode = doc.createTextNode(text);
             measuringSpan.appendChild(textNode);
             css(measuringSpan, styles);
             this.box.appendChild(measuringSpan);

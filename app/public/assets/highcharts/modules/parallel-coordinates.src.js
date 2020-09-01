@@ -1,5 +1,5 @@
 /**
- * @license Highcharts JS v8.0.0 (2019-12-10)
+ * @license Highcharts JS v8.2.0 (2020-08-20)
  *
  * Support for parallel coordinates in Highcharts
  *
@@ -23,36 +23,45 @@
     }
 }(function (Highcharts) {
     var _modules = Highcharts ? Highcharts._modules : {};
-
     function _registerModule(obj, path, args, fn) {
         if (!obj.hasOwnProperty(path)) {
             obj[path] = fn.apply(null, args);
         }
     }
 
-    _registerModule(_modules, 'modules/parallel-coordinates.src.js', [_modules['parts/Globals.js'], _modules['parts/Utilities.js']], function (H, U) {
+    _registerModule(_modules, 'Extensions/ParallelCoordinates.js', [_modules['Core/Axis/Axis.js'], _modules['Core/Chart/Chart.js'], _modules['Core/Globals.js'], _modules['Core/Utilities.js']], function (Axis, Chart, H, U) {
         /* *
          *
          *  Parallel coordinates module
          *
-         *  (c) 2010-2019 Pawel Fus
+         *  (c) 2010-2020 Pawel Fus
          *
          *  License: www.highcharts.com/license
          *
          *  !!!!!!! SOURCE GETS TRANSPILED BY TYPESCRIPT. EDIT TS FILE ONLY. !!!!!!!
          *
          * */
-        var arrayMax = U.arrayMax, arrayMin = U.arrayMin, defined = U.defined, erase = U.erase, extend = U.extend,
-            pick = U.pick, splat = U.splat, wrap = U.wrap;
+        var addEvent = U.addEvent,
+            arrayMax = U.arrayMax,
+            arrayMin = U.arrayMin,
+            defined = U.defined,
+            erase = U.erase,
+            extend = U.extend,
+            format = U.format,
+            merge = U.merge,
+            pick = U.pick,
+            setOptions = U.setOptions,
+            splat = U.splat,
+            wrap = U.wrap;
         // Extensions for parallel coordinates plot.
-        var Axis = H.Axis, Chart = H.Chart, ChartProto = Chart.prototype, AxisProto = H.Axis.prototype;
-        var addEvent = H.addEvent, merge = H.merge;
+        var ChartProto = Chart.prototype;
         var defaultXAxisOptions = {
             lineWidth: 0,
             tickLength: 0,
             opposite: true,
             type: 'category'
         };
+        /* eslint-disable valid-jsdoc */
         /**
          * @optionparent chart
          */
@@ -66,7 +75,8 @@
              * @sample {highcharts} /highcharts/demo/parallel-coordinates/
              *         Parallel coordinates demo
              * @sample {highcharts} highcharts/parallel-coordinates/polar/
-             *         Star plot, multivariate data in a polar chart
+             *         Star plot,
+             multivariate data in a polar chart
              *
              * @since    6.0.0
              * @product  highcharts
@@ -102,11 +112,25 @@
              * @extends   yAxis
              * @since     6.0.0
              * @product   highcharts
-             * @excluding alternateGridColor, breaks, id, gridLineColor,
-             *            gridLineDashStyle, gridLineWidth, minorGridLineColor,
-             *            minorGridLineDashStyle, minorGridLineWidth, plotBands,
-             *            plotLines, angle, gridLineInterpolation, maxColor, maxZoom,
-             *            minColor, scrollbar, stackLabels, stops
+             * @excluding alternateGridColor,
+             breaks,
+             id,
+             gridLineColor,
+             *            gridLineDashStyle,
+             gridLineWidth,
+             minorGridLineColor,
+             *            minorGridLineDashStyle,
+             minorGridLineWidth,
+             plotBands,
+             *            plotLines,
+             angle,
+             gridLineInterpolation,
+             maxColor,
+             maxZoom,
+             *            minColor,
+             scrollbar,
+             stackLabels,
+             stops
              * @requires  modules/parallel-coordinates
              */
             parallelAxes: {
@@ -114,11 +138,24 @@
                 /**
                  * Titles for yAxes are taken from
                  * [xAxis.categories](#xAxis.categories). All options for `xAxis.labels`
-                 * applies to parallel coordinates titles. For example, to style
-                 * categories, use [xAxis.labels.style](#xAxis.labels.style).
+                 * applies to parallel coordinates titles. For example,
+                 to style
+                 * categories,
+                 use [xAxis.labels.style](#xAxis.labels.style).
                  *
-                 * @excluding align, enabled, margin, offset, position3d, reserveSpace,
-                 *            rotation, skew3d, style, text, useHTML, x, y
+                 * @excluding align,
+                 enabled,
+                 margin,
+                 offset,
+                 position3d,
+                 reserveSpace,
+                 *            rotation,
+                 skew3d,
+                 style,
+                 text,
+                 useHTML,
+                 x,
+                 y
                  */
                 title: {
                     text: '',
@@ -133,14 +170,16 @@
                 offset: 0
             }
         };
-        H.setOptions({
+        setOptions({
             chart: defaultParallelOptions
         });
         /* eslint-disable no-invalid-this */
         // Initialize parallelCoordinates
         addEvent(Chart, 'init', function (e) {
-            var options = e.args[0], defaultyAxis = splat(options.yAxis || {}), yAxisLength = defaultyAxis.length,
+            var options = e.args[0],
+                defaultYAxis = splat(options.yAxis || {}),
                 newYAxes = [];
+            var yAxisLength = defaultYAxis.length;
             /**
              * Flag used in parallel coordinates plot to check if chart has ||-coords
              * (parallel coords).
@@ -176,7 +215,7 @@
                             }
                         }
                     });
-                options.yAxis = defaultyAxis.concat(newYAxes);
+                options.yAxis = defaultYAxis.concat(newYAxes);
                 options.xAxis = merge(defaultXAxisOptions, // docs
                     splat(options.xAxis || {})[0]);
             }
@@ -221,7 +260,8 @@
              * @requires modules/parallel-coordinates
              */
             setParallelInfo: function (options) {
-                var chart = this, seriesOptions = options.series;
+                var chart = this,
+                    seriesOptions = options.series;
                 chart.parallelInfo = {
                     counter: 0
                 };
@@ -230,77 +270,6 @@
                         chart.parallelInfo.counter = Math.max(chart.parallelInfo.counter, series.data.length - 1);
                     }
                 });
-            }
-        });
-        // On update, keep parallelPosition.
-        AxisProto.keepProps.push('parallelPosition');
-        // Update default options with predefined for a parallel coords.
-        addEvent(Axis, 'afterSetOptions', function (e) {
-            var axis = this, chart = axis.chart, axisPosition = ['left', 'width', 'height', 'top'];
-            if (chart.hasParallelCoordinates) {
-                if (chart.inverted) {
-                    axisPosition = axisPosition.reverse();
-                }
-                if (axis.isXAxis) {
-                    axis.options = merge(axis.options, defaultXAxisOptions, e.userOptions);
-                } else {
-                    axis.options = merge(axis.options, axis.chart.options.chart.parallelAxes, e.userOptions);
-                    axis.parallelPosition = pick(axis.parallelPosition, chart.yAxis.length);
-                    axis.setParallelPosition(axisPosition, axis.options);
-                }
-            }
-        });
-        /* Each axis should gather extremes from points on a particular position in
-           series.data. Not like the default one, which gathers extremes from all series
-           bind to this axis. Consider using series.points instead of series.yData. */
-        addEvent(Axis, 'getSeriesExtremes', function (e) {
-            if (this.chart && this.chart.hasParallelCoordinates && !this.isXAxis) {
-                var index = this.parallelPosition, currentPoints = [];
-                this.series.forEach(function (series) {
-                    if (series.visible &&
-                        defined(series.yData[index])) {
-                        // We need to use push() beacause of null points
-                        currentPoints.push(series.yData[index]);
-                    }
-                });
-                this.dataMin = arrayMin(currentPoints);
-                this.dataMax = arrayMax(currentPoints);
-                e.preventDefault();
-            }
-        });
-        extend(AxisProto, /** @lends Highcharts.Axis.prototype */ {
-            /**
-             * Set predefined left+width and top+height (inverted) for yAxes. This
-             * method modifies options param.
-             *
-             * @function Highcharts.Axis#setParallelPosition
-             *
-             * @param  {Array<string>} axisPosition
-             *         ['left', 'width', 'height', 'top'] or
-             *         ['top', 'height', 'width', 'left'] for an inverted chart.
-             *
-             * @param  {Highcharts.AxisOptions} options
-             *         {@link Highcharts.Axis#options}.
-             *
-             * @return {void}
-             *
-             * @requires modules/parallel-coordinates
-             */
-            setParallelPosition: function (axisPosition, options) {
-                var fraction = (this.parallelPosition + 0.5) /
-                    (this.chart.parallelInfo.counter + 1);
-                if (this.chart.polar) {
-                    options.angle = 360 * fraction;
-                } else {
-                    options[axisPosition[0]] = 100 * fraction + '%';
-                    this[axisPosition[1]] =
-                        options[axisPosition[1]] = 0;
-                    // In case of chart.update(inverted), remove old options:
-                    this[axisPosition[2]] =
-                        options[axisPosition[2]] = null;
-                    this[axisPosition[3]] =
-                        options[axisPosition[3]] = null;
-                }
             }
         });
         // Bind each series to each yAxis. yAxis needs a reference to all series to
@@ -319,8 +288,14 @@
         });
         // Translate each point using corresponding yAxis.
         addEvent(H.Series, 'afterTranslate', function () {
-            var series = this, chart = this.chart, points = series.points, dataLength = points && points.length,
-                closestPointRangePx = Number.MAX_VALUE, lastPlotX, point, i;
+            var series = this,
+                chart = this.chart,
+                points = series.points,
+                dataLength = points && points.length,
+                closestPointRangePx = Number.MAX_VALUE,
+                lastPlotX,
+                point,
+                i;
             if (this.chart.hasParallelCoordinates) {
                 for (i = 0; i < dataLength; i++) {
                     point = points[i];
@@ -350,7 +325,7 @@
             }
         }, {order: 1});
         // On destroy, we need to remove series from each axis.series
-        H.addEvent(H.Series, 'destroy', function () {
+        addEvent(H.Series, 'destroy', function () {
             if (this.chart.hasParallelCoordinates) {
                 (this.chart.axes || []).forEach(function (axis) {
                     if (axis && axis.series) {
@@ -360,14 +335,17 @@
                 }, this);
             }
         });
-
         /**
          * @private
          */
         function addFormattedValue(proceed) {
             var chart = this.series && this.series.chart,
-                config = proceed.apply(this, Array.prototype.slice.call(arguments, 1)), formattedValue, yAxisOptions,
-                labelFormat, yAxis;
+                config = proceed.apply(this,
+                    Array.prototype.slice.call(arguments, 1)),
+                formattedValue,
+                yAxisOptions,
+                labelFormat,
+                yAxis;
             if (chart &&
                 chart.hasParallelCoordinates &&
                 !defined(config.formattedValue)) {
@@ -404,8 +382,8 @@
                      */
                     yAxisOptions.tooltipValueFormat, yAxisOptions.labels.format);
                 if (labelFormat) {
-                    formattedValue = H.format(labelFormat, extend(this, {value: this.y}), chart);
-                } else if (yAxis.isDatetimeAxis) {
+                    formattedValue = format(labelFormat, extend(this, {value: this.y}), chart);
+                } else if (yAxis.dateTime) {
                     formattedValue = chart.time.dateFormat(chart.time.resolveDTLFormat(yAxisOptions.dateTimeLabelFormats[yAxis.tickPositions.info.unitName]).main, this.y);
                 } else if (yAxisOptions.categories) {
                     formattedValue = yAxisOptions.categories[this.y];
@@ -420,7 +398,147 @@
         ['line', 'spline'].forEach(function (seriesName) {
             wrap(H.seriesTypes[seriesName].prototype.pointClass.prototype, 'getLabelConfig', addFormattedValue);
         });
+        /**
+         * Support for parallel axes.
+         * @private
+         * @class
+         */
+        var ParallelAxisAdditions = /** @class */ (function () {
+            /* *
+             *
+             *  Constructors
+             *
+             * */
+            function ParallelAxisAdditions(axis) {
+                this.axis = axis;
+            }
 
+            /* *
+             *
+             *  Functions
+             *
+             * */
+            /**
+             * Set predefined left+width and top+height (inverted) for yAxes.
+             * This method modifies options param.
+             *
+             * @private
+             *
+             * @param  {Array<string>} axisPosition
+             * ['left', 'width', 'height', 'top'] or ['top', 'height', 'width', 'left']
+             * for an inverted chart.
+             *
+             * @param  {Highcharts.AxisOptions} options
+             * Axis options.
+             */
+            ParallelAxisAdditions.prototype.setPosition = function (axisPosition, options) {
+                var parallel = this,
+                    axis = parallel.axis,
+                    chart = axis.chart,
+                    fraction = ((parallel.position || 0) + 0.5) / (chart.parallelInfo.counter + 1);
+                if (chart.polar) {
+                    options.angle = 360 * fraction;
+                } else {
+                    options[axisPosition[0]] = 100 * fraction + '%';
+                    axis[axisPosition[1]] = options[axisPosition[1]] = 0;
+                    // In case of chart.update(inverted), remove old options:
+                    axis[axisPosition[2]] = options[axisPosition[2]] = null;
+                    axis[axisPosition[3]] = options[axisPosition[3]] = null;
+                }
+            };
+            return ParallelAxisAdditions;
+        }());
+        /**
+         * Axis with parallel support.
+         * @private
+         */
+        var ParallelAxis;
+        (function (ParallelAxis) {
+            /**
+             * Adds support for parallel axes.
+             * @private
+             */
+            function compose(AxisClass) {
+                /* eslint-disable no-invalid-this */
+                // On update, keep parallel additions.
+                AxisClass.keepProps.push('parallel');
+                addEvent(AxisClass, 'init', onInit);
+                addEvent(AxisClass, 'afterSetOptions', onAfterSetOptions);
+                addEvent(AxisClass, 'getSeriesExtremes', onGetSeriesExtremes);
+            }
+
+            ParallelAxis.compose = compose;
+
+            /**
+             * Update default options with predefined for a parallel coords.
+             * @private
+             */
+            function onAfterSetOptions(e) {
+                var axis = this,
+                    chart = axis.chart,
+                    parallelCoordinates = axis.parallelCoordinates;
+                var axisPosition = ['left', 'width', 'height', 'top'];
+                if (chart.hasParallelCoordinates) {
+                    if (chart.inverted) {
+                        axisPosition = axisPosition.reverse();
+                    }
+                    if (axis.isXAxis) {
+                        axis.options = merge(axis.options, defaultXAxisOptions, e.userOptions);
+                    } else {
+                        var axisIndex = chart.yAxis.indexOf(axis); // #13608
+                        axis.options = merge(axis.options,
+                            axis.chart.options.chart.parallelAxes,
+                            e.userOptions);
+                        parallelCoordinates.position = pick(parallelCoordinates.position, axisIndex >= 0 ? axisIndex : chart.yAxis.length);
+                        parallelCoordinates.setPosition(axisPosition, axis.options);
+                    }
+                }
+            }
+
+            /**
+             * Each axis should gather extremes from points on a particular position in
+             * series.data. Not like the default one, which gathers extremes from all
+             * series bind to this axis. Consider using series.points instead of
+             * series.yData.
+             * @private
+             */
+            function onGetSeriesExtremes(e) {
+                var axis = this;
+                var chart = axis.chart;
+                var parallelCoordinates = axis.parallelCoordinates;
+                if (!parallelCoordinates) {
+                    return;
+                }
+                if (chart && chart.hasParallelCoordinates && !axis.isXAxis) {
+                    var index = parallelCoordinates.position,
+                        currentPoints = [];
+                    axis.series.forEach(function (series) {
+                        if (series.visible &&
+                            defined(series.yData[index])) {
+                            // We need to use push() beacause of null points
+                            currentPoints.push(series.yData[index]);
+                        }
+                    });
+                    axis.dataMin = arrayMin(currentPoints);
+                    axis.dataMax = arrayMax(currentPoints);
+                    e.preventDefault();
+                }
+            }
+
+            /**
+             * Add parallel addition
+             * @private
+             */
+            function onInit() {
+                var axis = this;
+                if (!axis.parallelCoordinates) {
+                    axis.parallelCoordinates = new ParallelAxisAdditions(axis);
+                }
+            }
+        })(ParallelAxis || (ParallelAxis = {}));
+        ParallelAxis.compose(Axis);
+
+        return ParallelAxis;
     });
     _registerModule(_modules, 'masters/modules/parallel-coordinates.src.js', [], function () {
 

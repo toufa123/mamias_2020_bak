@@ -1,5 +1,5 @@
 /**
- * @license Highcharts JS v8.0.0 (2019-12-10)
+ * @license Highcharts JS v8.2.0 (2020-08-20)
  *
  * Boost module
  *
@@ -24,14 +24,13 @@
     }
 }(function (Highcharts) {
     var _modules = Highcharts ? Highcharts._modules : {};
-
     function _registerModule(obj, path, args, fn) {
         if (!obj.hasOwnProperty(path)) {
             obj[path] = fn.apply(null, args);
         }
     }
 
-    _registerModule(_modules, 'modules/boost-canvas.src.js', [_modules['parts/Globals.js'], _modules['parts/Utilities.js']], function (H, U) {
+    _registerModule(_modules, 'Extensions/BoostCanvas.js', [_modules['Core/Chart/Chart.js'], _modules['Core/Globals.js'], _modules['Core/Color.js'], _modules['Core/Utilities.js']], function (Chart, H, Color, U) {
         /* *
          *
          *  License: www.highcharts.com/license
@@ -46,10 +45,22 @@
          *  !!!!!!! SOURCE GETS TRANSPILED BY TYPESCRIPT. EDIT TS FILE ONLY. !!!!!!!
          *
          * */
-        var extend = U.extend, isNumber = U.isNumber, wrap = U.wrap;
-        var win = H.win, doc = win.document, noop = function () {
-            }, Color = H.Color, Series = H.Series, seriesTypes = H.seriesTypes, addEvent = H.addEvent,
-            fireEvent = H.fireEvent, merge = H.merge, pick = H.pick, CHUNK_SIZE = 50000, destroyLoadingDiv;
+        var color = Color.parse;
+        var addEvent = U.addEvent,
+            extend = U.extend,
+            fireEvent = U.fireEvent,
+            isNumber = U.isNumber,
+            merge = U.merge,
+            pick = U.pick,
+            wrap = U.wrap;
+        var win = H.win,
+            doc = win.document,
+            noop = function () {
+            },
+            Series = H.Series,
+            seriesTypes = H.seriesTypes,
+            CHUNK_SIZE = 50000,
+            destroyLoadingDiv;
         /* eslint-disable no-invalid-this, valid-jsdoc */
         /**
          * Initialize the canvas boost.
@@ -59,12 +70,17 @@
         H.initCanvasBoost = function () {
             if (H.seriesTypes.heatmap) {
                 wrap(H.seriesTypes.heatmap.prototype, 'drawPoints', function () {
-                    var chart = this.chart, ctx = this.getContext(), inverted = this.chart.inverted, xAxis = this.xAxis,
+                    var chart = this.chart,
+                        ctx = this.getContext(),
+                        inverted = this.chart.inverted,
+                        xAxis = this.xAxis,
                         yAxis = this.yAxis;
                     if (ctx) {
                         // draw the columns
                         this.points.forEach(function (point) {
-                            var plotY = point.plotY, shapeArgs, pointAttr;
+                            var plotY = point.plotY,
+                                shapeArgs,
+                                pointAttr;
                             if (typeof plotY !== 'undefined' &&
                                 !isNaN(plotY) &&
                                 point.y !== null) {
@@ -102,10 +118,26 @@
                  * @function Highcharts.Series#getContext
                  */
                 getContext: function () {
-                    var chart = this.chart, width = chart.chartWidth, height = chart.chartHeight,
-                        targetGroup = chart.seriesGroup || this.group, target = this, ctx,
-                        swapXY = function (proceed, x, y, a, b, c, d) {
-                            proceed.call(this, y, x, a, b, c, d);
+                    var chart = this.chart,
+                        width = chart.chartWidth,
+                        height = chart.chartHeight,
+                        targetGroup = chart.seriesGroup || this.group,
+                        target = this,
+                        ctx,
+                        swapXY = function (proceed,
+                                           x,
+                                           y,
+                                           a,
+                                           b,
+                                           c,
+                                           d) {
+                            proceed.call(this,
+                                y,
+                                x,
+                                a,
+                                b,
+                                c,
+                                d);
                         };
                     if (chart.isChartSeriesBoosting()) {
                         target = chart;
@@ -325,8 +357,7 @@
                     if (rawData.length > 99999) {
                         chart.options.loading = merge(loadingOptions, {
                             labelStyle: {
-                                backgroundColor: H.color('#ffffff')
-                                    .setOpacity(0.75).get(),
+                                backgroundColor: color('#ffffff').setOpacity(0.75).get(),
                                 padding: '1em',
                                 borderRadius: '0.5em'
                             },
@@ -335,7 +366,7 @@
                                 opacity: 1
                             }
                         });
-                        H.clearTimeout(destroyLoadingDiv);
+                        U.clearTimeout(destroyLoadingDiv);
                         chart.showLoading('Drawing...');
                         chart.options.loading = loadingOptions; // reset
                     }
@@ -344,8 +375,18 @@
                     }
                     // Loop over the points
                     H.eachAsync(sdata, function (d, i) {
-                        var x, y, clientX, plotY, isNull, low, isNextInside = false, isPrevInside = false, nx = false,
-                            px = false, chartDestroyed = typeof chart.index === 'undefined', isYInside = true;
+                        var x,
+                            y,
+                            clientX,
+                            plotY,
+                            isNull,
+                            low,
+                            isNextInside = false,
+                            isPrevInside = false,
+                            nx = false,
+                            px = false,
+                            chartDestroyed = typeof chart.index === 'undefined',
+                            isYInside = true;
                         if (!chartDestroyed) {
                             if (useRaw) {
                                 x = d[0];
@@ -441,7 +482,8 @@
                         }
                         return !chartDestroyed;
                     }, function () {
-                        var loadingDiv = chart.loadingDiv, loadingShown = chart.loadingShown;
+                        var loadingDiv = chart.loadingDiv,
+                            loadingShown = chart.loadingShown;
                         stroke();
                         // if (series.boostCopy || series.chart.boostCopy) {
                         //     (series.boostCopy || series.chart.boostCopy)();
@@ -512,7 +554,7 @@
                 fill: true,
                 sampling: true
             });
-            H.Chart.prototype.callbacks.push(function (chart) {
+            Chart.prototype.callbacks.push(function (chart) {
                 /**
                  * @private
                  */
@@ -533,7 +575,6 @@
                         chart.canvas.getContext('2d').clearRect(0, 0, chart.canvas.width, chart.canvas.height);
                     }
                 }
-
                 addEvent(chart, 'predraw', clear);
                 addEvent(chart, 'render', canvasToSVG);
             });

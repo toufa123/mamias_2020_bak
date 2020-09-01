@@ -1,5 +1,5 @@
 /**
- * @license Highcharts Gantt JS v8.0.0 (2019-12-10)
+ * @license Highcharts Gantt JS v8.2.0 (2020-08-20)
  *
  * CurrentDateIndicator
  *
@@ -23,17 +23,16 @@
     }
 }(function (Highcharts) {
     var _modules = Highcharts ? Highcharts._modules : {};
-
     function _registerModule(obj, path, args, fn) {
         if (!obj.hasOwnProperty(path)) {
             obj[path] = fn.apply(null, args);
         }
     }
 
-    _registerModule(_modules, 'parts-gantt/CurrentDateIndicator.js', [_modules['parts/Globals.js'], _modules['parts/Utilities.js']], function (H, U) {
+    _registerModule(_modules, 'Extensions/CurrentDateIndication.js', [_modules['Core/Globals.js'], _modules['Core/Options.js'], _modules['Core/Utilities.js'], _modules['Core/Axis/PlotLineOrBand.js']], function (H, O, U, PlotLineOrBand) {
         /* *
          *
-         *  (c) 2016-2019 Highsoft AS
+         *  (c) 2016-2020 Highsoft AS
          *
          *  Author: Lars A. V. Cabrera
          *
@@ -42,8 +41,11 @@
          *  !!!!!!! SOURCE GETS TRANSPILED BY TYPESCRIPT. EDIT TS FILE ONLY. !!!!!!!
          *
          * */
-        var wrap = U.wrap;
-        var addEvent = H.addEvent, Axis = H.Axis, PlotLineOrBand = H.PlotLineOrBand, merge = H.merge;
+        var dateFormat = O.dateFormat;
+        var addEvent = U.addEvent,
+            merge = U.merge,
+            wrap = U.wrap;
+        var Axis = H.Axis;
         var defaultConfig = {
             /**
              * Show an indicator on the axis for the current date and time. Can be a
@@ -81,7 +83,7 @@
                  */
                 format: '%a, %b %d %Y, %H:%M',
                 formatter: function (value, format) {
-                    return H.dateFormat(format, value);
+                    return dateFormat(format, value);
                 },
                 rotation: 0,
                 /**
@@ -95,7 +97,8 @@
         };
         /* eslint-disable no-invalid-this */
         addEvent(Axis, 'afterSetOptions', function () {
-            var options = this.options, cdiOptions = options.currentDateIndicator;
+            var options = this.options,
+                cdiOptions = options.currentDateIndicator;
             if (cdiOptions) {
                 cdiOptions = typeof cdiOptions === 'object' ?
                     merge(defaultConfig, cdiOptions) : merge(defaultConfig);

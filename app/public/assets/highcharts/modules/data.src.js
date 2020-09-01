@@ -1,5 +1,5 @@
 /**
- * @license Highcharts JS v8.0.0 (2019-12-10)
+ * @license Highcharts JS v8.2.0 (2020-08-20)
  *
  * Data module
  *
@@ -23,14 +23,13 @@
     }
 }(function (Highcharts) {
     var _modules = Highcharts ? Highcharts._modules : {};
-
     function _registerModule(obj, path, args, fn) {
         if (!obj.hasOwnProperty(path)) {
             obj[path] = fn.apply(null, args);
         }
     }
 
-    _registerModule(_modules, 'mixins/ajax.js', [_modules['parts/Globals.js'], _modules['parts/Utilities.js']], function (H, U) {
+    _registerModule(_modules, 'Extensions/Ajax.js', [_modules['Core/Globals.js'], _modules['Core/Utilities.js']], function (H, U) {
         /* *
          *
          *  (c) 2010-2017 Christer Vasseng, Torstein Honsi
@@ -40,7 +39,8 @@
          *  !!!!!!! SOURCE GETS TRANSPILED BY TYPESCRIPT. EDIT TS FILE ONLY. !!!!!!!
          *
          * */
-        var objectEach = U.objectEach;
+        var merge = U.merge,
+            objectEach = U.objectEach;
         /**
          * @interface Highcharts.AjaxSettingsObject
          */ /**
@@ -65,9 +65,9 @@
          * @name Highcharts.AjaxSettingsObject#success
          * @type {Function}
          */ /**
-         * The verb to use.
+         * The HTTP method to use. For example GET or POST.
          * @name Highcharts.AjaxSettingsObject#type
-         * @type {"GET"|"POST"|"UPDATE"|"DELETE"}
+         * @type {string}
          */ /**
          * The URL to call.
          * @name Highcharts.AjaxSettingsObject#url
@@ -85,20 +85,23 @@
          *         Returns false, if error occured.
          */
         H.ajax = function (attr) {
-            var options = H.merge(true, {
-                url: false,
-                type: 'get',
-                dataType: 'json',
-                success: false,
-                error: false,
-                data: false,
-                headers: {}
-            }, attr), headers = {
-                json: 'application/json',
-                xml: 'application/xml',
-                text: 'text/plain',
-                octet: 'application/octet-stream'
-            }, r = new XMLHttpRequest();
+            var options = merge(true, {
+                    url: false,
+                    type: 'get',
+                    dataType: 'json',
+                    success: false,
+                    error: false,
+                    data: false,
+                    headers: {}
+                },
+                attr),
+                headers = {
+                    json: 'application/json',
+                    xml: 'application/xml',
+                    text: 'text/plain',
+                    octet: 'application/octet-stream'
+                },
+                r = new XMLHttpRequest();
 
             /**
              * @private
@@ -113,7 +116,6 @@
                     // @todo Maybe emit a highcharts error event here
                 }
             }
-
             if (!options.url) {
                 return false;
             }
@@ -172,20 +174,34 @@
                 }
             });
         };
+        var exports = {
+            ajax: H.ajax,
+            getJSON: H.getJSON
+        };
 
+        return exports;
     });
-    _registerModule(_modules, 'modules/data.src.js', [_modules['parts/Globals.js'], _modules['parts/Utilities.js']], function (Highcharts, U) {
+    _registerModule(_modules, 'Extensions/Data.js', [_modules['Core/Chart/Chart.js'], _modules['Core/Globals.js'], _modules['Core/Series/Point.js'], _modules['Core/Utilities.js'], _modules['Extensions/Ajax.js']], function (Chart, H, Point, U, Ajax) {
         /* *
          *
          *  Data module
          *
-         *  (c) 2012-2019 Torstein Honsi
+         *  (c) 2012-2020 Torstein Honsi
          *
          *  License: www.highcharts.com/license
          *
          *  !!!!!!! SOURCE GETS TRANSPILED BY TYPESCRIPT. EDIT TS FILE ONLY. !!!!!!!
          *
          * */
+        var addEvent = U.addEvent,
+            defined = U.defined,
+            extend = U.extend,
+            fireEvent = U.fireEvent,
+            isNumber = U.isNumber,
+            merge = U.merge,
+            objectEach = U.objectEach,
+            pick = U.pick,
+            splat = U.splat;
         /**
          * Callback function to modify the CSV before parsing it by the data module.
          *
@@ -258,11 +274,10 @@
          *         Return `false` to stop completion, or call `this.complete()` to
          *         continue async.
          */
-        var defined = U.defined, extend = U.extend, isNumber = U.isNumber, objectEach = U.objectEach, pick = U.pick,
-            splat = U.splat;
+        var ajax = Ajax.ajax;
         // Utilities
-        var addEvent = Highcharts.addEvent, Chart = Highcharts.Chart, win = Highcharts.win, doc = win.document,
-            merge = Highcharts.merge, fireEvent = Highcharts.fireEvent, SeriesBuilder;
+        var win = H.win,
+            doc = win.document;
         /**
          * The Data module provides a simplified interface for adding data to
          * a chart from sources like CVS, HTML tables or grid views. See also
@@ -642,11 +657,75 @@
          *
          * @param {Highcharts.Chart} [chart]
          */
-        var Data = function (dataOptions, chartOptions, chart) {
-            this.init(dataOptions, chartOptions, chart);
-        };
-        // Set the prototype properties
-        extend(Data.prototype, {
+        var Data = /** @class */ (function () {
+            function Data(dataOptions, chartOptions, chart) {
+                this.chart = void 0;
+                this.chartOptions = void 0;
+                this.firstRowAsNames = void 0;
+                this.rawColumns = void 0;
+                this.options = void 0;
+                /**
+                 * A collection of available date formats, extendable from the outside to
+                 * support custom date formats.
+                 *
+                 * @name Highcharts.Data#dateFormats
+                 * @type {Highcharts.Dictionary<Highcharts.DataDateFormatObject>}
+                 */
+                this.dateFormats = {
+                    'YYYY/mm/dd': {
+                        regex: /^([0-9]{4})[\-\/\.]([0-9]{1,2})[\-\/\.]([0-9]{1,2})$/,
+                        parser: function (match) {
+                            return (match ?
+                                Date.UTC(+match[1], match[2] - 1, +match[3]) :
+                                NaN);
+                        }
+                    },
+                    'dd/mm/YYYY': {
+                        regex: /^([0-9]{1,2})[\-\/\.]([0-9]{1,2})[\-\/\.]([0-9]{4})$/,
+                        parser: function (match) {
+                            return (match ?
+                                Date.UTC(+match[3], match[2] - 1, +match[1]) :
+                                NaN);
+                        },
+                        alternative: 'mm/dd/YYYY' // different format with the same regex
+                    },
+                    'mm/dd/YYYY': {
+                        regex: /^([0-9]{1,2})[\-\/\.]([0-9]{1,2})[\-\/\.]([0-9]{4})$/,
+                        parser: function (match) {
+                            return (match ?
+                                Date.UTC(+match[3], match[1] - 1, +match[2]) :
+                                NaN);
+                        }
+                    },
+                    'dd/mm/YY': {
+                        regex: /^([0-9]{1,2})[\-\/\.]([0-9]{1,2})[\-\/\.]([0-9]{2})$/,
+                        parser: function (match) {
+                            if (!match) {
+                                return NaN;
+                            }
+                            var year = +match[3],
+                                d = new Date();
+                            if (year > (d.getFullYear() - 2000)) {
+                                year += 1900;
+                            } else {
+                                year += 2000;
+                            }
+                            return Date.UTC(year, match[2] - 1, +match[1]);
+                        },
+                        alternative: 'mm/dd/YY' // different format with the same regex
+                    },
+                    'mm/dd/YY': {
+                        regex: /^([0-9]{1,2})[\-\/\.]([0-9]{1,2})[\-\/\.]([0-9]{2})$/,
+                        parser: function (match) {
+                            return (match ?
+                                Date.UTC(+match[3] + 2000, match[1] - 1, +match[2]) :
+                                NaN);
+                        }
+                    }
+                };
+                this.init(dataOptions, chartOptions, chart);
+            }
+
             /**
              * Initialize the Data object with the given options
              *
@@ -656,8 +735,9 @@
              * @param {Highcharts.Options} [chartOptions]
              * @param {Highcharts.Chart} [chart]
              */
-            init: function (options, chartOptions, chart) {
-                var decimalPoint = options.decimalPoint, hasData;
+            Data.prototype.init = function (options, chartOptions, chart) {
+                var decimalPoint = options.decimalPoint,
+                    hasData;
                 if (chartOptions) {
                     this.chartOptions = chartOptions;
                 }
@@ -708,11 +788,11 @@
                 if (!hasData && options.afterComplete) {
                     options.afterComplete();
                 }
-            },
-            hasURLOption: function (options) {
+            };
+            Data.prototype.hasURLOption = function (options) {
                 return Boolean(options &&
                     (options.rowsURL || options.csvURL || options.columnsURL));
-            },
+            };
             /**
              * Get the column distribution. For example, a line series takes a single
              * column for Y values. A range series takes two columns for low and high
@@ -720,14 +800,16 @@
              *
              * @function Highcharts.Data#getColumnDistribution
              */
-            getColumnDistribution: function () {
-                var chartOptions = this.chartOptions, options = this.options, xColumns = [],
+            Data.prototype.getColumnDistribution = function () {
+                var chartOptions = this.chartOptions,
+                    options = this.options,
+                    xColumns = [],
                     getValueCount = function (type) {
-                        return (Highcharts.seriesTypes[type || 'line'].prototype
+                        return (H.seriesTypes[type || 'line'].prototype
                                 .pointArrayMap ||
                             [0]).length;
                     }, getPointArrayMap = function (type) {
-                        return Highcharts.seriesTypes[type || 'line']
+                        return H.seriesTypes[type || 'line']
                             .prototype.pointArrayMap;
                     }, globalType = (chartOptions &&
                     chartOptions.chart &&
@@ -756,8 +838,10 @@
                 // Loop all seriesMappings and constructs SeriesBuilders from
                 // the mapping options.
                 seriesMapping.forEach(function (mapping) {
-                    var builder = new SeriesBuilder(), numberOfValueColumnsNeeded = individualCounts[seriesIndex] ||
-                        getValueCount(globalType), seriesArr = (chartOptions && chartOptions.series) || [],
+                    var builder = new SeriesBuilder(),
+                        numberOfValueColumnsNeeded = individualCounts[seriesIndex] ||
+                            getValueCount(globalType),
+                        seriesArr = (chartOptions && chartOptions.series) || [],
                         series = seriesArr[seriesIndex] || {},
                         defaultPointArrayMap = getPointArrayMap(series.type || globalType),
                         pointArrayMap = defaultPointArrayMap || ['y'];
@@ -801,7 +885,7 @@
                     seriesBuilders: seriesBuilders,
                     globalPointArrayMap: globalPointArrayMap
                 };
-            },
+            };
             /**
              * When the data is parsed into columns, either by CSV, table, GS or direct
              * input, continue with other operations.
@@ -809,7 +893,7 @@
              * @private
              * @function Highcharts.Data#dataFound
              */
-            dataFound: function () {
+            Data.prototype.dataFound = function () {
                 if (this.options.switchRowsAndColumns) {
                     this.columns = this.rowsToColumns(this.columns);
                 }
@@ -822,7 +906,7 @@
                     // Complete if a complete callback is given
                     this.complete();
                 }
-            },
+            };
             /**
              * Parse a CSV input string
              *
@@ -832,7 +916,7 @@
              *
              * @return {Array<Array<Highcharts.DataValueType>>}
              */
-            parseCSV: function (inOptions) {
+            Data.prototype.parseCSV = function (inOptions) {
                 var self = this, options = inOptions || this.options, csv = options.csv, columns,
                     startRow = (typeof options.startRow !== 'undefined' && options.startRow ?
                         options.startRow :
@@ -850,7 +934,6 @@
                         '\t': 0
                     };
                 columns = this.columns = [];
-
                 /*
                     This implementation is quite verbose. It will be shortened once
                     it's stable and passes all the test.
@@ -894,7 +977,6 @@
                  */
                 function parseRow(columnStr, rowNumber, noAdd, callbacks) {
                     var i = 0, c = '', cl = '', cn = '', token = '', actualColumn = 0, column = 0;
-
                     /**
                      * @private
                      */
@@ -903,7 +985,6 @@
                         cl = columnStr[j - 1];
                         cn = columnStr[j + 1];
                     }
-
                     /**
                      * @private
                      */
@@ -915,7 +996,6 @@
                             dataTypes[column].push(type);
                         }
                     }
-
                     /**
                      * @private
                      */
@@ -947,7 +1027,6 @@
                         ++column;
                         ++actualColumn;
                     }
-
                     if (!columnStr.trim().length) {
                         return;
                     }
@@ -988,7 +1067,6 @@
                     }
                     push();
                 }
-
                 /**
                  * Attempt to guess the delimiter. We do a separate parse pass here
                  * because we need to count potential delimiters softly without making
@@ -996,9 +1074,15 @@
                  * @private
                  */
                 function guessDelimiter(lines) {
-                    var points = 0, commas = 0, guessed = false;
+                    var points = 0,
+                        commas = 0,
+                        guessed = false;
                     lines.some(function (columnStr, i) {
-                        var inStr = false, c, cn, cl, token = '';
+                        var inStr = false,
+                            c,
+                            cn,
+                            cl,
+                            token = '';
                         // We should be able to detect dateformats within 13 rows
                         if (i > 13) {
                             return true;
@@ -1074,7 +1158,6 @@
                     }
                     return guessed;
                 }
-
                 /**
                  * Tries to guess the date format
                  *  - Check if either month candidate exceeds 12
@@ -1085,10 +1168,16 @@
                  * @private
                  */
                 function deduceDateFormat(data, limit) {
-                    var format = 'YYYY/mm/dd', thing, guessedFormat = [], calculatedFormat, i = 0,
+                    var format = 'YYYY/mm/dd',
+                        thing,
+                        guessedFormat = [],
+                        calculatedFormat,
+                        i = 0,
                         madeDeduction = false,
                         // candidates = {},
-                        stable = [], max = [], j;
+                        stable = [],
+                        max = [],
+                        j;
                     if (!limit || limit > data.length) {
                         limit = data.length;
                     }
@@ -1171,7 +1260,6 @@
                     }
                     return format;
                 }
-
                 /**
                  * @todo
                  * Figure out the best axis types for the data
@@ -1182,7 +1270,6 @@
                  */
                 function deduceAxisTypes() {
                 }
-
                 if (csv && options.beforeParse) {
                     csv = options.beforeParse.call(this, csv);
                 }
@@ -1248,18 +1335,22 @@
                     this.dataFound();
                 }
                 return columns;
-            },
+            };
             /**
              * Parse a HTML table
              *
              * @function Highcharts.Data#parseTable
              *
-             * @return {Array<Array<Highcharts.DataValueType>>|undefined}
+             * @return {Array<Array<Highcharts.DataValueType>>}
              */
-            parseTable: function () {
-                var options = this.options, table = options.table, columns = this.columns,
-                    startRow = options.startRow || 0, endRow = options.endRow || Number.MAX_VALUE,
-                    startColumn = options.startColumn || 0, endColumn = options.endColumn || Number.MAX_VALUE;
+            Data.prototype.parseTable = function () {
+                var options = this.options,
+                    table = options.table,
+                    columns = this.columns || [],
+                    startRow = options.startRow || 0,
+                    endRow = options.endRow || Number.MAX_VALUE,
+                    startColumn = options.startColumn || 0,
+                    endColumn = options.endColumn || Number.MAX_VALUE;
                 if (table) {
                     if (typeof table === 'string') {
                         table = doc.getElementById(table);
@@ -1267,6 +1358,8 @@
                     [].forEach.call(table.getElementsByTagName('tr'), function (tr, rowNo) {
                         if (rowNo >= startRow && rowNo <= endRow) {
                             [].forEach.call(tr.children, function (item, colNo) {
+                                var row = columns[colNo - startColumn];
+                                var i = 1;
                                 if ((item.tagName === 'TD' ||
                                     item.tagName === 'TH') &&
                                     colNo >= startColumn &&
@@ -1275,6 +1368,13 @@
                                         columns[colNo - startColumn] = [];
                                     }
                                     columns[colNo - startColumn][rowNo - startRow] = item.innerHTML;
+                                    // Loop over all previous indices and make sure
+                                    // they are nulls, not undefined.
+                                    while (rowNo - startRow >= i &&
+                                    row[rowNo - startRow - i] === void 0) {
+                                        row[rowNo - startRow - i] = null;
+                                        i++;
+                                    }
                                 }
                             });
                         }
@@ -1282,7 +1382,7 @@
                     this.dataFound(); // continue
                 }
                 return columns;
-            },
+            };
             /**
              * Fetch or refetch live data
              *
@@ -1291,9 +1391,14 @@
              * @return {boolean}
              *         The URLs that were tried can be found in the options
              */
-            fetchLiveData: function () {
-                var data = this, chart = this.chart, options = this.options, maxRetries = 3, currentRetries = 0,
-                    pollingEnabled = options.enablePolling, updateIntervalMs = (options.dataRefreshRate || 2) * 1000,
+            Data.prototype.fetchLiveData = function () {
+                var data = this,
+                    chart = this.chart,
+                    options = this.options,
+                    maxRetries = 3,
+                    currentRetries = 0,
+                    pollingEnabled = options.enablePolling,
+                    updateIntervalMs = (options.dataRefreshRate || 2) * 1000,
                     originalOptions = merge(options);
                 if (!this.hasURLOption(options)) {
                     return false;
@@ -1305,7 +1410,6 @@
                 delete options.csvURL;
                 delete options.rowsURL;
                 delete options.columnsURL;
-
                 /**
                  * @private
                  */
@@ -1325,7 +1429,6 @@
                             clearTimeout(data.liveDataTimeout);
                             chart.liveDataURL = url;
                         }
-
                         /**
                          * @private
                          */
@@ -1338,7 +1441,7 @@
                             }
                         }
 
-                        Highcharts.ajax({
+                        ajax({
                             url: url,
                             dataType: tp || 'json',
                             success: function (res) {
@@ -1356,7 +1459,6 @@
                         });
                         return true;
                     }
-
                     if (!request(originalOptions.csvURL, function (res) {
                         chart.update({
                             data: {
@@ -1384,7 +1486,7 @@
 
                 performFetch(true);
                 return this.hasURLOption(options);
-            },
+            };
             /**
              * Parse a Google spreadsheet.
              *
@@ -1393,20 +1495,23 @@
              * @return {boolean}
              *         Always returns false, because it is an intermediate fetch.
              */
-            parseGoogleSpreadsheet: function () {
-                var data = this, options = this.options, googleSpreadsheetKey = options.googleSpreadsheetKey,
+            Data.prototype.parseGoogleSpreadsheet = function () {
+                var data = this,
+                    options = this.options,
+                    googleSpreadsheetKey = options.googleSpreadsheetKey,
                     chart = this.chart,
                     // use sheet 1 as the default rather than od6
                     // as the latter sometimes cause issues (it looks like it can
                     // be renamed in some cases, ref. a fogbugz case).
-                    worksheet = options.googleSpreadsheetWorksheet || 1, startRow = options.startRow || 0,
-                    endRow = options.endRow || Number.MAX_VALUE, startColumn = options.startColumn || 0,
+                    worksheet = options.googleSpreadsheetWorksheet || 1,
+                    startRow = options.startRow || 0,
+                    endRow = options.endRow || Number.MAX_VALUE,
+                    startColumn = options.startColumn || 0,
                     endColumn = options.endColumn || Number.MAX_VALUE,
                     refreshRate = (options.dataRefreshRate || 2) * 1000;
                 if (refreshRate < 4000) {
                     refreshRate = 4000;
                 }
-
                 /**
                  * Fetch the actual spreadsheet using XMLHttpRequest.
                  * @private
@@ -1418,7 +1523,7 @@
                         worksheet,
                         'public/values?alt=json'
                     ].join('/');
-                    Highcharts.ajax({
+                    ajax({
                         url: url,
                         dataType: 'json',
                         success: function (json) {
@@ -1434,13 +1539,21 @@
                         }
                     });
                 }
-
                 if (googleSpreadsheetKey) {
                     delete options.googleSpreadsheetKey;
                     fetchSheet(function (json) {
                         // Prepare the data from the spreadsheat
-                        var columns = [], cells = json.feed.entry, cell, cellCount = (cells || []).length, colCount = 0,
-                            rowCount = 0, val, gr, gc, cellInner, i;
+                        var columns = [],
+                            cells = json.feed.entry,
+                            cell,
+                            cellCount = (cells || []).length,
+                            colCount = 0,
+                            rowCount = 0,
+                            val,
+                            gr,
+                            gc,
+                            cellInner,
+                            i;
                         if (!cells || cells.length === 0) {
                             return false;
                         }
@@ -1510,7 +1623,7 @@
                 }
                 // This is an intermediate fetch, so always return false.
                 return false;
-            },
+            };
             /**
              * Trim a string from whitespaces.
              *
@@ -1525,7 +1638,7 @@
              * @return {string}
              *         Trimed string
              */
-            trim: function (str, inside) {
+            Data.prototype.trim = function (str, inside) {
                 if (typeof str === 'string') {
                     str = str.replace(/^\s+|\s+$/g, '');
                     // Clear white space insdie the string, like thousands separators
@@ -1537,18 +1650,19 @@
                     }
                 }
                 return str;
-            },
+            };
             /**
              * Parse numeric cells in to number types and date types in to true dates.
              *
              * @function Highcharts.Data#parseTypes
              */
-            parseTypes: function () {
-                var columns = this.columns, col = columns.length;
+            Data.prototype.parseTypes = function () {
+                var columns = this.columns,
+                    col = columns.length;
                 while (col--) {
                     this.parseColumn(columns[col], col);
                 }
-            },
+            };
             /**
              * Parse a single column. Set properties like .isDatetime and .isNumeric.
              *
@@ -1560,14 +1674,26 @@
              * @param {number} col
              *        Column index
              */
-            parseColumn: function (column, col) {
-                var rawColumns = this.rawColumns, columns = this.columns, row = column.length, val, floatVal, trimVal,
-                    trimInsideVal, firstRowAsNames = this.firstRowAsNames,
-                    isXColumn = this.valueCount.xColumns.indexOf(col) !== -1, dateVal, backup = [], diff,
-                    chartOptions = this.chartOptions, descending, columnTypes = this.options.columnTypes || [],
-                    columnType = columnTypes[col], forceCategory = isXColumn && ((chartOptions &&
-                    chartOptions.xAxis &&
-                    splat(chartOptions.xAxis)[0].type === 'category') || columnType === 'string');
+            Data.prototype.parseColumn = function (column, col) {
+                var rawColumns = this.rawColumns,
+                    columns = this.columns,
+                    row = column.length,
+                    val,
+                    floatVal,
+                    trimVal,
+                    trimInsideVal,
+                    firstRowAsNames = this.firstRowAsNames,
+                    isXColumn = this.valueCount.xColumns.indexOf(col) !== -1,
+                    dateVal,
+                    backup = [],
+                    diff,
+                    chartOptions = this.chartOptions,
+                    descending,
+                    columnTypes = this.options.columnTypes || [],
+                    columnType = columnTypes[col],
+                    forceCategory = isXColumn && ((chartOptions &&
+                        chartOptions.xAxis &&
+                        splat(chartOptions.xAxis)[0].type === 'category') || columnType === 'string');
                 if (!rawColumns[col]) {
                     rawColumns[col] = [];
                 }
@@ -1655,54 +1781,7 @@
                         }
                     }
                 }
-            },
-            /**
-             * A collection of available date formats, extendable from the outside to
-             * support custom date formats.
-             *
-             * @name Highcharts.Data#dateFormats
-             * @type {Highcharts.Dictionary<Highcharts.DataDateFormatObject>}
-             */
-            dateFormats: {
-                'YYYY/mm/dd': {
-                    regex: /^([0-9]{4})[\-\/\.]([0-9]{1,2})[\-\/\.]([0-9]{1,2})$/,
-                    parser: function (match) {
-                        return Date.UTC(+match[1], match[2] - 1, +match[3]);
-                    }
-                },
-                'dd/mm/YYYY': {
-                    regex: /^([0-9]{1,2})[\-\/\.]([0-9]{1,2})[\-\/\.]([0-9]{4})$/,
-                    parser: function (match) {
-                        return Date.UTC(+match[3], match[2] - 1, +match[1]);
-                    },
-                    alternative: 'mm/dd/YYYY' // different format with the same regex
-                },
-                'mm/dd/YYYY': {
-                    regex: /^([0-9]{1,2})[\-\/\.]([0-9]{1,2})[\-\/\.]([0-9]{4})$/,
-                    parser: function (match) {
-                        return Date.UTC(+match[3], match[1] - 1, +match[2]);
-                    }
-                },
-                'dd/mm/YY': {
-                    regex: /^([0-9]{1,2})[\-\/\.]([0-9]{1,2})[\-\/\.]([0-9]{2})$/,
-                    parser: function (match) {
-                        var year = +match[3], d = new Date();
-                        if (year > (d.getFullYear() - 2000)) {
-                            year += 1900;
-                        } else {
-                            year += 2000;
-                        }
-                        return Date.UTC(year, match[2] - 1, +match[1]);
-                    },
-                    alternative: 'mm/dd/YY' // different format with the same regex
-                },
-                'mm/dd/YY': {
-                    regex: /^([0-9]{1,2})[\-\/\.]([0-9]{1,2})[\-\/\.]([0-9]{2})$/,
-                    parser: function (match) {
-                        return Date.UTC(+match[3] + 2000, match[1] - 1, +match[2]);
-                    }
-                }
-            },
+            };
             /**
              * Parse a date and return it as a number. Overridable through
              * `options.parseDate`.
@@ -1713,9 +1792,13 @@
              *
              * @return {number}
              */
-            parseDate: function (val) {
-                var parseDate = this.options.parseDate, ret, key, format,
-                    dateFormat = this.options.dateFormat || this.dateFormat, match;
+            Data.prototype.parseDate = function (val) {
+                var parseDate = this.options.parseDate,
+                    ret,
+                    key,
+                    format,
+                    dateFormat = this.options.dateFormat || this.dateFormat,
+                    match;
                 if (parseDate) {
                     ret = parseDate(val);
                 } else if (typeof val === 'string') {
@@ -1761,18 +1844,22 @@
                     }
                 }
                 return ret;
-            },
+            };
             /**
              * Reorganize rows into columns.
              *
              * @function Highcharts.Data#rowsToColumns
              *
-             * @param {Array<Array<(number|string)>>} rows
+             * @param {Array<Array<Highcharts.DataValueType>>} rows
              *
-             * @return {Array<Array<(number|string)>>}
+             * @return {Array<Array<Highcharts.DataValueType>>|undefined}
              */
-            rowsToColumns: function (rows) {
-                var row, rowsLength, col, colsLength, columns;
+            Data.prototype.rowsToColumns = function (rows) {
+                var row,
+                    rowsLength,
+                    col,
+                    colsLength,
+                    columns;
                 if (rows) {
                     columns = [];
                     rowsLength = rows.length;
@@ -1787,7 +1874,7 @@
                     }
                 }
                 return columns;
-            },
+            };
             /**
              * Get the parsed data in a form that we can apply directly to the
              * `series.data` config. Array positions can be mapped using the
@@ -1802,11 +1889,11 @@
              *
              * @return {Array<Array<(number|string)>>|undefined} Data rows
              */
-            getData: function () {
+            Data.prototype.getData = function () {
                 if (this.columns) {
                     return this.rowsToColumns(this.columns).slice(1);
                 }
-            },
+            };
             /**
              * A hook for working directly on the parsed columns
              *
@@ -1814,17 +1901,21 @@
              *
              * @return {boolean|undefined}
              */
-            parsed: function () {
+            Data.prototype.parsed = function () {
                 if (this.options.parsed) {
                     return this.options.parsed.call(this, this.columns);
                 }
-            },
+            };
             /**
              * @private
              * @function Highcharts.Data#getFreeIndexes
              */
-            getFreeIndexes: function (numberOfColumns, seriesBuilders) {
-                var s, i, freeIndexes = [], freeIndexValues = [], referencedIndexes;
+            Data.prototype.getFreeIndexes = function (numberOfColumns, seriesBuilders) {
+                var s,
+                    i,
+                    freeIndexes = [],
+                    freeIndexValues = [],
+                    referencedIndexes;
                 // Add all columns as free
                 for (i = 0; i < numberOfColumns; i = i + 1) {
                     freeIndexes.push(true);
@@ -1843,16 +1934,30 @@
                     }
                 }
                 return freeIndexValues;
-            },
+            };
             /**
              * If a complete callback function is provided in the options, interpret the
              * columns into a Highcharts options object.
              *
              * @function Highcharts.Data#complete
              */
-            complete: function () {
-                var columns = this.columns, xColumns = [], type, options = this.options, series, data, i, j, r,
-                    seriesIndex, chartOptions, allSeriesBuilders = [], builder, freeIndexes, typeCol, index;
+            Data.prototype.complete = function () {
+                var columns = this.columns,
+                    xColumns = [],
+                    type,
+                    options = this.options,
+                    series,
+                    data,
+                    i,
+                    j,
+                    r,
+                    seriesIndex,
+                    chartOptions,
+                    allSeriesBuilders = [],
+                    builder,
+                    freeIndexes,
+                    typeCol,
+                    index;
                 xColumns.length = columns.length;
                 if (options.complete || options.afterComplete) {
                     // Get the names and shift the top row
@@ -1958,7 +2063,7 @@
                         options.afterComplete(chartOptions);
                     }
                 }
-            },
+            };
             /**
              * Updates the chart with new data options.
              *
@@ -1968,7 +2073,7 @@
              *
              * @param {boolean} [redraw=true]
              */
-            update: function (options, redraw) {
+            Data.prototype.update = function (options, redraw) {
                 var chart = this.chart;
                 if (options) {
                     // Set the complete handler
@@ -1991,10 +2096,11 @@
                     merge(true, chart.options.data, options);
                     this.init(chart.options.data);
                 }
-            }
-        });
+            };
+            return Data;
+        }());
         // Register the Data prototype and data function on Highcharts
-        Highcharts.Data = Data;
+        // Highcharts.Data = Data as any;
         /**
          * Creates a data object to parse data for a chart.
          *
@@ -2008,14 +2114,15 @@
          *
          * @return {Highcharts.Data}
          */
-        Highcharts.data = function (dataOptions, chartOptions, chart) {
-            return new Data(dataOptions, chartOptions, chart);
+        H.data = function (dataOptions, chartOptions, chart) {
+            return new H.Data(dataOptions, chartOptions, chart);
         };
         // Extend Chart.init so that the Chart constructor accepts a new configuration
         // option group, data.
         addEvent(Chart, 'init', function (e) {
             var chart = this, // eslint-disable-line no-invalid-this
-                userOptions = (e.args[0] || {}), callback = e.args[1];
+                userOptions = (e.args[0] || {}),
+                callback = e.args[1];
             if (userOptions && userOptions.data && !chart.hasDataDef) {
                 chart.hasDataDef = true;
                 /**
@@ -2024,9 +2131,10 @@
                  * @name Highcharts.Chart#data
                  * @type {Highcharts.Data|undefined}
                  */
-                chart.data = new Data(extend(userOptions.data, {
+                chart.data = new H.Data(extend(userOptions.data, {
                     afterComplete: function (dataOptions) {
-                        var i, series;
+                        var i,
+                            series;
                         // Merge series configs
                         if (Object.hasOwnProperty.call(userOptions, 'series')) {
                             if (typeof userOptions.series === 'object') {
@@ -2066,148 +2174,162 @@
          * @class
          * @name SeriesBuilder
          */
-        SeriesBuilder = function () {
-            /* eslint-disable no-invalid-this */
-            this.readers = [];
-            this.pointIsArray = true;
-            /* eslint-enable no-invalid-this */
-        };
-        /**
-         * Populates readers with column indexes. A reader can be added without
-         * a specific index and for those readers the index is taken sequentially
-         * from the free columns (this is handled by the ColumnCursor instance).
-         *
-         * @function SeriesBuilder#populateColumns
-         *
-         * @param {Array<number>} freeIndexes
-         *
-         * @returns {boolean}
-         */
-        SeriesBuilder.prototype.populateColumns = function (freeIndexes) {
-            var builder = this, enoughColumns = true;
-            // Loop each reader and give it an index if its missing.
-            // The freeIndexes.shift() will return undefined if there
-            // are no more columns.
-            builder.readers.forEach(function (reader) {
-                if (typeof reader.columnIndex === 'undefined') {
-                    reader.columnIndex = freeIndexes.shift();
-                }
-            });
-            // Now, all readers should have columns mapped. If not
-            // then return false to signal that this series should
-            // not be added.
-            builder.readers.forEach(function (reader) {
-                if (typeof reader.columnIndex === 'undefined') {
-                    enoughColumns = false;
-                }
-            });
-            return enoughColumns;
-        };
-        /**
-         * Reads a row from the dataset and returns a point or array depending
-         * on the names of the readers.
-         *
-         * @function SeriesBuilder#read<T>
-         *
-         * @param {Array<Array<T>>} columns
-         *
-         * @param {number} rowIndex
-         *
-         * @returns {Array<T>|Highcharts.Dictionary<T>}
-         */
-        SeriesBuilder.prototype.read = function (columns, rowIndex) {
-            var builder = this, pointIsArray = builder.pointIsArray, point = pointIsArray ? [] : {}, columnIndexes;
-            // Loop each reader and ask it to read its value.
-            // Then, build an array or point based on the readers names.
-            builder.readers.forEach(function (reader) {
-                var value = columns[reader.columnIndex][rowIndex];
-                if (pointIsArray) {
-                    point.push(value);
-                } else {
-                    if (reader.configName.indexOf('.') > 0) {
-                        // Handle nested property names
-                        Highcharts.Point.prototype.setNestedProperty(point, value, reader.configName);
+        var SeriesBuilder = /** @class */ (function () {
+            function SeriesBuilder() {
+                /* eslint-disable no-invalid-this */
+                this.readers = [];
+                this.pointIsArray = true;
+                /* eslint-enable no-invalid-this */
+                this.name = void 0;
+            }
+
+            /**
+             * Populates readers with column indexes. A reader can be added without
+             * a specific index and for those readers the index is taken sequentially
+             * from the free columns (this is handled by the ColumnCursor instance).
+             *
+             * @function SeriesBuilder#populateColumns
+             *
+             * @param {Array<number>} freeIndexes
+             *
+             * @returns {boolean}
+             */
+            SeriesBuilder.prototype.populateColumns = function (freeIndexes) {
+                var builder = this,
+                    enoughColumns = true;
+                // Loop each reader and give it an index if its missing.
+                // The freeIndexes.shift() will return undefined if there
+                // are no more columns.
+                builder.readers.forEach(function (reader) {
+                    if (typeof reader.columnIndex === 'undefined') {
+                        reader.columnIndex = freeIndexes.shift();
+                    }
+                });
+                // Now, all readers should have columns mapped. If not
+                // then return false to signal that this series should
+                // not be added.
+                builder.readers.forEach(function (reader) {
+                    if (typeof reader.columnIndex === 'undefined') {
+                        enoughColumns = false;
+                    }
+                });
+                return enoughColumns;
+            };
+            /**
+             * Reads a row from the dataset and returns a point or array depending
+             * on the names of the readers.
+             *
+             * @function SeriesBuilder#read<T>
+             *
+             * @param {Array<Array<T>>} columns
+             *
+             * @param {number} rowIndex
+             *
+             * @returns {Array<T>|Highcharts.Dictionary<T>}
+             */
+            SeriesBuilder.prototype.read = function (columns, rowIndex) {
+                var builder = this,
+                    pointIsArray = builder.pointIsArray,
+                    point = pointIsArray ? [] : {},
+                    columnIndexes;
+                // Loop each reader and ask it to read its value.
+                // Then, build an array or point based on the readers names.
+                builder.readers.forEach(function (reader) {
+                    var value = columns[reader.columnIndex][rowIndex];
+                    if (pointIsArray) {
+                        point.push(value);
                     } else {
-                        point[reader.configName] = value;
+                        if (reader.configName.indexOf('.') > 0) {
+                            // Handle nested property names
+                            Point.prototype.setNestedProperty(point, value, reader.configName);
+                        } else {
+                            point[reader.configName] = value;
+                        }
+                    }
+                });
+                // The name comes from the first column (excluding the x column)
+                if (typeof this.name === 'undefined' && builder.readers.length >= 2) {
+                    columnIndexes = builder.getReferencedColumnIndexes();
+                    if (columnIndexes.length >= 2) {
+                        // remove the first one (x col)
+                        columnIndexes.shift();
+                        // Sort the remaining
+                        columnIndexes.sort(function (a, b) {
+                            return a - b;
+                        });
+                        // Now use the lowest index as name column
+                        this.name = columns[columnIndexes.shift()].name;
                     }
                 }
-            });
-            // The name comes from the first column (excluding the x column)
-            if (typeof this.name === 'undefined' && builder.readers.length >= 2) {
-                columnIndexes = builder.getReferencedColumnIndexes();
-                if (columnIndexes.length >= 2) {
-                    // remove the first one (x col)
-                    columnIndexes.shift();
-                    // Sort the remaining
-                    columnIndexes.sort(function (a, b) {
-                        return a - b;
-                    });
-                    // Now use the lowest index as name column
-                    this.name = columns[columnIndexes.shift()].name;
+                return point;
+            };
+            /**
+             * Creates and adds ColumnReader from the given columnIndex and configName.
+             * ColumnIndex can be undefined and in that case the reader will be given
+             * an index when columns are populated.
+             *
+             * @function SeriesBuilder#addColumnReader
+             *
+             * @param {number} columnIndex
+             *
+             * @param {string} configName
+             */
+            SeriesBuilder.prototype.addColumnReader = function (columnIndex, configName) {
+                this.readers.push({
+                    columnIndex: columnIndex,
+                    configName: configName
+                });
+                if (!(configName === 'x' ||
+                    configName === 'y' ||
+                    typeof configName === 'undefined')) {
+                    this.pointIsArray = false;
                 }
-            }
-            return point;
-        };
-        /**
-         * Creates and adds ColumnReader from the given columnIndex and configName.
-         * ColumnIndex can be undefined and in that case the reader will be given
-         * an index when columns are populated.
-         *
-         * @function SeriesBuilder#addColumnReader
-         *
-         * @param {number} columnIndex
-         *
-         * @param {string} configName
-         */
-        SeriesBuilder.prototype.addColumnReader = function (columnIndex, configName) {
-            this.readers.push({
-                columnIndex: columnIndex,
-                configName: configName
-            });
-            if (!(configName === 'x' ||
-                configName === 'y' ||
-                typeof configName === 'undefined')) {
-                this.pointIsArray = false;
-            }
-        };
-        /**
-         * Returns an array of column indexes that the builder will use when
-         * reading data.
-         *
-         * @function SeriesBuilder#getReferencedColumnIndexes
-         *
-         * @returns {Array<number>}
-         */
-        SeriesBuilder.prototype.getReferencedColumnIndexes = function () {
-            var i, referencedColumnIndexes = [], columnReader;
-            for (i = 0; i < this.readers.length; i = i + 1) {
-                columnReader = this.readers[i];
-                if (typeof columnReader.columnIndex !== 'undefined') {
-                    referencedColumnIndexes.push(columnReader.columnIndex);
+            };
+            /**
+             * Returns an array of column indexes that the builder will use when
+             * reading data.
+             *
+             * @function SeriesBuilder#getReferencedColumnIndexes
+             *
+             * @returns {Array<number>}
+             */
+            SeriesBuilder.prototype.getReferencedColumnIndexes = function () {
+                var i,
+                    referencedColumnIndexes = [],
+                    columnReader;
+                for (i = 0; i < this.readers.length; i = i + 1) {
+                    columnReader = this.readers[i];
+                    if (typeof columnReader.columnIndex !== 'undefined') {
+                        referencedColumnIndexes.push(columnReader.columnIndex);
+                    }
                 }
-            }
-            return referencedColumnIndexes;
-        };
-        /**
-         * Returns true if the builder has a reader for the given configName.
-         *
-         * @function SeriesBuider#hasReader
-         *
-         * @param {string} configName
-         *
-         * @returns {boolean|undefined}
-         */
-        SeriesBuilder.prototype.hasReader = function (configName) {
-            var i, columnReader;
-            for (i = 0; i < this.readers.length; i = i + 1) {
-                columnReader = this.readers[i];
-                if (columnReader.configName === configName) {
-                    return true;
+                return referencedColumnIndexes;
+            };
+            /**
+             * Returns true if the builder has a reader for the given configName.
+             *
+             * @function SeriesBuider#hasReader
+             *
+             * @param {string} configName
+             *
+             * @returns {boolean|undefined}
+             */
+            SeriesBuilder.prototype.hasReader = function (configName) {
+                var i,
+                    columnReader;
+                for (i = 0; i < this.readers.length; i = i + 1) {
+                    columnReader = this.readers[i];
+                    if (columnReader.configName === configName) {
+                        return true;
+                    }
                 }
-            }
-            // Else return undefined
-        };
+                // Else return undefined
+            };
+            return SeriesBuilder;
+        }());
+        H.Data = Data;
 
+        return H.Data;
     });
     _registerModule(_modules, 'masters/modules/data.src.js', [], function () {
 

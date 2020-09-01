@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2009-2019 Øystein Moseng
+ *  (c) 2009-2020 Øystein Moseng
  *
  *  TimelineEvent class definition.
  *
@@ -10,10 +10,10 @@
  *
  * */
 'use strict';
-import H from '../../parts/Globals.js';
-import U from '../../parts/Utilities.js';
+import H from '../../Core/Globals.js';
+import U from '../../Core/Utilities.js';
 
-var splat = U.splat;
+var merge = U.merge, splat = U.splat, uniqueKey = U.uniqueKey;
 /**
  * A set of options for the TimelineEvent class.
  *
@@ -65,11 +65,10 @@ import utilities from './utilities.js';
 function TimelineEvent(options) {
     this.init(options || {});
 }
-
 TimelineEvent.prototype.init = function (options) {
     this.options = options;
     this.time = options.time || 0;
-    this.id = this.options.id = options.id || H.uniqueKey();
+    this.id = this.options.id = options.id || uniqueKey();
 };
 /**
  * Play the event. Does not take the TimelineEvent.time option into account,
@@ -85,7 +84,7 @@ TimelineEvent.prototype.init = function (options) {
 TimelineEvent.prototype.play = function (options) {
     var eventObject = this.options.eventObject, masterOnEnd = this.options.onEnd, playOnEnd = options && options.onEnd,
         playOptionsOnEnd = this.options.playOptions &&
-            this.options.playOptions.onEnd, playOptions = H.merge(this.options.playOptions, options);
+            this.options.playOptions.onEnd, playOptions = merge(this.options.playOptions, options);
     if (eventObject && eventObject.sonify) {
         // If we have multiple onEnds defined, use all
         playOptions.onEnd = masterOnEnd || playOnEnd || playOptionsOnEnd ?
@@ -173,10 +172,9 @@ TimelineEvent.prototype.cancel = function (fadeOut) {
 function TimelinePath(options) {
     this.init(options);
 }
-
 TimelinePath.prototype.init = function (options) {
     this.options = options;
-    this.id = this.options.id = options.id || H.uniqueKey();
+    this.id = this.options.id = options.id || uniqueKey();
     this.cursor = 0;
     this.eventsPlaying = {};
     // Handle silent wait, otherwise use events from options
@@ -186,13 +184,16 @@ TimelinePath.prototype.init = function (options) {
             new TimelineEvent({time: options.silentWait})
         ] :
         this.options.events;
+    // Reference optionally provided by the user that indicates the intended
+    // duration of the path. Unused by TimelinePath itself.
+    this.targetDuration = options.targetDuration || options.silentWait;
     // We need to sort our events by time
     this.sortEvents();
     // Get map from event ID to index
     this.updateEventIdMap();
     // Signal events to fire
     this.signalHandler = new utilities.SignalHandler(['playOnEnd', 'masterOnEnd', 'onStart', 'onEventStart', 'onEventEnd']);
-    this.signalHandler.registerSignalCallbacks(H.merge(options, {masterOnEnd: options.onEnd}));
+    this.signalHandler.registerSignalCallbacks(merge(options, {masterOnEnd: options.onEnd}));
 };
 /**
  * Sort the internal event list by time.
@@ -412,14 +413,13 @@ TimelinePath.prototype.playEvents = function (direction) {
 function Timeline(options) {
     this.init(options || {});
 }
-
 Timeline.prototype.init = function (options) {
     this.options = options;
     this.cursor = 0;
-    this.paths = options.paths;
+    this.paths = options.paths || [];
     this.pathsPlaying = {};
     this.signalHandler = new utilities.SignalHandler(['playOnEnd', 'masterOnEnd', 'onPathStart', 'onPathEnd']);
-    this.signalHandler.registerSignalCallbacks(H.merge(options, {masterOnEnd: options.onEnd}));
+    this.signalHandler.registerSignalCallbacks(merge(options, {masterOnEnd: options.onEnd}));
 };
 /**
  * Play the timeline forwards from cursor.
@@ -455,8 +455,17 @@ Timeline.prototype.rewind = function (onEnd) {
  * @return {void}
  */
 Timeline.prototype.playPaths = function (direction) {
-    var curPaths = splat(this.paths[this.cursor]), nextPaths = this.paths[this.cursor + direction], timeline = this,
-        signalHandler = this.signalHandler, pathsEnded = 0,
+    var timeline = this;
+    var signalHandler = timeline.signalHandler;
+    if (!timeline.paths.length) {
+        var emptySignal = {
+            cancelled: false
+        };
+        signalHandler.emitSignal('playOnEnd', emptySignal);
+        signalHandler.emitSignal('masterOnEnd', emptySignal);
+        return;
+    }
+    var curPaths = splat(this.paths[this.cursor]), nextPaths = this.paths[this.cursor + direction], pathsEnded = 0,
         // Play a path
         playPath = function (path) {
             // Emit signal and set playing state
@@ -589,7 +598,10 @@ Timeline.prototype.getCursor = function () {
  * True if timeline is at the beginning.
  */
 Timeline.prototype.atStart = function () {
-    return !this.getCurrentPlayingPaths().some(function (path) {
+    if (this.cursor) {
+        return false;
+    }
+    return !splat(this.paths[0]).some(function (path) {
         return path.cursor;
     });
 };
@@ -600,6 +612,9 @@ Timeline.prototype.atStart = function () {
  * The TimelinePaths currently being played.
  */
 Timeline.prototype.getCurrentPlayingPaths = function () {
+    if (!this.paths.length) {
+        return [];
+    }
     return splat(this.paths[this.cursor]);
 };
 // Export the classes

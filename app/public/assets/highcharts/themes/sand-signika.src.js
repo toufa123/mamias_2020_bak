@@ -1,5 +1,5 @@
 /**
- * @license Highcharts JS v8.0.0 (2019-12-10)
+ * @license Highcharts JS v8.2.0 (2020-08-20)
  *
  * (c) 2009-2019 Torstein Honsi
  *
@@ -21,17 +21,16 @@
     }
 }(function (Highcharts) {
     var _modules = Highcharts ? Highcharts._modules : {};
-
     function _registerModule(obj, path, args, fn) {
         if (!obj.hasOwnProperty(path)) {
             obj[path] = fn.apply(null, args);
         }
     }
 
-    _registerModule(_modules, 'themes/sand-signika.js', [_modules['parts/Globals.js']], function (Highcharts) {
+    _registerModule(_modules, 'Extensions/Themes/SandSignika.js', [_modules['Core/Globals.js'], _modules['Core/Utilities.js']], function (Highcharts, U) {
         /* *
          *
-         *  (c) 2010-2019 Torstein Honsi
+         *  (c) 2010-2020 Torstein Honsi
          *
          *  License: www.highcharts.com/license
          *
@@ -41,6 +40,7 @@
          *
          * */
         /* global document */
+        var setOptions = U.setOptions;
         // Load the fonts
         Highcharts.createElement('link', {
             href: 'https://fonts.googleapis.com/css?family=Signika:400,700',
@@ -137,7 +137,7 @@
             }
         };
         // Apply the theme
-        Highcharts.setOptions(Highcharts.theme);
+        setOptions(Highcharts.theme);
 
     });
     _registerModule(_modules, 'masters/themes/sand-signika.src.js', [], function () {

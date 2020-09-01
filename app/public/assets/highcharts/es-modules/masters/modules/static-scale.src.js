@@ -1,5 +1,5 @@
 /**
- * @license Highcharts Gantt JS v8.0.0 (2019-12-10)
+ * @license Highcharts Gantt JS v8.2.0 (2020-08-20)
  * @module highcharts/modules/static-scale
  * @requires highcharts
  *
@@ -10,4 +10,4 @@
  * License: www.highcharts.com/license
  */
 'use strict';
-import '../../modules/static-scale.src.js';
+import '../../Extensions/StaticScale.js';

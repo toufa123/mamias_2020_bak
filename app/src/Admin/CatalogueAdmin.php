@@ -22,35 +22,47 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use UniqueConstraintViolationException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use KunicMarko\SonataImporterBundle\Admin\AdminWithImport as Import;
+use Doctrs\SonataImportBundle\Admin\AdminImportTrait;
+
 
 /**
  * @Security("is_granted('ROLE_ADMIN')")
  * @Route("/admin")
  */
-final class CatalogueAdmin extends AbstractAdmin implements Import
+final class CatalogueAdmin extends AbstractAdmin
 {
 
     protected function configureRoutes(RouteCollection $collection)
     {
-        $collection->add('import');
+
+        parent::configureRoutes($collection);
+        $collection->add('Import');
+        //$collection->add('import', 'importcatalogue', [
+        //    '_controller' => 'App\Controller\CatalogueAdminController:importAction'
+        //]);
+        //$collection->add('upload', '{id}/upload', [
+        //    '_controller' => 'DoctrsSonataImportBundle:Default:upload'
+        //]);
+        //$collection->add('importStatus', '{id}/upload/status', [
+        //    '_controller' => 'DoctrsSonataImportBundle:Default:importStatus'
+        //]);
     }
 
     public function getDashboardActions()
     {
         $actions = parent::getDashboardActions();
 
-        $actions['import'] = [
+        $actions['import'] = array(
             'label' => 'Import',
             'url' => $this->generateUrl('import'),
             'icon' => 'upload',
-            'translation_domain' => 'SonataAdminBundle', // optional
-            'template' => '@SonataAdmin/CRUD/dashboard__action.html.twig', // optional
-        ];
+            'template' => 'SonataAdminBundle:CRUD:dashboard__action.html.twig', // optional
+        );
 
         return $actions;
     }
 
+    //use AdminImportTrait;
     protected $perPageOptions = [10, 20, 50, 100, 'All'];
     protected $maxPerPage = '50';
     protected $datagridValues = [

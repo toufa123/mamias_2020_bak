@@ -1,5 +1,5 @@
 /**
- * @license Highcharts JS v8.0.0 (2019-12-10)
+ * @license Highcharts JS v8.2.0 (2020-08-20)
  *
  * Force directed graph module
  *
@@ -23,22 +23,23 @@
     }
 }(function (Highcharts) {
     var _modules = Highcharts ? Highcharts._modules : {};
-
     function _registerModule(obj, path, args, fn) {
         if (!obj.hasOwnProperty(path)) {
             obj[path] = fn.apply(null, args);
         }
     }
 
-    _registerModule(_modules, 'mixins/nodes.js', [_modules['parts/Globals.js'], _modules['parts/Utilities.js']], function (H, U) {
+    _registerModule(_modules, 'Mixins/Nodes.js', [_modules['Core/Globals.js'], _modules['Core/Series/Point.js'], _modules['Core/Utilities.js']], function (H, Point, U) {
         /* *
          *
          *  !!!!!!! SOURCE GETS TRANSPILED BY TYPESCRIPT. EDIT TS FILE ONLY. !!!!!!!
          *
          * */
-        var defined = U.defined, extend = U.extend, pick = U.pick;
-        var Point = H.Point;
-        H.NodesMixin = {
+        var defined = U.defined,
+            extend = U.extend,
+            find = U.find,
+            pick = U.pick;
+        var NodesMixin = H.NodesMixin = {
             /* eslint-disable valid-jsdoc */
             /**
              * Create a single node that holds information on incoming and outgoing
@@ -49,13 +50,18 @@
                 /**
                  * @private
                  */
-                function findById(nodes, id) {
-                    return H.find(nodes, function (node) {
-                        return node.id === id;
-                    });
+                function findById(nodes,
+                                  id) {
+                    return find(nodes,
+                        function (node) {
+                            return node.id === id;
+                        });
                 }
 
-                var node = findById(this.nodes, id), PointClass = this.pointClass, options;
+                var node = findById(this.nodes,
+                    id),
+                    PointClass = this.pointClass,
+                    options;
                 if (!node) {
                     options = this.options.nodes && findById(this.options.nodes, id);
                     node = (new PointClass()).init(this, extend({
@@ -67,7 +73,7 @@
                     node.linksTo = [];
                     node.linksFrom = [];
                     node.formatPrefix = 'node';
-                    node.name = node.name || node.options.id; // for use in formats
+                    node.name = node.name || node.options.id || ''; // for use in formats
                     // Mass is used in networkgraph:
                     node.mass = pick(
                         // Node:
@@ -81,7 +87,8 @@
                      * @private
                      */
                     node.getSum = function () {
-                        var sumTo = 0, sumFrom = 0;
+                        var sumTo = 0,
+                            sumFrom = 0;
                         node.linksTo.forEach(function (link) {
                             sumTo += link.weight;
                         });
@@ -124,7 +131,8 @@
              * but pushed to the this.nodes array.
              */
             generatePoints: function () {
-                var chart = this.chart, nodeLookup = {};
+                var chart = this.chart,
+                    nodeLookup = {};
                 H.Series.prototype.generatePoints.call(this);
                 if (!this.nodes) {
                     this.nodes = []; // List of Point-like node items
@@ -186,17 +194,19 @@
              * highlight all connected nodes.
              */
             setNodeState: function (state) {
-                var args = arguments, others = this.isNode ? this.linksTo.concat(this.linksFrom) :
-                    [this.fromNode, this.toNode];
+                var args = arguments,
+                    others = this.isNode ? this.linksTo.concat(this.linksFrom) :
+                        [this.fromNode,
+                            this.toNode];
                 if (state !== 'select') {
                     others.forEach(function (linkOrNode) {
-                        if (linkOrNode.series) {
+                        if (linkOrNode && linkOrNode.series) {
                             Point.prototype.setState.apply(linkOrNode, args);
                             if (!linkOrNode.isNode) {
                                 if (linkOrNode.fromNode.graphic) {
                                     Point.prototype.setState.apply(linkOrNode.fromNode, args);
                                 }
-                                if (linkOrNode.toNode.graphic) {
+                                if (linkOrNode.toNode && linkOrNode.toNode.graphic) {
                                     Point.prototype.setState.apply(linkOrNode.toNode, args);
                                 }
                             }
@@ -208,13 +218,14 @@
             /* eslint-enable valid-jsdoc */
         };
 
+        return NodesMixin;
     });
-    _registerModule(_modules, 'modules/networkgraph/integrations.js', [_modules['parts/Globals.js']], function (H) {
+    _registerModule(_modules, 'Series/Networkgraph/Integrations.js', [_modules['Core/Globals.js']], function (H) {
         /* *
          *
          *  Networkgraph series
          *
-         *  (c) 2010-2019 Paweł Fus
+         *  (c) 2010-2020 Paweł Fus
          *
          *  License: www.highcharts.com/license
          *
@@ -261,7 +272,8 @@
                  * @return {void}
                  */
                 barycenter: function () {
-                    var gravitationalConstant = this.options.gravitationalConstant, xFactor = this.barycenter.xFactor,
+                    var gravitationalConstant = this.options.gravitationalConstant,
+                        xFactor = this.barycenter.xFactor,
                         yFactor = this.barycenter.yFactor;
                     // To consider:
                     xFactor = (xFactor - (this.box.left + this.box.width) / 2) *
@@ -315,7 +327,8 @@
                  * @return {void}
                  */
                 attractive: function (link, force, distanceXY) {
-                    var massFactor = link.getMass(), translatedX = -distanceXY.x * force * this.diffTemperature,
+                    var massFactor = link.getMass(),
+                        translatedX = -distanceXY.x * force * this.diffTemperature,
                         translatedY = -distanceXY.y * force * this.diffTemperature;
                     if (!link.fromNode.fixedPosition) {
                         link.fromNode.plotX -=
@@ -363,12 +376,17 @@
                  * @return {void}
                  */
                 integrate: function (layout, node) {
-                    var friction = -layout.options.friction, maxSpeed = layout.options.maxSpeed, prevX = node.prevX,
+                    var friction = -layout.options.friction,
+                        maxSpeed = layout.options.maxSpeed,
+                        prevX = node.prevX,
                         prevY = node.prevY,
                         // Apply friciton:
                         diffX = ((node.plotX + node.dispX -
-                            prevX) * friction), diffY = ((node.plotY + node.dispY -
-                        prevY) * friction), abs = Math.abs, signX = abs(diffX) / (diffX || 1), // need to deal with 0
+                            prevX) * friction),
+                        diffY = ((node.plotY + node.dispY -
+                            prevY) * friction),
+                        abs = Math.abs,
+                        signX = abs(diffX) / (diffX || 1), // need to deal with 0
                         signY = abs(diffY) / (diffY || 1);
                     // Apply max speed:
                     diffX = signX * Math.min(maxSpeed, Math.abs(diffX));
@@ -448,11 +466,13 @@
                  * @return {void}
                  */
                 barycenter: function () {
-                    var gravitationalConstant = this.options.gravitationalConstant, xFactor = this.barycenter.xFactor,
+                    var gravitationalConstant = this.options.gravitationalConstant,
+                        xFactor = this.barycenter.xFactor,
                         yFactor = this.barycenter.yFactor;
                     this.nodes.forEach(function (node) {
                         if (!node.fixedPosition) {
-                            var degree = node.getDegree(), phi = degree * (1 + degree / 2);
+                            var degree = node.getDegree(),
+                                phi = degree * (1 + degree / 2);
                             node.dispX += ((xFactor - node.plotX) *
                                 gravitationalConstant *
                                 phi / node.degree);
@@ -497,7 +517,8 @@
                  * @return {void}
                  */
                 attractive: function (link, force, distanceXY, distanceR) {
-                    var massFactor = link.getMass(), translatedX = (distanceXY.x / distanceR) * force,
+                    var massFactor = link.getMass(),
+                        translatedX = (distanceXY.x / distanceR) * force,
                         translatedY = (distanceXY.y / distanceR) * force;
                     if (!link.fromNode.fixedPosition) {
                         link.fromNode.dispX -=
@@ -577,12 +598,12 @@
         };
 
     });
-    _registerModule(_modules, 'modules/networkgraph/QuadTree.js', [_modules['parts/Globals.js'], _modules['parts/Utilities.js']], function (H, U) {
+    _registerModule(_modules, 'Series/Networkgraph/QuadTree.js', [_modules['Core/Globals.js'], _modules['Core/Utilities.js']], function (H, U) {
         /* *
          *
          *  Networkgraph series
          *
-         *  (c) 2010-2019 Paweł Fus
+         *  (c) 2010-2020 Paweł Fus
          *
          *  License: www.highcharts.com/license
          *
@@ -715,7 +736,9 @@
                  * position is used to imitate real node in the layout by approximation.
                  */
                 updateMassAndCenter: function () {
-                    var mass = 0, plotX = 0, plotY = 0;
+                    var mass = 0,
+                        plotX = 0,
+                        plotY = 0;
                     if (this.isInternal) {
                         // Calcualte weightened mass of the quad node:
                         this.nodes.forEach(function (pointMass) {
@@ -758,7 +781,8 @@
                  * ```
                  */
                 divideBox: function () {
-                    var halfWidth = this.box.width / 2, halfHeight = this.box.height / 2;
+                    var halfWidth = this.box.width / 2,
+                        halfHeight = this.box.height / 2;
                     // Top left
                     this.nodes[0] = new QuadTreeNode({
                         left: this.box.left,
@@ -797,7 +821,8 @@
                  */
                 getBoxPosition: function (point) {
                     var left = point.plotX < this.box.left + this.box.width / 2,
-                        top = point.plotY < this.box.top + this.box.height / 2, index;
+                        top = point.plotY < this.box.top + this.box.height / 2,
+                        index;
                     if (left) {
                         if (top) {
                             // Top left
@@ -831,7 +856,10 @@
          * @param {number} width width of the plotting area
          * @param {number} height height of the plotting area
          */
-        var QuadTree = H.QuadTree = function (x, y, width, height) {
+        var QuadTree = H.QuadTree = function (x,
+                                              y,
+                                              width,
+                                              height) {
             // Boundary rectangle:
             this.box = {
                 left: x,
@@ -924,20 +952,25 @@
             });
 
     });
-    _registerModule(_modules, 'modules/networkgraph/layouts.js', [_modules['parts/Globals.js'], _modules['parts/Utilities.js']], function (H, U) {
+    _registerModule(_modules, 'Series/Networkgraph/Layouts.js', [_modules['Core/Chart/Chart.js'], _modules['Core/Globals.js'], _modules['Core/Utilities.js']], function (Chart, H, U) {
         /* *
          *
          *  Networkgraph series
          *
-         *  (c) 2010-2019 Paweł Fus
+         *  (c) 2010-2020 Paweł Fus
          *
          *  License: www.highcharts.com/license
          *
          *  !!!!!!! SOURCE GETS TRANSPILED BY TYPESCRIPT. EDIT TS FILE ONLY. !!!!!!!
          *
          * */
-        var clamp = U.clamp, defined = U.defined, extend = U.extend, pick = U.pick, setAnimation = U.setAnimation;
-        var addEvent = H.addEvent, Chart = H.Chart;
+        var addEvent = U.addEvent,
+            clamp = U.clamp,
+            defined = U.defined,
+            extend = U.extend,
+            isFunction = U.isFunction,
+            pick = U.pick,
+            setAnimation = U.setAnimation;
         /* eslint-disable no-invalid-this, valid-jsdoc */
         H.layouts = {
             'reingold-fruchterman': function () {
@@ -964,29 +997,39 @@
                     this.setInitialRendering(true);
                     this.integration =
                         H.networkgraphIntegrations[options.integration];
+                    this.enableSimulation = options.enableSimulation;
                     this.attractiveForce = pick(options.attractiveForce, this.integration.attractiveForceFunction);
                     this.repulsiveForce = pick(options.repulsiveForce, this.integration.repulsiveForceFunction);
                     this.approximation = options.approximation;
                 },
+                updateSimulation: function (enable) {
+                    this.enableSimulation = pick(enable, this.options.enableSimulation);
+                },
                 start: function () {
-                    var layout = this, series = this.series, options = this.options;
+                    var layout = this,
+                        series = this.series,
+                        options = this.options;
                     layout.currentStep = 0;
                     layout.forces = series[0] && series[0].forces || [];
+                    layout.chart = series[0] && series[0].chart;
                     if (layout.initialRendering) {
                         layout.initPositions();
                         // Render elements in initial positions:
                         series.forEach(function (s) {
+                            s.finishedAnimating = true; // #13169
                             s.render();
                         });
                     }
                     layout.setK();
                     layout.resetSimulation(options);
-                    if (options.enableSimulation) {
+                    if (layout.enableSimulation) {
                         layout.step();
                     }
                 },
                 step: function () {
-                    var layout = this, series = this.series, options = this.options;
+                    var layout = this,
+                        series = this.series,
+                        options = this.options;
                     // Algorithm:
                     layout.currentStep++;
                     if (layout.approximation === 'barnes-hut') {
@@ -1002,7 +1045,7 @@
                     layout.temperature = layout.coolDown(layout.startTemperature, layout.diffTemperature, layout.currentStep);
                     layout.prevSystemTemperature = layout.systemTemperature;
                     layout.systemTemperature = layout.getSystemTemperature();
-                    if (options.enableSimulation) {
+                    if (layout.enableSimulation) {
                         series.forEach(function (s) {
                             // Chart could be destroyed during the simulation
                             if (s.chart) {
@@ -1067,6 +1110,28 @@
                     this.setTemperature();
                     this.setDiffTemperature();
                 },
+                restartSimulation: function () {
+                    if (!this.simulation) {
+                        // When dragging nodes, we don't need to calculate
+                        // initial positions and rendering nodes:
+                        this.setInitialRendering(false);
+                        // Start new simulation:
+                        if (!this.enableSimulation) {
+                            // Run only one iteration to speed things up:
+                            this.setMaxIterations(1);
+                        } else {
+                            this.start();
+                        }
+                        if (this.chart) {
+                            this.chart.redraw();
+                        }
+                        // Restore defaults:
+                        this.setInitialRendering(true);
+                    } else {
+                        // Extend current simulation:
+                        this.resetSimulation();
+                    }
+                },
                 setMaxIterations: function (maxIterations) {
                     this.maxIterations = pick(maxIterations, this.options.maxIterations);
                 },
@@ -1087,7 +1152,7 @@
                 },
                 initPositions: function () {
                     var initialPositions = this.options.initialPositions;
-                    if (H.isFunction(initialPositions)) {
+                    if (isFunction(initialPositions)) {
                         initialPositions.call(this);
                         this.nodes.forEach(function (node) {
                             if (!defined(node.prevX)) {
@@ -1106,8 +1171,11 @@
                     }
                 },
                 setCircularPositions: function () {
-                    var box = this.box, nodes = this.nodes, nodesLength = nodes.length + 1,
-                        angle = 2 * Math.PI / nodesLength, rootNodes = nodes.filter(function (node) {
+                    var box = this.box,
+                        nodes = this.nodes,
+                        nodesLength = nodes.length + 1,
+                        angle = 2 * Math.PI / nodesLength,
+                        rootNodes = nodes.filter(function (node) {
                             return node.linksTo.length === 0;
                         }), sortedNodes = [], visitedNodes = {}, radius = this.options.initialPositionRadius;
 
@@ -1152,7 +1220,9 @@
                     });
                 },
                 setRandomPositions: function () {
-                    var box = this.box, nodes = this.nodes, nodesLength = nodes.length + 1;
+                    var box = this.box,
+                        nodes = this.nodes,
+                        nodesLength = nodes.length + 1;
 
                     /**
                      * Return a repeatable, quasi-random number based on an integer
@@ -1181,7 +1251,9 @@
                     this.force('barycenter');
                 },
                 getBarycenter: function () {
-                    var systemMass = 0, cx = 0, cy = 0;
+                    var systemMass = 0,
+                        cx = 0,
+                        cy = 0;
                     this.nodes.forEach(function (node) {
                         cx += node.plotX * node.mass;
                         cy += node.plotY * node.mass;
@@ -1196,8 +1268,12 @@
                     return this.barycenter;
                 },
                 barnesHutApproximation: function (node, quadNode) {
-                    var layout = this, distanceXY = layout.getDistXY(node, quadNode),
-                        distanceR = layout.vectorLength(distanceXY), goDeeper, force;
+                    var layout = this,
+                        distanceXY = layout.getDistXY(node,
+                            quadNode),
+                        distanceR = layout.vectorLength(distanceXY),
+                        goDeeper,
+                        force;
                     if (node !== quadNode && distanceR !== 0) {
                         if (quadNode.isInternal) {
                             // Internal node:
@@ -1231,7 +1307,9 @@
                     } else {
                         layout.nodes.forEach(function (node) {
                             layout.nodes.forEach(function (repNode) {
-                                var force, distanceR, distanceXY;
+                                var force,
+                                    distanceR,
+                                    distanceXY;
                                 if (
                                     // Node can not repulse itself:
                                     node !== repNode &&
@@ -1251,7 +1329,10 @@
                     }
                 },
                 attractiveForces: function () {
-                    var layout = this, distanceXY, distanceR, force;
+                    var layout = this,
+                        distanceXY,
+                        distanceR,
+                        force;
                     layout.links.forEach(function (link) {
                         if (link.fromNode && link.toNode) {
                             distanceXY = layout.getDistXY(link.fromNode, link.toNode);
@@ -1264,7 +1345,8 @@
                     });
                 },
                 applyLimits: function () {
-                    var layout = this, nodes = layout.nodes;
+                    var layout = this,
+                        nodes = layout.nodes;
                     nodes.forEach(function (node) {
                         if (node.fixedPosition) {
                             return;
@@ -1355,11 +1437,13 @@
                     return Math.sqrt(vector.x * vector.x + vector.y * vector.y);
                 },
                 getDistR: function (nodeA, nodeB) {
-                    var distance = this.getDistXY(nodeA, nodeB);
+                    var distance = this.getDistXY(nodeA,
+                        nodeB);
                     return this.vectorLength(distance);
                 },
                 getDistXY: function (nodeA, nodeB) {
-                    var xDist = nodeA.plotX - nodeB.plotX, yDist = nodeA.plotY - nodeB.plotY;
+                    var xDist = nodeA.plotX - nodeB.plotX,
+                        yDist = nodeA.plotY - nodeB.plotY;
                     return {
                         x: xDist,
                         y: yDist,
@@ -1380,7 +1464,8 @@
             }
         });
         addEvent(Chart, 'render', function () {
-            var systemsStable, afterRender = false;
+            var systemsStable,
+                afterRender = false;
 
             /**
              * @private
@@ -1389,7 +1474,7 @@
                 if (layout.maxIterations-- &&
                     isFinite(layout.temperature) &&
                     !layout.isStable() &&
-                    !layout.options.enableSimulation) {
+                    !layout.enableSimulation) {
                     // Hook similar to build-in addEvent, but instead of
                     // creating whole events logic, use just a function.
                     // It's faster which is important for rAF code.
@@ -1403,7 +1488,6 @@
                     afterRender = true;
                 }
             }
-
             if (this.graphLayoutsLookup) {
                 setAnimation(false, this);
                 // Start simulation
@@ -1425,21 +1509,40 @@
                 }
             }
         });
+        // disable simulation before print if enabled
+        addEvent(Chart, 'beforePrint', function () {
+            if (this.graphLayoutsLookup) {
+                this.graphLayoutsLookup.forEach(function (layout) {
+                    layout.updateSimulation(false);
+                });
+                this.redraw();
+            }
+        });
+        // re-enable simulation after print
+        addEvent(Chart, 'afterPrint', function () {
+            if (this.graphLayoutsLookup) {
+                this.graphLayoutsLookup.forEach(function (layout) {
+                    // return to default simulation
+                    layout.updateSimulation();
+                });
+            }
+            this.redraw();
+        });
 
     });
-    _registerModule(_modules, 'modules/networkgraph/draggable-nodes.js', [_modules['parts/Globals.js']], function (H) {
+    _registerModule(_modules, 'Series/Networkgraph/DraggableNodes.js', [_modules['Core/Chart/Chart.js'], _modules['Core/Globals.js'], _modules['Core/Utilities.js']], function (Chart, H, U) {
         /* *
          *
          *  Networkgraph series
          *
-         *  (c) 2010-2019 Paweł Fus
+         *  (c) 2010-2020 Paweł Fus
          *
          *  License: www.highcharts.com/license
          *
          *  !!!!!!! SOURCE GETS TRANSPILED BY TYPESCRIPT. EDIT TS FILE ONLY. !!!!!!!
          *
          * */
-        var Chart = H.Chart, addEvent = H.addEvent;
+        var addEvent = U.addEvent;
         /* eslint-disable no-invalid-this, valid-jsdoc */
         H.dragNodesMixin = {
             /**
@@ -1472,9 +1575,14 @@
              */
             onMouseMove: function (point, event) {
                 if (point.fixedPosition && point.inDragMode) {
-                    var series = this, chart = series.chart, normalizedEvent = chart.pointer.normalize(event),
+                    var series = this,
+                        chart = series.chart,
+                        normalizedEvent = chart.pointer.normalize(event),
                         diffX = point.fixedPosition.chartX - normalizedEvent.chartX,
-                        diffY = point.fixedPosition.chartY - normalizedEvent.chartY, newPlotX, newPlotY;
+                        diffY = point.fixedPosition.chartY - normalizedEvent.chartY,
+                        newPlotX,
+                        newPlotY,
+                        graphLayoutsLookup = chart.graphLayoutsLookup;
                     // At least 5px to apply change (avoids simple click):
                     if (Math.abs(diffX) > 5 || Math.abs(diffY) > 5) {
                         newPlotX = point.fixedPosition.plotX - diffX;
@@ -1484,24 +1592,9 @@
                             point.plotY = newPlotY;
                             point.hasDragged = true;
                             this.redrawHalo(point);
-                            if (!series.layout.simulation) {
-                                // When dragging nodes, we don't need to calculate
-                                // initial positions and rendering nodes:
-                                series.layout.setInitialRendering(false);
-                                // Start new simulation:
-                                if (!series.layout.enableSimulation) {
-                                    // Run only one iteration to speed things up:
-                                    series.layout.setMaxIterations(1);
-                                } else {
-                                    series.layout.start();
-                                }
-                                series.chart.redraw();
-                                // Restore defaults:
-                                series.layout.setInitialRendering(true);
-                            } else {
-                                // Extend current simulation:
-                                series.layout.resetSimulation();
-                            }
+                            graphLayoutsLookup.forEach(function (layout) {
+                                layout.restartSimulation();
+                            });
                         }
                     }
                 }
@@ -1546,7 +1639,10 @@
          * Draggable mode:
          */
         addEvent(Chart, 'load', function () {
-            var chart = this, mousedownUnbinder, mousemoveUnbinder, mouseupUnbinder;
+            var chart = this,
+                mousedownUnbinder,
+                mousemoveUnbinder,
+                mouseupUnbinder;
             if (chart.container) {
                 mousedownUnbinder = addEvent(chart.container, 'mousedown', function (event) {
                     var point = chart.hoverPoint;
@@ -1576,24 +1672,29 @@
         });
 
     });
-    _registerModule(_modules, 'modules/networkgraph/networkgraph.src.js', [_modules['parts/Globals.js'], _modules['parts/Utilities.js']], function (H, U) {
+    _registerModule(_modules, 'Series/Networkgraph/Networkgraph.js', [_modules['Core/Globals.js'], _modules['Mixins/Nodes.js'], _modules['Core/Series/Point.js'], _modules['Core/Utilities.js']], function (H, NodesMixin, Point, U) {
         /* *
          *
          *  Networkgraph series
          *
-         *  (c) 2010-2019 Paweł Fus
+         *  (c) 2010-2020 Paweł Fus
          *
          *  License: www.highcharts.com/license
          *
          *  !!!!!!! SOURCE GETS TRANSPILED BY TYPESCRIPT. EDIT TS FILE ONLY. !!!!!!!
          *
          * */
+        var addEvent = U.addEvent,
+            css = U.css,
+            defined = U.defined,
+            pick = U.pick,
+            seriesType = U.seriesType;
         /**
          * Formatter callback function.
          *
          * @callback Highcharts.SeriesNetworkgraphDataLabelsFormatterCallbackFunction
          *
-         * @param {Highcharts.SeriesNetworkgraphDataLabelsFormatterContextObject|Highcharts.DataLabelsFormatterContextObject} this
+         * @param {Highcharts.SeriesNetworkgraphDataLabelsFormatterContextObject|Highcharts.PointLabelObject} this
          *        Data label context to format
          *
          * @return {string}
@@ -1603,7 +1704,7 @@
          * Context for the formatter function.
          *
          * @interface Highcharts.SeriesNetworkgraphDataLabelsFormatterContextObject
-         * @extends Highcharts.DataLabelsFormatterContextObject
+         * @extends Highcharts.PointLabelObject
          * @since 7.0.0
          */ /**
          * The color of the node.
@@ -1624,9 +1725,10 @@
          * @type {string}
          * @since 7.0.0
          */
-        var defined = U.defined, pick = U.pick;
-        var addEvent = H.addEvent, seriesType = H.seriesType, seriesTypes = H.seriesTypes, Point = H.Point,
-            Series = H.Series, dragNodesMixin = H.dragNodesMixin;
+        ''; // detach doclets above
+        var seriesTypes = H.seriesTypes,
+            Series = H.Series,
+            dragNodesMixin = H.dragNodesMixin;
         /**
          * @private
          * @class
@@ -1645,11 +1747,12 @@
              *               Networkgraph
              * @since        7.0.0
              * @excluding    boostThreshold, animation, animationLimit, connectEnds,
-             *               colorAxis, colorKey, connectNulls, dragDrop,
+             *               colorAxis, colorKey, connectNulls, cropThreshold, dragDrop,
              *               getExtremesFromAll, label, linecap, negativeColor,
              *               pointInterval, pointIntervalUnit, pointPlacement,
              *               pointStart, softThreshold, stack, stacking, step,
-             *               threshold, xAxis, yAxis, zoneAxis
+             *               threshold, xAxis, yAxis, zoneAxis, dataSorting,
+             *               boostBlending
              * @requires     modules/networkgraph
              * @optionparent plotOptions.networkgraph
              */
@@ -1677,7 +1780,7 @@
                             /**
                              * Animation when not hovering over the node.
                              *
-                             * @type {boolean|Highcharts.AnimationOptionsObject}
+                             * @type {boolean|Partial<Highcharts.AnimationOptionsObject>}
                              */
                             animation: {
                                 /** @internal */
@@ -1701,7 +1804,7 @@
                         /**
                          * Animation when not hovering over the node.
                          *
-                         * @type {boolean|Highcharts.AnimationOptionsObject}
+                         * @type {boolean|Partial<Highcharts.AnimationOptionsObject>}
                          */
                         animation: {
                             /** @internal */
@@ -1787,6 +1890,9 @@
                     },
                     textPath: {
                         enabled: false
+                    },
+                    style: {
+                        transition: 'opacity 2000ms'
                     }
                 },
                 /**
@@ -2022,10 +2128,12 @@
                  * links.
                  * @private
                  */
-                createNode: H.NodesMixin.createNode,
+                createNode: NodesMixin.createNode,
                 destroy: function () {
-                    this.layout.removeElementFromCollection(this, this.layout.series);
-                    H.NodesMixin.destroy.call(this);
+                    if (this.layout) {
+                        this.layout.removeElementFromCollection(this, this.layout.series);
+                    }
+                    NodesMixin.destroy.call(this);
                 },
                 /* eslint-disable no-invalid-this, valid-jsdoc */
                 /**
@@ -2048,8 +2156,9 @@
                  * @private
                  */
                 generatePoints: function () {
-                    var node, i;
-                    H.NodesMixin.generatePoints.apply(this, arguments);
+                    var node,
+                        i;
+                    NodesMixin.generatePoints.apply(this, arguments);
                     // In networkgraph, it's fine to define stanalone nodes, create
                     // them:
                     if (this.options.nodes) {
@@ -2076,6 +2185,14 @@
                     this.indexateNodes();
                 },
                 /**
+                 * In networkgraph, series.points refers to links,
+                 * but series.nodes refers to actual points.
+                 * @private
+                 */
+                getPointsCollection: function () {
+                    return this.nodes || [];
+                },
+                /**
                  * Set index for each node. Required for proper `node.update()`.
                  * Note that links are indexated out of the box in `generatePoints()`.
                  *
@@ -2093,7 +2210,9 @@
                  * @private
                  */
                 markerAttribs: function (point, state) {
-                    var attribs = Series.prototype.markerAttribs.call(this, point, state);
+                    var attribs = Series.prototype.markerAttribs.call(this,
+                        point,
+                        state);
                     // series.render() is called before initial positions are set:
                     if (!defined(point.plotY)) {
                         attribs.y = 0;
@@ -2135,7 +2254,8 @@
                 deferLayout: function () {
                     var layoutOptions = this.options.layoutAlgorithm,
                         graphLayoutsStorage = this.chart.graphLayoutsStorage,
-                        graphLayoutsLookup = this.chart.graphLayoutsLookup, chartOptions = this.chart.options.chart,
+                        graphLayoutsLookup = this.chart.graphLayoutsLookup,
+                        chartOptions = this.chart.options.chart,
                         layout;
                     if (!this.visible) {
                         return;
@@ -2167,28 +2287,31 @@
                  * @private
                  */
                 render: function () {
-                    var points = this.points, hoverPoint = this.chart.hoverPoint, dataLabels = [];
+                    var series = this,
+                        points = series.points,
+                        hoverPoint = series.chart.hoverPoint,
+                        dataLabels = [];
                     // Render markers:
-                    this.points = this.nodes;
+                    series.points = series.nodes;
                     seriesTypes.line.prototype.render.call(this);
-                    this.points = points;
+                    series.points = points;
                     points.forEach(function (point) {
                         if (point.fromNode && point.toNode) {
                             point.renderLink();
                             point.redrawLink();
                         }
                     });
-                    if (hoverPoint && hoverPoint.series === this) {
-                        this.redrawHalo(hoverPoint);
+                    if (hoverPoint && hoverPoint.series === series) {
+                        series.redrawHalo(hoverPoint);
                     }
-                    if (this.chart.hasRendered &&
-                        !this.options.dataLabels.allowOverlap) {
-                        this.nodes.concat(this.points).forEach(function (node) {
+                    if (series.chart.hasRendered &&
+                        !series.options.dataLabels.allowOverlap) {
+                        series.nodes.concat(series.points).forEach(function (node) {
                             if (node.dataLabel) {
                                 dataLabels.push(node.dataLabel);
                             }
                         });
-                        this.chart.hideOverlappingLabels(dataLabels);
+                        series.chart.hideOverlappingLabels(dataLabels);
                     }
                 },
                 // Networkgraph has two separate collecions of nodes and lines, render
@@ -2209,10 +2332,12 @@
                 // Return the presentational attributes.
                 pointAttribs: function (point, state) {
                     // By default, only `selected` state is passed on
-                    var pointState = state || point.state || 'normal',
-                        attribs = Series.prototype.pointAttribs.call(this, point, pointState),
+                    var pointState = state || point && point.state || 'normal',
+                        attribs = Series.prototype.pointAttribs.call(this,
+                            point,
+                            pointState),
                         stateOptions = this.options.states[pointState];
-                    if (!point.isNode) {
+                    if (point && !point.isNode) {
                         attribs = point.getLinkAttributes();
                         // For link, get prefixed names:
                         if (stateOptions) {
@@ -2274,7 +2399,7 @@
                     }
                 }
             }, {
-                setState: H.NodesMixin.setNodeState,
+                setState: NodesMixin.setNodeState,
                 /**
                  * Basic `point.init()` and additional styles applied when
                  * `series.draggable` is enabled.
@@ -2285,10 +2410,10 @@
                     if (this.series.options.draggable &&
                         !this.series.chart.styledMode) {
                         addEvent(this, 'mouseOver', function () {
-                            H.css(this.series.chart.container, {cursor: 'move'});
+                            css(this.series.chart.container, {cursor: 'move'});
                         });
                         addEvent(this, 'mouseOut', function () {
-                            H.css(this.series.chart.container, {cursor: 'default'});
+                            css(this.series.chart.container, {cursor: 'default'});
                         });
                     }
                     return this;
@@ -2312,7 +2437,8 @@
                  * @return {Highcharts.SVGAttributes}
                  */
                 getLinkAttributes: function () {
-                    var linkOptions = this.series.options.link, pointOptions = this.options;
+                    var linkOptions = this.series.options.link,
+                        pointOptions = this.options;
                     return {
                         'stroke-width': pick(pointOptions.width, linkOptions.width),
                         stroke: (pointOptions.color || linkOptions.color),
@@ -2348,7 +2474,8 @@
                  * @private
                  */
                 redrawLink: function () {
-                    var path = this.getLinkPath(), attribs;
+                    var path = this.getLinkPath(),
+                        attribs;
                     if (this.graphic) {
                         this.shapeArgs = {
                             d: path
@@ -2365,9 +2492,13 @@
                             });
                         }
                         this.graphic.animate(this.shapeArgs);
-                        // Required for dataLabels:
-                        this.plotX = (path[1] + path[4]) / 2;
-                        this.plotY = (path[2] + path[5]) / 2;
+                        // Required for dataLabels
+                        var start = path[0];
+                        var end = path[1];
+                        if (start[0] === 'M' && end[0] === 'L') {
+                            this.plotX = (start[1] + end[1]) / 2;
+                            this.plotY = (start[2] + end[2]) / 2;
+                        }
                     }
                 },
                 /**
@@ -2379,7 +2510,9 @@
                  *         For example `{ fromNode: 0.5, toNode: 0.5 }`
                  */
                 getMass: function () {
-                    var m1 = this.fromNode.mass, m2 = this.toNode.mass, sum = m1 + m2;
+                    var m1 = this.fromNode.mass,
+                        m2 = this.toNode.mass,
+                        sum = m1 + m2;
                     return {
                         fromNode: 1 - m1 / sum,
                         toNode: 1 - m2 / sum
@@ -2392,7 +2525,8 @@
                  *         Path: `['M', x, y, 'L', x, y]`
                  */
                 getLinkPath: function () {
-                    var left = this.fromNode, right = this.toNode;
+                    var left = this.fromNode,
+                        right = this.toNode;
                     // Start always from left to the right node, to prevent rendering
                     // labels upside down
                     if (left.plotX > right.plotX) {
@@ -2400,12 +2534,8 @@
                         right = this.fromNode;
                     }
                     return [
-                        'M',
-                        left.plotX,
-                        left.plotY,
-                        'L',
-                        right.plotX,
-                        right.plotY
+                        ['M', left.plotX || 0, left.plotY || 0],
+                        ['L', right.plotX || 0, right.plotY || 0]
                     ];
                     /*
                     IDEA: different link shapes?
@@ -2433,13 +2563,16 @@
                  *        doing more operations on the chart, for example running
                  *        `point.remove()` in a loop, it is best practice to set
                  *        `redraw` to false and call `chart.redraw()` after.
-                 * @param {boolean|Highcharts.AnimationOptionsObject} [animation=false]
+                 * @param {boolean|Partial<Highcharts.AnimationOptionsObject>} [animation=false]
                  *        Whether to apply animation, and optionally animation
                  *        configuration.
                  * @return {void}
                  */
                 remove: function (redraw, animation) {
-                    var point = this, series = point.series, nodesOptions = series.options.nodes || [], index,
+                    var point = this,
+                        series = point.series,
+                        nodesOptions = series.options.nodes || [],
+                        index,
                         i = nodesOptions.length;
                     // For nodes, remove all connected links:
                     if (point.isNode) {
@@ -2515,10 +2648,11 @@
          *
          * @extends   series,plotOptions.networkgraph
          * @excluding boostThreshold, animation, animationLimit, connectEnds,
-         *            connectNulls, dragDrop, getExtremesFromAll, label, linecap,
-         *            negativeColor, pointInterval, pointIntervalUnit,
+         *            connectNulls, cropThreshold, dragDrop, getExtremesFromAll, label,
+         *            linecap, negativeColor, pointInterval, pointIntervalUnit,
          *            pointPlacement, pointStart, softThreshold, stack, stacking,
-         *            step, threshold, xAxis, yAxis, zoneAxis
+         *            step, threshold, xAxis, yAxis, zoneAxis, dataSorting,
+         *            boostBlending
          * @product   highcharts
          * @requires  modules/networkgraph
          * @apioption series.networkgraph

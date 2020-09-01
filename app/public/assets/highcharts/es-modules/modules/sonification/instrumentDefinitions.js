@@ -1,6 +1,6 @@
 /* *
  *
- *  (c) 2009-2019 Øystein Moseng
+ *  (c) 2009-2020 Øystein Moseng
  *
  *  Instrument definitions for sonification module.
  *
@@ -12,7 +12,6 @@
 'use strict';
 import Instrument from './Instrument.js';
 import utilities from './utilities.js';
-
 var instruments = {};
 ['sine', 'square', 'triangle', 'sawtooth'].forEach(function (waveform) {
     // Add basic instruments

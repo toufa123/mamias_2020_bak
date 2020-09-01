@@ -259,4 +259,4 @@ var collision = {
     rotate2DToOrigin: rotate2DToOrigin,
     rotate2DToPoint: rotate2DToPoint
 };
-export default collision;
+export default collision
