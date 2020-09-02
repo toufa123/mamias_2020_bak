@@ -1,0 +1,110 @@
+Template-Baseline-NIS-country-sparac-jrc-fv.xlsx
+Species / Author
+Kingdom
+Phylum
+Class
+Order
+Family
+Taxonomic reference in WoRMS
+AphiaID
+Date (of first observation in country)
+Source
+Pathway
+Certainty level of pathway
+Status of the species
+establishment success of the species
+Latitude (N)
+Longitude (E) 
+scientific name of the species with thename of the author (in brackets)
+
+
+
+
+
+Please check species and taxonomy through WoRMS at http://www.marinespecies.org/aphia.php?p=search
+
+Please insert Aphia ID 
+
+year of the first observation in the country
+Database (MAMIAS, EASIN, etc) or
+Publication (reference, doi)
+Pathways categorization is aligned to the one proposed by the Convention of the Biological Diversity (CBD, 2014) .Five pathways are associated with human activity either as commodities (release and escape), contaminants of commodities, stowaways on modes of transport and opportunists exploiting corridors resulting from transport infrastructures. The sixth category highlights alien species that may arrive unaided in a region as a result of natural spread (rather than human transport) following a primary human-mediated introduction in a neighbouring region
+See Guidance for interpretation of CBD
+categories on introduction pathways at the following link:  https://circabc.europa.eu/sd/a/738e82a8-f0a6-47c6-8f3b-aeddb535b83b/TSSR-2016-010%20CBD%20categories%20on%20pathways%20Final.pdf 
+Certainty is given following the criteria identified in Tsiamis et al. 2018, (2018): https://doi.org/10.3391/ai.2018.13.2.01
+
+High: there is direct evidence of a pathway; 
+
+Medium: a likely pathway can be inferred; the NIS appears for the first time in a locality where a pathway is known to operate. This applies to many species introduced e.g. by shipping ballast (Transport – Stowaway: ship/boat ballast water) or as aquaculture contaminants (Transport – Contaminant: contaminant on animals – except parasites, species transported by host/vector).
+
+Low: NIS cannot be convincingly ascribed to a single pathway; usually, two or more possible pathways can be inferred. 
+
+NIS: Species non-native to the ecosystem (introduced outside its natural  distribution range); 
+
+Cryptogenic: Species with no definite evidence of their native or introduced status according to CARLTON (1996); 
+
+Debatable: species with an unresolved
+taxonomic status.
+
+
+
+Established: a species with at least a selfmaintaining population currently known to occur in the wild.
+
+Casual: a species whose only
+a single or few specimens have been recorded
+
+Invasive: an established species
+that is spreading rapidly, with documented impacts on the ecosystem and its services
+
+Questionable: species
+whose presence in the country is questionable and needs to be confirmed (re-examination of material if available).
+
+Unknown: mainly for old records whose recent population status is not reported/published as well
+as for newly reported species.
+Latitude of the sighting in decimals (WGS 84)
+
+N.B: If
+the reported location is not geo-referenced, a
+conversion of cited place names to a
+spatial format must be performed with the best possible
+accuracy. 
+Longitude of the sighting in decimals (WGS 84)
+
+N.B: If
+the reported location is not geo-referenced, a
+conversion of cited place names to a
+spatial format must be performed with the best possible
+accuracy. 
+Rhopilema nomadica (Galil, 1990)
+Animalia
+Cnidaria
+Scyphozoa
+Rhizostomeae
+Rhizostomatidae
+WoRMS
+232032
+2008
+http://dx.doi.org/10.3391/bir.2013.2.4.10
+Unaided
+High
+alien
+invasive
+34.01515556
+10.05666667
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+3

@@ -49,7 +49,7 @@ doctrine:
             SonataMediaBundle: ~
             #ApplicationSonataPageBundle: ~ # only once the ApplicationSonataPageBundle is generated
             #SonataPageBundle: ~
-            DoctrsSonataImportBundle: ~
+
 
         dql:
             numeric_functions:

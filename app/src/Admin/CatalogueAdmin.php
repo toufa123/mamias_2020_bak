@@ -22,8 +22,6 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use UniqueConstraintViolationException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Doctrs\SonataImportBundle\Admin\AdminImportTrait;
-
 
 /**
  * @Security("is_granted('ROLE_ADMIN')")
@@ -36,16 +34,8 @@ final class CatalogueAdmin extends AbstractAdmin
     {
 
         parent::configureRoutes($collection);
-        $collection->add('Import');
-        //$collection->add('import', 'importcatalogue', [
-        //    '_controller' => 'App\Controller\CatalogueAdminController:importAction'
-        //]);
-        //$collection->add('upload', '{id}/upload', [
-        //    '_controller' => 'DoctrsSonataImportBundle:Default:upload'
-        //]);
-        //$collection->add('importStatus', '{id}/upload/status', [
-        //    '_controller' => 'DoctrsSonataImportBundle:Default:importStatus'
-        //]);
+        $collection->add('importcatalogue');
+
     }
 
     public function getDashboardActions()
@@ -54,7 +44,7 @@ final class CatalogueAdmin extends AbstractAdmin
 
         $actions['import'] = array(
             'label' => 'Import',
-            'url' => $this->generateUrl('import'),
+            'url' => $this->generateUrl('importcatalogue'),
             'icon' => 'upload',
             'template' => 'SonataAdminBundle:CRUD:dashboard__action.html.twig', // optional
         );
@@ -62,7 +52,7 @@ final class CatalogueAdmin extends AbstractAdmin
         return $actions;
     }
 
-    //use AdminImportTrait;
+
     protected $perPageOptions = [10, 20, 50, 100, 'All'];
     protected $maxPerPage = '50';
     protected $datagridValues = [
