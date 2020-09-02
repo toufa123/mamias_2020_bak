@@ -21,7 +21,7 @@ final class CountryDistributionAdmin extends AbstractAdmin
     {
 
         parent::configureRoutes($collection);
-        $collection->add('importNational');
+        $collection->add('importnd');
 
     }
 
@@ -31,7 +31,7 @@ final class CountryDistributionAdmin extends AbstractAdmin
 
         $actions['import'] = array(
             'label' => 'Import',
-            'url' => $this->generateUrl('importNational'),
+            'url' => $this->generateUrl('importnd'),
             'icon' => 'upload',
             'template' => 'SonataAdminBundle:CRUD:dashboard__action.html.twig', // optional
         );

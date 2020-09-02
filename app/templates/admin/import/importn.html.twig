@@ -1,0 +1,31 @@
+{% extends 'standard_layout.html.twig' %}
+
+{% block sonata_admin_content %}
+    <form id="upload" method="post" enctype="multipart/form-data"
+          action="{{ path('admin_app_countrydistribution_importnd') }}">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="form-group m-b-0">
+                    <!--<label class="control-label" for="exampleInputFile">File Upload</label>-->
+                    <input type="hidden" name="token" value="{{ csrf_token('upload') }}"/>
+                    <input type="file" class="filestyle" required data-buttonname="btn-custom"
+                           accept=".xls,.xlsx" id="file" name="nc">
+
+                    <p id="error1" style="display:none; color:#FF0000;">
+                        you should provide an Excel File (xlsx) </p>
+                    <p id="error2" style="display:none; color:#FF0000;">
+                        Maximum File Size Limit is 1MB.
+                    </p>
+
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="submit" value="Submit" id="submit" name="submit"
+                    class="btn btn-custom waves-effect waves-light">
+                Submit
+            </button>
+        </div>
+    </form>
+{% endblock %}
+

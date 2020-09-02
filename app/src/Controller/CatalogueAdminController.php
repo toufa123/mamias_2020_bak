@@ -109,15 +109,15 @@ final class CatalogueAdminController extends CRUDController
                 $request->getSession()
                     ->getFlashBag()
                     ->add('error', 'File is not valid.!');
-                return $this->render('admin/import.html.twig');
+                return $this->render('admin/importc.html.twig');
                 //return $this->redirect($this->generateUrl('importcatalogue'));
 
             }
 
 
         } else {
-            return $this->render('admin/catalogue/import.html.twig');
-            //return $this->renderWithExtraParams('admin/catalogue/import.html.twig');
+            return $this->render('admin/catalogue/importc.html.twig');
+            //return $this->renderWithExtraParams('admin/catalogue/importc.html.twig');
         }
 
     }
