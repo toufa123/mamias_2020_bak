@@ -8,6 +8,7 @@ use Sonata\AdminBundle\Admin\AbstractAdmin;
 use Sonata\AdminBundle\Datagrid\DatagridMapper;
 use Sonata\AdminBundle\Datagrid\ListMapper;
 use Sonata\AdminBundle\Form\FormMapper;
+use Sonata\AdminBundle\Route\RouteCollection;
 use Sonata\AdminBundle\Show\ShowMapper;
 use Sonata\CoreBundle\Form\Type\DatePickerType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -15,6 +16,29 @@ use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 
 final class CountryDistributionAdmin extends AbstractAdmin
 {
+
+    protected function configureRoutes(RouteCollection $collection)
+    {
+
+        parent::configureRoutes($collection);
+        $collection->add('importNational');
+
+    }
+
+    public function getDashboardActions()
+    {
+        $actions = parent::getDashboardActions();
+
+        $actions['import'] = array(
+            'label' => 'Import',
+            'url' => $this->generateUrl('importNational'),
+            'icon' => 'upload',
+            'template' => 'SonataAdminBundle:CRUD:dashboard__action.html.twig', // optional
+        );
+
+        return $actions;
+    }
+
 
     protected function configureDatagridFilters(DatagridMapper $datagridMapper): void
     {
