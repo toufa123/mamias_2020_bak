@@ -30,6 +30,8 @@ final class CatalogueAdminController extends CRUDController
         $session = $request->getSession();
         //$tmp_name = $_FILES['catalogue']['tmp_name'];
         //dump($request);die;
+        $fp = fopen($_SERVER['DOCUMENT_ROOT'] . "/catalogue-import-" . date('d-m-y H:i:s') . ".txt", "wb");
+
         $request->request->set('_sonata_admin', 'admin.template');
         if (isset($_POST["submit"])) {
             $tmp_name = $_FILES['catalogue']['tmp_name'];
@@ -46,7 +48,7 @@ final class CatalogueAdminController extends CRUDController
                 // Get the highest row number and column letter referenced in the worksheet
                 $highestRow = $worksheet->getHighestRow() - 1; // e.g. 10
                 $highestColumn = $worksheet->getHighestColumn();
-
+                fwrite($fp, $_FILES['catalogue']['name'] . "\n");
 
                 $request->getSession()
                     ->getFlashBag()
@@ -60,44 +62,41 @@ final class CatalogueAdminController extends CRUDController
                 // Get the highest row number and column letter referenced in the worksheet
                 $highestRow = $worksheet->getHighestRow() - 1; // e.g. 10
                 $highestColumn = $worksheet->getHighestColumn();
-                $highestColumn++;
-
-                $fp = fopen($_SERVER['DOCUMENT_ROOT'] . "/catalogue-import-" . date('d-m-y') . ".txt", "wb");
+                //$highestColumn++;
+                //dump($highestColumn);die;
                 fwrite($fp, $_FILES['catalogue']['name'] . "\n");
-                //foreach ($worksheet->getRowIterator() as $row) {
-                //    $cellIterator = $row->getCellIterator();
-                //    $cellIterator->setIterateOnlyExistingCells(TRUE);
-                //    foreach ($cellIterator as $cell) {
-                //        fwrite($fp, $cell->getValue() . "\n");
-                //    }
-
-                //}
+                fwrite($fp, $highestRow . "\n");
                 $em = $this->getDoctrine()->getManager();
-
-                for ($row = 2; $row <= $highestRow; ++$row) {
+                //dump($em);die;
+                $catalogue = new Catalogue();
+                for ($row = 1; $row <= $highestRow; ++$row) {
                     for ($col = 'A'; $col != $highestColumn; ++$col) {
                         $Species_catalogues = $em->getRepository(Catalogue::class)->findBy(array('Species' => $worksheet->getCell($col . $row)
                             ->getValue()));
-                        if ($Species_catalogues != '') {
-                            fwrite($fp, $worksheet->getCell($col . $row)
-                                    ->getValue() . '-Already there' . "\n");
-                        } else {
-                            $Species_catalogues->setSpecies($worksheet->getCell($col . $row)
-                                ->getValue());
-                            $em->persist($Species_catalogues);
-                            $em->flush();
-                            fwrite($fp, $worksheet->getCell($col . $row)
-                                    ->getValue() . '-Addedd' . "\n");
 
+                        foreach ($Species_catalogues as $S) {
+                            if ($S->getID() != '') {
+                                fwrite($fp, $worksheet->getCell($col . $row)
+                                        ->getValue() . '-Exist already' . "\n");
+
+                            } else {
+                                $catalogue->setSpecies($worksheet->getCell($col . $row)
+                                    ->getValue());
+                                $catalogue->setStatus('Pending');
+                                $em->prePersist($catalogue);
+                                $em->flush();
+                                $this->addFlash('success', 'Article Created! Knowledge is power!');
+                                fwrite($fp, $worksheet->getCell($col . $row)
+                                        ->getValue() . '- Already Addedd' . "\n");
+
+                            }
+                            fclose($fp);
                         }
+
                     }
 
                 }
 
-
-                fwrite($fp, strval($highestRow));
-
-                fclose($fp);
 
                 //dump($highestRow,$highestColumn);die;
 
@@ -109,14 +108,14 @@ final class CatalogueAdminController extends CRUDController
                 $request->getSession()
                     ->getFlashBag()
                     ->add('error', 'File is not valid.!');
-                return $this->render('admin/importc.html.twig');
+                return $this->render('admin/import/importc.html.twig');
                 //return $this->redirect($this->generateUrl('importcatalogue'));
 
             }
 
 
         } else {
-            return $this->render('admin/catalogue/importc.html.twig');
+            return $this->render('admin/import/importc.html.twig');
             //return $this->renderWithExtraParams('admin/catalogue/importc.html.twig');
         }
 

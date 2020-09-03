@@ -13,6 +13,7 @@ use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Vich\UploaderBundle\Form\Type\VichImageType;
@@ -46,30 +47,23 @@ class GeoOccurenceType extends AbstractType
             )
             ->add('Location', null, ['label' => 'Coordinates', 'required' => true, 'empty_data' => '',
                 'help' => ' Move marker to get location'])
-            ->add(
-                'imageFile',
-                VichImageType::class,
-                [
-                    'label' => 'Photo',
-                    'required' => true,
-                    'allow_delete' => true,
-                    //'download_label' => 'azerty',
-                    'download_uri' => false,
-                    'image_uri' => false,
-                    'attr' => [
-                        //'type' => 'file',
-                        //'class' => 'filestyle',
-                        //'placeholder' => 'Upload the taken photo',
-                        'data-buttontext' => 'Select a photo',
-                        'data-buttonname' => 'btn-custom',
-                        'data-size' => 'sm',
-                        'data-preview-file-type' => 'text',
-                        'multiple' => '',
-                        'data-allowed-file-extensions' => '["jpeg", "png", "jpg"]',
-
-                    ],
-                ]
-            )
+            ->add('imageFile', VichImageType::class, ['label' => 'Photo',
+                'required' => true,
+                'allow_delete' => true,
+                //'download_label' => 'azerty',
+                'download_uri' => false,
+                'image_uri' => false,
+                'attr' => [
+                    'type' => 'file',
+                    'class' => 'filestyle',
+                    'data-buttontext' => 'Select a photo',
+                    'data-buttonname' => 'btn-custom',
+                    'data-preview-file-type' => 'text',
+                    'multiple' => '',
+                    'data-allowed-file-extensions' => '["jpeg", "png", "jpg"]',
+                    'language' => 'fr',
+                ],
+            ])
             //->add('latitude', null, ['label' => 'Latitude', 'required' => true])
             //->add('longitude', null, ['label' => 'Longitude', 'required' => true,])
             ->add('date_occurence', DateType::class, ['widget' => 'single_text', 'html5' => false,

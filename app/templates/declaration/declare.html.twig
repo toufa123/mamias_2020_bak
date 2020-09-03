@@ -67,7 +67,10 @@
                     <div class="row pt-4">
                         <div class="col-md-12">
                             {{ form_errors(form.imageFile) }}
-                            {{ form_widget(form.imageFile,{'attr':{'class' : 'filestyle', 'type':'file', 'data-buttontext':'Select file'}}) }}
+
+                            <div class="form-group m-b-0">
+                                {{ form_widget(form.imageFile) }}
+                            </div>
 
                         </div>
                     </div>
@@ -198,7 +201,12 @@
             clickInput: true,
             orientation: "bottom"
         });
-
+        $('.custom-file-input').on('change', function (event) {
+            var inputFile = event.currentTarget;
+            $(inputFile).parent()
+                .find('.custom-file-label')
+                .html(inputFile.files[0].name);
+        });
 
     </script>
 {% endblock %}
