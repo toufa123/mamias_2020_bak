@@ -37,10 +37,10 @@ class AfterLoginRedirection implements AuthenticationSuccessHandlerInterface
             $roles
         );
 
-        if (in_array(['ROLE_SUPER_ADMIN', 'ROLE_ADMIN', 'ROLE_S'], $rolesTab, true)) {
+        if (in_array(['ROLE_SUPER_ADMIN', 'ROLE_ADMIN', 'ROLE_SPARAC', 'ROLE_S'], $rolesTab, true)) {
             // c'est un aministrateur : on le rediriger vers l'espace admin
-            $redirection = new RedirectResponse($this->router->generate('sonata_admin_dashboard'));
-        } elseif (in_array('ROLE_FOCALPOINT', $rolesTab, true)) {
+            $redirection = new RedirectResponse($this->router->generate('sonata_admin_redirect'));
+        } elseif (in_array(['ROLE_FOCALPOINT', 'ROLE_NATIONALEXPERT'], $rolesTab, true)) {
             $redirection = new RedirectResponse($this->router->generate('nfp'));
         } else {
             $redirection = new RedirectResponse($this->router->generate('declaration'));

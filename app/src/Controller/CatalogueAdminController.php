@@ -17,35 +17,31 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx as Xlsxwriter;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 
 final class CatalogueAdminController extends CRUDController
 {
     /**
-     * @Route("catalogue/importcatalogue", name="importcatalogue")
+     * @Route("admin/catalogue/importcatalogue", name="importcatalogue")
+     * @Security("is_granted('ROLE_ADMIN')")
      */
 
     public function importcatalogueAction(Request $request)
     {
 
         $session = $request->getSession();
-        //$tmp_name = $_FILES['catalogue']['tmp_name'];
-        //dump($request);die;
-        $fp = fopen($_SERVER['DOCUMENT_ROOT'] . "/catalogue-import-" . date('d-m-y H:i:s') . ".txt", "wb");
-
+        $fp = fopen($_SERVER['DOCUMENT_ROOT'] . "/catalogue-import-" . date('d-m-y-H_i') . ".txt", "wb");
         $request->request->set('_sonata_admin', 'admin.template');
         if (isset($_POST["submit"])) {
             $tmp_name = $_FILES['catalogue']['tmp_name'];
-            //$destination = $this->getParameter('kernel.project_dir') . '/public/resources/catalogue/import/';
-            //$uploadfile = $destination . basename($_FILES['catalogue']['name']);
             $arr_file = explode('.', $_FILES['catalogue']['name']);
             $extension = end($arr_file);
 
             if ('xls' == $extension) {
                 $reader = new XlsReader();
                 $spreadsheet = $reader->load($tmp_name);
-                $sheetData = $spreadsheet->getActiveSheet()->toArray();
+                //$sheetData = $spreadsheet->getActiveSheet()->toArray();
                 $worksheet = $spreadsheet->getActiveSheet();
-                // Get the highest row number and column letter referenced in the worksheet
                 $highestRow = $worksheet->getHighestRow() - 1; // e.g. 10
                 $highestColumn = $worksheet->getHighestColumn();
                 fwrite($fp, $_FILES['catalogue']['name'] . "\n");
@@ -57,52 +53,54 @@ final class CatalogueAdminController extends CRUDController
             } elseif ('xlsx' == $extension) {
                 $reader = new XlsxReader();
                 $spreadsheet = $reader->load($tmp_name);
-                $sheetData = $spreadsheet->getActiveSheet()->toArray();
+                //$sheetData = $spreadsheet->getActiveSheet()->toArray();
                 $worksheet = $spreadsheet->getActiveSheet();
-                // Get the highest row number and column letter referenced in the worksheet
-                $highestRow = $worksheet->getHighestRow() - 1; // e.g. 10
+                $highestRow = $worksheet->getHighestRow(); // e.g. 10
                 $highestColumn = $worksheet->getHighestColumn();
-                //$highestColumn++;
+                $highestColumnIndex = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($highestColumn); // e.g. 5
+                $highestColumn++;
                 //dump($highestColumn);die;
-                fwrite($fp, $_FILES['catalogue']['name'] . "\n");
-                fwrite($fp, $highestRow . "\n");
+                fwrite($fp, "File: " . $_FILES['catalogue']['name'] . "\n");
+                fwrite($fp, "Number of Row : " . $highestRow . "\n");
                 $em = $this->getDoctrine()->getManager();
-                //dump($em);die;
                 $catalogue = new Catalogue();
-                for ($row = 1; $row <= $highestRow; ++$row) {
-                    for ($col = 'A'; $col != $highestColumn; ++$col) {
-                        $Species_catalogues = $em->getRepository(Catalogue::class)->findBy(array('Species' => $worksheet->getCell($col . $row)
-                            ->getValue()));
+                foreach ($worksheet->getRowIterator() as $row) {
+                    $cellIterator = $row->getCellIterator();
+                    $cellIterator->setIterateOnlyExistingCells(FALSE); // This loops through all cells,
+                    //    even if a cell value is not set.
+                    // By default, only cells that have a value
+                    //    set will be iterated.
+                    foreach ($cellIterator as $cell) {
+                        $em = $this->getDoctrine()->getManager();
+                        $Species_catalogues = $em->getRepository(Catalogue::class)
+                            ->findbySpecies($cell->getValue());
+                        $lastQuestion = $em->getRepository(Catalogue::class)->findOneBy([], ['id' => 'desc']);
+                        $lastId = $lastQuestion->getId();
+                        //dump($lastId);die;
 
-                        foreach ($Species_catalogues as $S) {
-                            if ($S->getID() != '') {
-                                fwrite($fp, $worksheet->getCell($col . $row)
-                                        ->getValue() . '-Exist already' . "\n");
-
-                            } else {
-                                $catalogue->setSpecies($worksheet->getCell($col . $row)
-                                    ->getValue());
-                                $catalogue->setStatus('Pending');
-                                $em->prePersist($catalogue);
-                                $em->flush();
-                                $this->addFlash('success', 'Article Created! Knowledge is power!');
-                                fwrite($fp, $worksheet->getCell($col . $row)
-                                        ->getValue() . '- Already Addedd' . "\n");
-
+                        foreach ($Species_catalogues as $s) {
+                            //dump($Species_catalogues, $s->getID());die;
+                            if ($s->getID() != '') {
+                                //dump($s->getId());die;
+                                fwrite($fp, $cell->getValue() . '-Exist already' . "\n");
                             }
-                            fclose($fp);
-                        }
+                            if ($s->getID() == '') {
+                                $em = $this->getDoctrine()->getManager();
+                                $catalogue->setId($lastId + 1);
+                                $catalogue->setSpecies($cell->getValue());
+                                $catalogue->setStatus('Pending');
+                                $em->persist($catalogue);
+                                $em->flush();
+                                fwrite($fp, $cell->getValue() . '- To be addedd' . "\n");
+                                $this->addFlash('success', 'Article Created! Knowledge is power!');
+                            }
 
+                        }
                     }
 
                 }
-
-
-                //dump($highestRow,$highestColumn);die;
-
-                $request->getSession()
-                    ->getFlashBag()
-                    ->add('success', 'File is valid, and was successfully uploaded.!');
+                fclose($fp);
+                $request->getSession()->getFlashBag()->add('success', 'File is valid, and was successfully processed.!');
                 return $this->redirect($this->generateUrl('Catalogue_list'));
             } else {
                 $request->getSession()

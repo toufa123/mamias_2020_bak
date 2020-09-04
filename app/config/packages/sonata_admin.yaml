@@ -130,9 +130,9 @@ sonata_admin:
 
             -   position: center
                 type: sonata.block.service.text
+                roles: ['ROLE_SUPER_ADMIN','ROLE_ADMIN', 'ROLE_SONATA_ADMIN', 'ROLE_S']
                 settings:
                     content: >
-
                         <div class="box box-primary">
                           <div class="box-header with-border">
                             <h3 class="box-title">Welcome to the MAMIAS </h3>
@@ -143,6 +143,7 @@ sonata_admin:
                             The Database includes also species that have been occasionally reported as alien but were subsequently excluded from lists, along with the reasoning of their exclusion.
                           </div>
                         </div>
+
 
             -   position: center
                 type: sonata.admin.block.admin_list

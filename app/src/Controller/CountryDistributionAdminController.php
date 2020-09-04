@@ -17,13 +17,14 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx as Xlsxwriter;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
-
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 
 final class CountryDistributionAdminController extends CRUDController
 {
 
     /**
      * @Route("countrydistribution/importnd", name="importnd")
+     * @Security("is_granted('ROLE_ADMIN')")
      */
 
     public function importndAction(Request $request)

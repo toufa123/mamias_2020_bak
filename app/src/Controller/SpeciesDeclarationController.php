@@ -30,6 +30,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Validator\Constraints\File;
 use Gedmo\Sluggable\Util\Urlizer;
 use Symfony\Component\HttpFoundation\Session\Session;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 
 class SpeciesDeclarationController extends Controller
 {
@@ -44,7 +45,9 @@ class SpeciesDeclarationController extends Controller
     }
 
     /**
-     * @Route("/species/declaration", name="declaration")
+     * @Route("admin/species/declaration", name="declaration")
+     * @Security("is_granted('ROLE_REGSITREDUSER')")
+     *
      */
     public function reports()
     {
@@ -72,7 +75,8 @@ class SpeciesDeclarationController extends Controller
     }
 
     /**
-     * @Route("/species/declare", name="species_declaration")
+     * @Route("admin/species/declare", name="species_declaration")
+     * @Security("is_granted('ROLE_REGSITREDUSER')")
      */
     public function declare(Request $request, Swift_Mailer $mailer)
     {
@@ -172,7 +176,8 @@ class SpeciesDeclarationController extends Controller
     }
 
     /**
-     * @Route("/species/import", name="import")
+     * @Route("admin/species/import", name="import")
+     * @Security("is_granted('ROLE_REGSITREDUSER')")
      */
     public function Import(Request $request)
     {
@@ -217,7 +222,9 @@ class SpeciesDeclarationController extends Controller
     }
 
     /**
-     * @Route("/species/template", name="template")
+     * @Route("admin/species/template", name="template")
+     * @Security("is_granted('ROLE_REGSITREDUSER')")
+     *
      */
     public function Template(Request $request)
     {

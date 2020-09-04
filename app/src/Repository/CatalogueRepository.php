@@ -20,22 +20,21 @@ class CatalogueRepository extends ServiceEntityRepository
         parent::__construct($registry, Catalogue::class);
     }
 
-    // /**
-    //  * @return Catalogue[] Returns an array of Catalogue objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    /**
+     * @return Catalogue[] Returns an array of Catalogue objects
+     */
+
+    public function findBySpecies($value)
     {
         return $this->createQueryBuilder('c')
-            ->andWhere('c.exampleField = :val')
+            ->andWhere('c.Species = :val')
             ->setParameter('val', $value)
             ->orderBy('c.id', 'ASC')
             ->setMaxResults(10)
             ->getQuery()
-            ->getResult()
-        ;
+            ->getResult();
     }
-    */
+
 
     /*
     public function findOneBySomeField($value): ?Catalogue
