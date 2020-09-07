@@ -22,32 +22,33 @@ class CatalogueRepository extends ServiceEntityRepository
 
     /**
      * @return Catalogue[] Returns an array of Catalogue objects
+     *
+     *
+     * public function findBySpecies($value)
+    * {
+     * return $this->createQueryBuilder('c')
+     * ->Where('c.Species = :val')
+     * ->setParameter('val', $value)
+     * ->orderBy('c.id', 'ASC')
+     * //->setMaxResults(10)
+     * ->getQuery()
+            * ->getResult();
+     * }
      */
 
-    public function findBySpecies($value)
-    {
-        return $this->createQueryBuilder('c')
-            ->andWhere('c.Species = :val')
-            ->setParameter('val', $value)
-            ->orderBy('c.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult();
-    }
-
-
     /*
-    public function findOneBySomeField($value): ?Catalogue
-    {
-        return $this->createQueryBuilder('c')
-            ->andWhere('c.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-    }
+        public function findOneBySpecies($value): ?Catalogue
+        {
+            return $this->createQueryBuilder('c')
+                ->andWhere('c.Species = :val')
+                ->setParameter('val', $value)
+                //->select('c.Species')
+                //->orderBy('c.id', 'ASC')
+                ->getQuery()
+                ->getArrayResult()
+            ;
+        }
     */
-
     public function getNb()
     {
         return $this->createQueryBuilder('a')

@@ -1986,16 +1986,16 @@
         },
         {
             "name": "egulias/email-validator",
-            "version": "2.1.19",
+            "version": "2.1.20",
             "source": {
                 "type": "git",
                 "url": "https://github.com/egulias/EmailValidator.git",
-                "reference": "840d5603eb84cc81a6a0382adac3293e57c1c64c"
+                "reference": "f46887bc48db66c7f38f668eb7d6ae54583617ff"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/egulias/EmailValidator/zipball/840d5603eb84cc81a6a0382adac3293e57c1c64c",
-                "reference": "840d5603eb84cc81a6a0382adac3293e57c1c64c",
+                "url": "https://api.github.com/repos/egulias/EmailValidator/zipball/f46887bc48db66c7f38f668eb7d6ae54583617ff",
+                "reference": "f46887bc48db66c7f38f668eb7d6ae54583617ff",
                 "shasum": ""
             },
             "require": {
@@ -2040,7 +2040,7 @@
                 "validation",
                 "validator"
             ],
-            "time": "2020-08-08T21:28:19+00:00"
+            "time": "2020-09-06T13:44:32+00:00"
         },
         {
             "name": "excelwebzone/recaptcha-bundle",
@@ -5052,30 +5052,30 @@
         },
         {
             "name": "pugx/autocompleter-bundle",
-            "version": "v1.5.0",
+            "version": "v1.6.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PUGX/PUGXAutoCompleterBundle.git",
-                "reference": "55abcee0e3d59ef0a3f017ce21c55bf5a502be8e"
+                "reference": "39bb185f23afe5ee74f10a6efbe268d343a8f5ff"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PUGX/PUGXAutoCompleterBundle/zipball/55abcee0e3d59ef0a3f017ce21c55bf5a502be8e",
-                "reference": "55abcee0e3d59ef0a3f017ce21c55bf5a502be8e",
+                "url": "https://api.github.com/repos/PUGX/PUGXAutoCompleterBundle/zipball/39bb185f23afe5ee74f10a6efbe268d343a8f5ff",
+                "reference": "39bb185f23afe5ee74f10a6efbe268d343a8f5ff",
                 "shasum": ""
             },
             "require": {
-                "doctrine/common": "^2.8",
-                "php": "^7.1",
-                "symfony/config": "^3.4 || ^4.3 || ^5.0",
-                "symfony/dependency-injection": "^3.4 || ^4.3 || ^5.0",
-                "symfony/event-dispatcher": "^3.4 || ^4.3 || ^5.0",
-                "symfony/form": "^3.4 || ^4.3 || ^5.0",
-                "symfony/http-kernel": "^3.4 || ^4.3 || ^5.0"
+                "doctrine/persistence": "^1.3 || ^2.0",
+                "php": "^7.2 || ^8.0",
+                "symfony/config": "^4.4 || ^5.0",
+                "symfony/dependency-injection": "^4.4 || ^5.0",
+                "symfony/event-dispatcher": "^4.4 || ^5.0",
+                "symfony/form": "^4.4 || ^5.0",
+                "symfony/http-kernel": "^4.4 || ^5.0"
             },
             "require-dev": {
-                "lexik/form-filter-bundle": "^5.0",
-                "phpunit/phpunit": "^7.5 || ^8.4"
+                "lexik/form-filter-bundle": "^6.0",
+                "phpunit/phpunit": "^8.5 || ^9.3"
             },
             "suggest": {
                 "lexik/form-filter-bundle": "To use autocomplete on a filter."
@@ -5083,7 +5083,7 @@
             "type": "symfony-bundle",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.5.x-dev"
+                    "dev-master": "1.6.x-dev"
                 }
             },
             "autoload": {
@@ -5107,7 +5107,7 @@
                 "form",
                 "symfony"
             ],
-            "time": "2019-11-30T12:26:33+00:00"
+            "time": "2020-09-04T09:46:57+00:00"
         },
         {
             "name": "ralouphie/getallheaders",
@@ -5685,16 +5685,16 @@
         },
         {
             "name": "sonata-project/classification-bundle",
-            "version": "3.13.1",
+            "version": "3.13.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sonata-project/SonataClassificationBundle.git",
-                "reference": "693c250c94dc1c369f7098445527dfe586cf0a9f"
+                "reference": "3fc030b8b0e8efc5bbd37e8e5884da7c1aed5f2a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sonata-project/SonataClassificationBundle/zipball/693c250c94dc1c369f7098445527dfe586cf0a9f",
-                "reference": "693c250c94dc1c369f7098445527dfe586cf0a9f",
+                "url": "https://api.github.com/repos/sonata-project/SonataClassificationBundle/zipball/3fc030b8b0e8efc5bbd37e8e5884da7c1aed5f2a",
+                "reference": "3fc030b8b0e8efc5bbd37e8e5884da7c1aed5f2a",
                 "shasum": ""
             },
             "require": {
@@ -5773,7 +5773,7 @@
                 "tag",
                 "taxonomy"
             ],
-            "time": "2020-08-23T13:42:52+00:00"
+            "time": "2020-09-05T08:40:59+00:00"
         },
         {
             "name": "sonata-project/core-bundle",
@@ -6451,16 +6451,16 @@
         },
         {
             "name": "sonata-project/media-bundle",
-            "version": "3.26.0",
+            "version": "3.27.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sonata-project/SonataMediaBundle.git",
-                "reference": "320a478b9a4e162676622868d21942ad129feecc"
+                "reference": "36287cbca6fe3dc06f76e99cce3cb0d74ec2aae1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sonata-project/SonataMediaBundle/zipball/320a478b9a4e162676622868d21942ad129feecc",
-                "reference": "320a478b9a4e162676622868d21942ad129feecc",
+                "url": "https://api.github.com/repos/sonata-project/SonataMediaBundle/zipball/36287cbca6fe3dc06f76e99cce3cb0d74ec2aae1",
+                "reference": "36287cbca6fe3dc06f76e99cce3cb0d74ec2aae1",
                 "shasum": ""
             },
             "require": {
@@ -6478,14 +6478,14 @@
                 "symfony/console": "^4.4",
                 "symfony/dependency-injection": "^4.4",
                 "symfony/event-dispatcher": "^4.4",
-                "symfony/filesystem": "^4.4",
+                "symfony/filesystem": "^4.4 || ^5.1",
                 "symfony/finder": "^4.4",
                 "symfony/form": "^4.4",
                 "symfony/framework-bundle": "^4.4",
                 "symfony/http-foundation": "^4.4",
                 "symfony/http-kernel": "^4.4",
-                "symfony/mime": "^4.4 || ^5.0",
-                "symfony/options-resolver": "^4.4",
+                "symfony/mime": "^4.4 || ^5.1",
+                "symfony/options-resolver": "^4.4 || ^5.1",
                 "symfony/routing": "^4.4",
                 "symfony/security-bundle": "^4.4",
                 "symfony/security-core": "^4.4",
@@ -6525,7 +6525,7 @@
                 "sonata-project/notification-bundle": "^3.3",
                 "sonata-project/seo-bundle": "^2.5",
                 "symfony/browser-kit": "^4.4 || ^5.1",
-                "symfony/phpunit-bridge": "^5.1",
+                "symfony/phpunit-bridge": "^5.1.1",
                 "symfony/security-csrf": "^4.4"
             },
             "suggest": {
@@ -6577,7 +6577,7 @@
                 "vimeo",
                 "youtube"
             ],
-            "time": "2020-08-04T18:59:07+00:00"
+            "time": "2020-09-02T20:21:14+00:00"
         },
         {
             "name": "sonata-project/news-bundle",

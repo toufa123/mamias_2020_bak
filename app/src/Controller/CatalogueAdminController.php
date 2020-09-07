@@ -53,54 +53,51 @@ final class CatalogueAdminController extends CRUDController
             } elseif ('xlsx' == $extension) {
                 $reader = new XlsxReader();
                 $spreadsheet = $reader->load($tmp_name);
-                //$sheetData = $spreadsheet->getActiveSheet()->toArray();
+                $sheetData = $spreadsheet->getActiveSheet()->toArray(null, true, true, true);
+                //dump($sheetData);die;
                 $worksheet = $spreadsheet->getActiveSheet();
                 $highestRow = $worksheet->getHighestRow(); // e.g. 10
                 $highestColumn = $worksheet->getHighestColumn();
-                $highestColumnIndex = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($highestColumn); // e.g. 5
-                $highestColumn++;
+                //$reader->setReadDataOnly(true); $reader->setReadEmptyCells(false);
+                //$highestColumnIndex = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($highestColumn); // e.g. 5
+                //$highestColumn++;
                 //dump($highestColumn);die;
                 fwrite($fp, "File: " . $_FILES['catalogue']['name'] . "\n");
                 fwrite($fp, "Number of Row : " . $highestRow . "\n");
                 $em = $this->getDoctrine()->getManager();
-                $catalogue = new Catalogue();
-                foreach ($worksheet->getRowIterator() as $row) {
-                    $cellIterator = $row->getCellIterator();
-                    $cellIterator->setIterateOnlyExistingCells(FALSE); // This loops through all cells,
-                    //    even if a cell value is not set.
-                    // By default, only cells that have a value
-                    //    set will be iterated.
-                    foreach ($cellIterator as $cell) {
-                        $em = $this->getDoctrine()->getManager();
-                        $Species_catalogues = $em->getRepository(Catalogue::class)
-                            ->findbySpecies($cell->getValue());
-                        $lastQuestion = $em->getRepository(Catalogue::class)->findOneBy([], ['id' => 'desc']);
-                        $lastId = $lastQuestion->getId();
-                        //dump($lastId);die;
+                array_shift($sheetData);
+                $i = 0;
+                $test_array = array();
 
-                        foreach ($Species_catalogues as $s) {
-                            //dump($Species_catalogues, $s->getID());die;
-                            if ($s->getID() != '') {
-                                //dump($s->getId());die;
-                                fwrite($fp, $cell->getValue() . '-Exist already' . "\n");
-                            }
-                            if ($s->getID() == '') {
-                                $em = $this->getDoctrine()->getManager();
-                                $catalogue->setId($lastId + 1);
-                                $catalogue->setSpecies($cell->getValue());
-                                $catalogue->setStatus('Pending');
-                                $em->persist($catalogue);
-                                $em->flush();
-                                fwrite($fp, $cell->getValue() . '- To be addedd' . "\n");
-                                $this->addFlash('success', 'Article Created! Knowledge is power!');
-                            }
 
-                        }
+                foreach ($sheetData as $key => $val) {
+                    if ($i < $highestRow)
+                        $test_array[$i] = $val;
+                    $repository = $this->admin->getConfigurationPool()->getContainer()->get('doctrine')->getManager()->getRepository(Catalogue::class);
+                    $Species_catalogues = $repository->findOneBy(array('Species' => $val['A']));
+
+                    //$Species =  $Species_catalogues->getSpecies();
+                    //dump($Species_catalogues);die;
+                    $em = $this->getDoctrine()->getManager();
+
+                    if (!$repository->findOneBy(array('Species' => $val['A']))) {
+                        dump($Species_catalogues, $val['A'], $repository->findOneBy(array('Species' => $val['A'])));
+                        die;
+                        fwrite($fp, $val['A'] . '-Exist already' . "\n");
+
+
+                    } else {
+                        fwrite($fp, $val['A'] . '-to be Added' . "\n");
+                        $this->addFlash('error', $val['A'] . '---to be Added' . '<br>');
                     }
 
+
+                    $i++;
+                    //dump($Species_catalogues,$Species_catalogues->getID() );die;
                 }
+
                 fclose($fp);
-                $request->getSession()->getFlashBag()->add('success', 'File is valid, and was successfully processed.!');
+                $request->getSession()->getFlashBag()->add('success', 'File is valid, and was successfully processed.!' . '<br>' . 'heref');
                 return $this->redirect($this->generateUrl('Catalogue_list'));
             } else {
                 $request->getSession()

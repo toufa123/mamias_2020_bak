@@ -33,13 +33,13 @@ class Catalogue
      */
     private $id;
     /**
-     * @var string|null The Scientific name of the Species
+     * @var string|null The Scientific name of the Species verified through WoRMS webservice
      *
      * @ORM\Column(name="Species", type="string", length=255, nullable=false, unique=true)
      */
     private $Species;
     /**
-     * @var string|null The Species Name verified through WoRMS webservice
+     * @var string|null A specis Code composer of 6 caracteres
      *
      * @ORM\Column(name="species_code", type="string", length=128, nullable=true)
      */
