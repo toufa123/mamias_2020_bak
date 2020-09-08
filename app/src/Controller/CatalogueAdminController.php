@@ -31,6 +31,8 @@ final class CatalogueAdminController extends CRUDController
 
         $session = $request->getSession();
         $fp = fopen($_SERVER['DOCUMENT_ROOT'] . "/catalogue-import-" . date('d-m-y-H_i') . ".txt", "wb");
+        $url = '/../public/catalogue-import-' . date('d-m-y-H_i') . '.txt';
+        //dump($url);die;
         $request->request->set('_sonata_admin', 'admin.template');
         if (isset($_POST["submit"])) {
             $tmp_name = $_FILES['catalogue']['tmp_name'];
@@ -54,50 +56,43 @@ final class CatalogueAdminController extends CRUDController
                 $reader = new XlsxReader();
                 $spreadsheet = $reader->load($tmp_name);
                 $sheetData = $spreadsheet->getActiveSheet()->toArray(null, true, true, true);
-                //dump($sheetData);die;
+
                 $worksheet = $spreadsheet->getActiveSheet();
                 $highestRow = $worksheet->getHighestRow(); // e.g. 10
                 $highestColumn = $worksheet->getHighestColumn();
-                //$reader->setReadDataOnly(true); $reader->setReadEmptyCells(false);
-                //$highestColumnIndex = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($highestColumn); // e.g. 5
-                //$highestColumn++;
-                //dump($highestColumn);die;
                 fwrite($fp, "File: " . $_FILES['catalogue']['name'] . "\n");
                 fwrite($fp, "Number of Row : " . $highestRow . "\n");
-                $em = $this->getDoctrine()->getManager();
-                array_shift($sheetData);
-                $i = 0;
-                $test_array = array();
+                fwrite($fp, "Highest Column : " . $highestColumn . "\n");
+                $em = $this->getDoctrine()->getManager()->getRepository(Catalogue::class);
 
+                $highestColumnIndex = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($highestColumn);
 
-                foreach ($sheetData as $key => $val) {
-                    if ($i < $highestRow)
-                        $test_array[$i] = $val;
-                    $repository = $this->admin->getConfigurationPool()->getContainer()->get('doctrine')->getManager()->getRepository(Catalogue::class);
-                    $Species_catalogues = $repository->findOneBy(array('Species' => $val['A']));
-
-                    //$Species =  $Species_catalogues->getSpecies();
-                    //dump($Species_catalogues);die;
-                    $em = $this->getDoctrine()->getManager();
-
-                    if (!$repository->findOneBy(array('Species' => $val['A']))) {
-                        dump($Species_catalogues, $val['A'], $repository->findOneBy(array('Species' => $val['A'])));
-                        die;
-                        fwrite($fp, $val['A'] . '-Exist already' . "\n");
-
-
-                    } else {
-                        fwrite($fp, $val['A'] . '-to be Added' . "\n");
-                        $this->addFlash('error', $val['A'] . '---to be Added' . '<br>');
+                for ($row = 0; $row <= $highestRow; $row++) {
+                    for ($col = 0; $col <= $highestColumnIndex; $col++) {
+                        $value = $worksheet->getCellByColumnAndRow($col, $row)->getValue();
+                        //array_push($res,$value);
+                        $Species_catalogues = $em->findOneBy(['Species' => $value]);
                     }
+                    if ($Species_catalogues) {
+                        if ($Species_catalogues->getSpecies() == $value) {
+                            //dump($row, $Species_catalogues->getSpecies() , $value);die;
+                            //$request->getSession()->getFlashBag()->add('sucess',   $row.'-'.$Species_catalogues . '---to be Added' . '<br>');
+                            fwrite($fp, $row . '-' . $value . '-Exist already' . "\n");
+                        } else {
+                            //dump($Species_catalogues->getId());die;
+                            fwrite($fp, $row . '-' . $value . '-to be Added' . "\n");
+                            //$request->getSession()->getFlashBag()->add('error',   $row.'-'.$Species_catalogues . '---to be Added' . '<br>');
+                        }
 
-
-                    $i++;
-                    //dump($Species_catalogues,$Species_catalogues->getID() );die;
+                    }
+                    //fwrite($fp, $row.'-'.$value . "\n");
                 }
 
+
                 fclose($fp);
-                $request->getSession()->getFlashBag()->add('success', 'File is valid, and was successfully processed.!' . '<br>' . 'heref');
+
+
+                $request->getSession()->getFlashBag()->add('success', 'File is valid, and was successfully processed.!' . '<br>' . "<a href=" . $url . ">Log Link</a>");
                 return $this->redirect($this->generateUrl('Catalogue_list'));
             } else {
                 $request->getSession()
@@ -114,5 +109,35 @@ final class CatalogueAdminController extends CRUDController
             //return $this->renderWithExtraParams('admin/catalogue/importc.html.twig');
         }
 
+    }
+
+    protected function createDataFromSpreadsheet($spreadsheet)
+    {
+        $data = [];
+        foreach ($spreadsheet->getWorksheetIterator() as $worksheet) {
+            $worksheetTitle = $worksheet->getTitle();
+            $data[$worksheetTitle] = [
+                'columnNames' => [],
+                'columnValues' => [],
+            ];
+            foreach ($worksheet->getRowIterator() as $row) {
+                $rowIndex = $row->getRowIndex();
+                if ($rowIndex > 1) {
+                    $data[$worksheetTitle]['columnValues'][$rowIndex] = [];
+                }
+                $cellIterator = $row->getCellIterator();
+                $cellIterator->setIterateOnlyExistingCells(false); // Loop over all cells, even if it is not set
+                foreach ($cellIterator as $cell) {
+                    if ($rowIndex === 0) {
+                        $data[$worksheetTitle]['columnNames'][] = $cell->getCalculatedValue();
+                    }
+                    if ($rowIndex > 1) {
+                        $data[$worksheetTitle]['columnValues'][$rowIndex][] = $cell->getCalculatedValue();
+                    }
+                }
+            }
+        }
+
+        return $data;
     }
 }

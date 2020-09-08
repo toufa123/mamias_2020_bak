@@ -129,7 +129,8 @@
     "extra": {
         "symfony": {
             "allow-contrib": "true",
-            "require": "4.4.*"
+            "require": "4.4.*",
+            "public-dir": "/public/"
         }
     },
     "minimum-stability": "dev",
