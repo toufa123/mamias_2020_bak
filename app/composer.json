@@ -70,11 +70,11 @@
     },
     "require-dev": {
         "symfony/debug-pack": "*",
-        "symfony/maker-bundle": "^1.20.0",
+        "symfony/maker-bundle": "^1.21.0",
         "symfony/profiler-pack": "*",
         "symfony/test-pack": "*",
         "friendsofphp/php-cs-fixer": "^2.16.4",
-        "phpmd/phpmd": "^2.8.2",
+        "phpmd/phpmd": "^2.9.0",
         "squizlabs/php_codesniffer": "^3.5.6",
         "symfony/var-dumper": "4.4.4"
     },
