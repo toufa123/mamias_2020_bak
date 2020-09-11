@@ -60,69 +60,48 @@ final class CatalogueAdminController extends CRUDController
 
 
                 $worksheet = $spreadsheet->getActiveSheet();
-                $highestRow = $worksheet->getHighestRow(); // e.g. 10
+                $highestRow = $worksheet->getHighestRow() - 1; // e.g. 10
                 $highestColumn = $worksheet->getHighestColumn();
                 fwrite($fp, "File: " . $_FILES['catalogue']['name'] . "\n");
                 fwrite($fp, "Number of Row : " . $highestRow . "\n");
                 fwrite($fp, "Highest Column : " . $highestColumn . "\n");
                 $em = $this->getDoctrine()->getManager()->getRepository(Catalogue::class);
-
-
                 $list = [];
-                //problem is here, seek to row 200 is nothing working
-                $it = $worksheet->getRowIterator(1);
+                $it = $worksheet->getRowIterator(2);
+
                 //it still start at row 1
                 foreach ($it as $row) {
                     $cellIt = $row->getCellIterator();
+                    $cellIt->setIterateOnlyExistingCells(false);
                     $r = [];
                     foreach ($cellIt as $cell) {
-                        $r[] = $cell->getFormattedValue();
+                        $r[] = $cell->getValue();
                     }
                     $list[] = $r;
                 }
                 //dump($list);die;
+                $cptdispo = 0;
                 foreach ($list as $x) {
-                    $v = $x[0];
-                    fwrite($fp, $v . "\n");
-                    //dump($v);die;
-                    $s = $em->findOneBy(['Species' => $x[0]]);
+                    //$v = $x[0];
+                    //fwrite($fp, $x[0] . "\n");
+                    $s = $em->findOneBySpecies($x[0]);
                     if (!$s) {
-                        dump(!$s);
-                        die;
-                        $request->getSession()->getFlashBag()->add('error', $v . '-exiting' . '<br>');
-                        //    fwrite($fp, $v.'-'.$s. "\n");
-
+                        //dump(empty($s));die;
+                        //if ($s->getSpecies() === $x[0]){
+                        //dump($s->getSPecies() == $x[0]);die;
+                        $request->getSession()->getFlashBag()->add('error', $x[0] . '- not existing' . '<br>');
+                        fwrite($fp, $x[0] . '-to be added to the catalogue' . "\n");
                     } else {
-                        $request->getSession()->getFlashBag()->add('success', $v . '-to be added' . '<br>');
-                    }
-
-                    //
-                }
-
-                $highestColumnIndex = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($highestColumn);
-                for ($row = 0; $row <= $highestRow; $row++) {
-                    for ($col = 1; $col <= $highestColumnIndex; $col++) {
-                        //dump($worksheet->getCellByColumnAndRow($col, $row)->getValue());die;
-                        if ($em->findOneBy(['Species' => $worksheet->getCellByColumnAndRow($col, $row)->getValue()])) {
-                            //dump($worksheet->getCellByColumnAndRow($col, $row)->getValue());die;
-                            //dump($em->findOneBy(['Species' => $worksheet->getCellByColumnAndRow($col, $row)->getValue()]));die;
-                            if ($em->findOneBy(['Species' => $worksheet->getCellByColumnAndRow($col, $row)->getValue()])->getSpecies() == $worksheet->getCellByColumnAndRow($col, $row)->getValue()) {
-                                //dump($worksheet->getCellByColumnAndRow($col, $row)->getValue());die;
-                                //fwrite($fp, $row .'- 1' . "\n");
-                            } else {
-                                //dump($Species_catalogues->getId());die;
-
-
-                                //fwrite($fp, $row.'- 2' . "\n");
-                                //fwrite($fp, $row . '-' . $value . '-to be Added' . "\n");
-                                //$request->getSession()->getFlashBag()->add('error',   $row.'-'.$Species_catalogues . '---to be Added' . '<br>');
-                            }
+                        if ($s->getSpecies() == $x[0]) {
+                            $request->getSession()->getFlashBag()->add('sucess', $x[0] . '- existing' . '<br>');
+                            fwrite($fp, $x[0] . '-Already Exist in the catalogue' . "\n");
                         }
-                    }
-                }
 
-                fclose($fp);
+                    }
+                    //$cptdispo++;
+                }
                 $request->getSession()->getFlashBag()->add('success', 'File is valid, and was successfully processed.!' . '<br>' . "<a href=" . $url . ">Log Link</a>");
+                fclose($fp);
                 return $this->redirect($this->generateUrl('Catalogue_list'));
             } else {
                 $request->getSession()

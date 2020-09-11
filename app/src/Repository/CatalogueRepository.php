@@ -36,7 +36,7 @@ class CatalogueRepository extends ServiceEntityRepository
      * }
      */
 
-    /*
+
         public function findOneBySpecies($value): ?Catalogue
         {
             return $this->createQueryBuilder('c')
@@ -45,10 +45,10 @@ class CatalogueRepository extends ServiceEntityRepository
                 //->select('c.Species')
                 //->orderBy('c.id', 'ASC')
                 ->getQuery()
-                ->getArrayResult()
+                ->getOneOrNullResult();
             ;
         }
-    */
+
     public function getNb()
     {
         return $this->createQueryBuilder('a')
