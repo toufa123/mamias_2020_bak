@@ -38,7 +38,7 @@ final class MamiasAdmin extends AbstractAdmin
         '_sort_by' => 'Species',
         '_per_page' => '20',
     ];
-    protected $baseRouteName = 'MAMIAS';
+    protected $baseRouteName = 'mamias';
 
     public function getExportFormats()
     {

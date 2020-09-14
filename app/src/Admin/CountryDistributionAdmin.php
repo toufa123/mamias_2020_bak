@@ -21,7 +21,7 @@ final class CountryDistributionAdmin extends AbstractAdmin
     {
 
         parent::configureRoutes($collection);
-        $collection->add('importnd');
+        $collection->add('importn');
 
     }
 
@@ -31,7 +31,7 @@ final class CountryDistributionAdmin extends AbstractAdmin
 
         $actions['import'] = array(
             'label' => 'Import',
-            'url' => $this->generateUrl('importnd'),
+            'url' => $this->generateUrl('importn'),
             'icon' => 'upload',
             'template' => 'SonataAdminBundle:CRUD:dashboard__action.html.twig', // optional
         );
@@ -39,6 +39,7 @@ final class CountryDistributionAdmin extends AbstractAdmin
         return $actions;
     }
 
+    protected $baseRouteName = 'CountryD';
 
     protected function configureDatagridFilters(DatagridMapper $datagridMapper): void
     {

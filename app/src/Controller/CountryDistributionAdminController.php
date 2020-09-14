@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Entity\Catalogue;
+use App\Entity\CountryDistribution;
 use Sonata\AdminBundle\Controller\CRUDController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -23,11 +23,11 @@ final class CountryDistributionAdminController extends CRUDController
 {
 
     /**
-     * @Route("countrydistribution/importnd", name="importnd")
+     * @Route("countrydistribution/importn", name="importnd")
      * @Security("is_granted('ROLE_ADMIN')")
      */
 
-    public function importndAction(Request $request)
+    public function importnAction(Request $request)
     {
 
         $session = $request->getSession();
@@ -45,7 +45,7 @@ final class CountryDistributionAdminController extends CRUDController
                 $reader = new XlsReader();
                 $spreadsheet = $reader->load($tmp_name);
                 $sheetData = $spreadsheet->getActiveSheet()->toArray();
-                dump($sheetData);
+                //dump($sheetData);
                 die;
                 $worksheet = $spreadsheet->getActiveSheet();
                 // Get the highest row number and column letter referenced in the worksheet
@@ -56,11 +56,13 @@ final class CountryDistributionAdminController extends CRUDController
                 $request->getSession()
                     ->getFlashBag()
                     ->add('success', 'File is valid, and was successfully uploaded.!');
-                return $this->redirect($this->generateUrl('Catalogue_list'));
+                return $this->redirect($this->generateUrl('CountryD_list'));
             } elseif ('xlsx' == $extension) {
                 $reader = new XlsxReader();
                 $spreadsheet = $reader->load($tmp_name);
                 $sheetData = $spreadsheet->getActiveSheet()->toArray();
+                dump($sheetData);
+                die;
                 $worksheet = $spreadsheet->getActiveSheet();
                 // Get the highest row number and column letter referenced in the worksheet
                 $highestRow = $worksheet->getHighestRow() - 1; // e.g. 10
@@ -81,7 +83,7 @@ final class CountryDistributionAdminController extends CRUDController
 
                 for ($row = 2; $row <= $highestRow; ++$row) {
                     for ($col = 'A'; $col != $highestColumn; ++$col) {
-                        $Species_catalogues = $em->getRepository(Catalogue::class)->findBy(array('Species' => $worksheet->getCell($col . $row)
+                        $Species_catalogues = $em->getRepository(CountryDistribution::class)->findBy(array('Species' => $worksheet->getCell($col . $row)
                             ->getValue()));
                         if ($Species_catalogues != '') {
                             fwrite($fp, $worksheet->getCell($col . $row)
@@ -109,7 +111,7 @@ final class CountryDistributionAdminController extends CRUDController
                 $request->getSession()
                     ->getFlashBag()
                     ->add('success', 'File is valid, and was successfully uploaded.!');
-                return $this->redirect($this->generateUrl('Catalogue_list'));
+                return $this->redirect($this->generateUrl('CountryD_list'));
             } else {
                 $request->getSession()
                     ->getFlashBag()

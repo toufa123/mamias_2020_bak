@@ -55,10 +55,7 @@ final class CatalogueAdminController extends CRUDController
             } elseif ('xlsx' == $extension) {
                 $reader = new XlsxReader();
                 $spreadsheet = $reader->load($tmp_name);
-                $sheetData = $spreadsheet->getActiveSheet()->toArray(null, true, true, true);
-                //dump($sheetData);die;
-
-
+                //$sheetData = $spreadsheet->getActiveSheet()->toArray(null, true, true, true);
                 $worksheet = $spreadsheet->getActiveSheet();
                 $highestRow = $worksheet->getHighestRow() - 1; // e.g. 10
                 $highestColumn = $worksheet->getHighestColumn();
@@ -68,8 +65,6 @@ final class CatalogueAdminController extends CRUDController
                 $em = $this->getDoctrine()->getManager()->getRepository(Catalogue::class);
                 $list = [];
                 $it = $worksheet->getRowIterator(2);
-
-                //it still start at row 1
                 foreach ($it as $row) {
                     $cellIt = $row->getCellIterator();
                     $cellIt->setIterateOnlyExistingCells(false);
@@ -79,26 +74,20 @@ final class CatalogueAdminController extends CRUDController
                     }
                     $list[] = $r;
                 }
-                //dump($list);die;
-                $cptdispo = 0;
                 foreach ($list as $x) {
-                    //$v = $x[0];
-                    //fwrite($fp, $x[0] . "\n");
-                    $s = $em->findOneBySpecies($x[0]);
-                    if (!$s) {
-                        //dump(empty($s));die;
-                        //if ($s->getSpecies() === $x[0]){
-                        //dump($s->getSPecies() == $x[0]);die;
-                        $request->getSession()->getFlashBag()->add('error', $x[0] . '- not existing' . '<br>');
-                        fwrite($fp, $x[0] . '-to be added to the catalogue' . "\n");
-                    } else {
-                        if ($s->getSpecies() == $x[0]) {
-                            $request->getSession()->getFlashBag()->add('sucess', $x[0] . '- existing' . '<br>');
-                            fwrite($fp, $x[0] . '-Already Exist in the catalogue' . "\n");
-                        }
-
+                    $s = $em->findOneBy(['Species' => $x[0]]);
+                    //dd($v);
+                    if ($s) {  // $s is set, so the species exists
+                        $request->getSession()->getFlashBag()->add('error', $x[0] . '--- Already Existing' . '<br>');
+                        fwrite($fp, $x[0] . '--- Already Exist in the catalogue' . "\n");
+                    } else {  // Not found
+                        fwrite($fp, $x[0] . '--- 1added to the catalogue' . "\n");
+                        $catalogue = new Catalogue();
+                        $catalogue->setSpecies($x[0]);
+                        $em->persist($s);
+                        $em->flush();
                     }
-                    //$cptdispo++;
+
                 }
                 $request->getSession()->getFlashBag()->add('success', 'File is valid, and was successfully processed.!' . '<br>' . "<a href=" . $url . ">Log Link</a>");
                 fclose($fp);
