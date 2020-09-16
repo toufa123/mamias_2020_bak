@@ -97,4 +97,3 @@ security:
         - { path: ^/elfinder, role: [ROLE_SUPER_ADMIN] }
         - { path: ^/species/declaration, role: [ROLE_REGSITREDUSER] }
 
-

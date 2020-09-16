@@ -25,6 +25,15 @@ final class CountryDistributionAdmin extends AbstractAdmin
 
     }
 
+    public function configureActionButtons($action, $object = null)
+    {
+        $list = parent::configureActionButtons($action, $object);
+
+        $list['import']['template'] = 'admin/catalogue/import_button.html.twig';
+
+        return $list;
+    }
+
     public function getDashboardActions()
     {
         $actions = parent::getDashboardActions();

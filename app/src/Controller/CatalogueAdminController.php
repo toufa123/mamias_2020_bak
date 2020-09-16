@@ -58,11 +58,13 @@ final class CatalogueAdminController extends CRUDController
                 //$sheetData = $spreadsheet->getActiveSheet()->toArray(null, true, true, true);
                 $worksheet = $spreadsheet->getActiveSheet();
                 $highestRow = $worksheet->getHighestRow() - 1; // e.g. 10
+                $highestRow1 = $worksheet->getHighestDataRow();
+                //dd($highestRow1);
                 $highestColumn = $worksheet->getHighestColumn();
                 fwrite($fp, "File: " . $_FILES['catalogue']['name'] . "\n");
                 fwrite($fp, "Number of Row : " . $highestRow . "\n");
                 fwrite($fp, "Highest Column : " . $highestColumn . "\n");
-                $em = $this->getDoctrine()->getManager()->getRepository(Catalogue::class);
+
                 $list = [];
                 $it = $worksheet->getRowIterator(2);
                 foreach ($it as $row) {
@@ -74,21 +76,34 @@ final class CatalogueAdminController extends CRUDController
                     }
                     $list[] = $r;
                 }
+
+                for ($i = 0, $iMax = count($list); $i < $iMax; $i++) {
+                    //dd($list[$i]);
+                }
+
+
                 foreach ($list as $x) {
+
+                    $em = $this->getDoctrine()->getManager()->getRepository(Catalogue::class);
                     $s = $em->findOneBy(['Species' => $x[0]]);
-                    //dd($v);
+
                     if ($s) {  // $s is set, so the species exists
-                        $request->getSession()->getFlashBag()->add('error', $x[0] . '--- Already Existing' . '<br>');
+                        //$request->getSession()->getFlashBag()->add('error', $x[0] . '--- Already Existing' . '<br>');
                         fwrite($fp, $x[0] . '--- Already Exist in the catalogue' . "\n");
                     } else {  // Not found
-                        fwrite($fp, $x[0] . '--- 1added to the catalogue' . "\n");
-                        $catalogue = new Catalogue();
-                        $catalogue->setSpecies($x[0]);
-                        $em->persist($s);
-                        $em->flush();
-                    }
+                        if ($x[0]) {
+                            fwrite($fp, $x[0] . '--- Added to the catalogue' . "\n");
+                            $em = $this->getDoctrine()->getManager();
+                            $catalogue = new Catalogue();
+                            $catalogue->setSpecies($x[0]);
+                            $catalogue->setStatus('Not checked');
+                            $em->persist($catalogue);
+                            $em->flush();
 
+                        }
+                    }
                 }
+
                 $request->getSession()->getFlashBag()->add('success', 'File is valid, and was successfully processed.!' . '<br>' . "<a href=" . $url . ">Log Link</a>");
                 fclose($fp);
                 return $this->redirect($this->generateUrl('Catalogue_list'));

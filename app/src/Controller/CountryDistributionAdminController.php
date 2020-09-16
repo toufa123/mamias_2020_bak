@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Entity\Catalogue;
 use App\Entity\CountryDistribution;
+use App\Entity\Mamias;
+
 use Sonata\AdminBundle\Controller\CRUDController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -61,52 +64,18 @@ final class CountryDistributionAdminController extends CRUDController
                 $reader = new XlsxReader();
                 $spreadsheet = $reader->load($tmp_name);
                 $sheetData = $spreadsheet->getActiveSheet()->toArray();
-                dump($sheetData);
-                die;
+
                 $worksheet = $spreadsheet->getActiveSheet();
                 // Get the highest row number and column letter referenced in the worksheet
                 $highestRow = $worksheet->getHighestRow() - 1; // e.g. 10
                 $highestColumn = $worksheet->getHighestColumn();
                 $highestColumn++;
-
                 $fp = fopen($_SERVER['DOCUMENT_ROOT'] . "/nc-import-" . date('d-m-y') . ".txt", "wb");
                 fwrite($fp, $_FILES['nc']['name'] . "\n");
-                //foreach ($worksheet->getRowIterator() as $row) {
-                //    $cellIterator = $row->getCellIterator();
-                //    $cellIterator->setIterateOnlyExistingCells(TRUE);
-                //    foreach ($cellIterator as $cell) {
-                //        fwrite($fp, $cell->getValue() . "\n");
-                //    }
 
-                //}
-                $em = $this->getDoctrine()->getManager();
-
-                for ($row = 2; $row <= $highestRow; ++$row) {
-                    for ($col = 'A'; $col != $highestColumn; ++$col) {
-                        $Species_catalogues = $em->getRepository(CountryDistribution::class)->findBy(array('Species' => $worksheet->getCell($col . $row)
-                            ->getValue()));
-                        if ($Species_catalogues != '') {
-                            fwrite($fp, $worksheet->getCell($col . $row)
-                                    ->getValue() . '-Already there' . "\n");
-                        } else {
-                            $Species_catalogues->setSpecies($worksheet->getCell($col . $row)
-                                ->getValue());
-                            $em->persist($Species_catalogues);
-                            $em->flush();
-                            fwrite($fp, $worksheet->getCell($col . $row)
-                                    ->getValue() . '-Addedd' . "\n");
-
-                        }
-                    }
-
-                }
-
-
-                fwrite($fp, strval($highestRow));
 
                 fclose($fp);
 
-                //dump($highestRow,$highestColumn);die;
 
                 $request->getSession()
                     ->getFlashBag()
