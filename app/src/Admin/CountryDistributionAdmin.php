@@ -29,7 +29,7 @@ final class CountryDistributionAdmin extends AbstractAdmin
     {
         $list = parent::configureActionButtons($action, $object);
 
-        $list['import']['template'] = 'admin/catalogue/import_button.html.twig';
+        $list['import']['template'] = 'admin/import/import_buttonn.html.twig';
 
         return $list;
     }
@@ -54,6 +54,7 @@ final class CountryDistributionAdmin extends AbstractAdmin
     {
         $datagridMapper
             //->add('id')
+            ->add('mamias', null, ['label' => 'Species Name'])
             ->add('country', null, ['label' => 'Country'])
             ->add('ecap', null, ['label' => 'EcAp/MSFD Subregion'])
             ->add('regionalSea', null, ['label' => 'Regional Seas'])
@@ -61,6 +62,19 @@ final class CountryDistributionAdmin extends AbstractAdmin
             ->add('nationalstatus', null, ['label' => 'Status of the Species'])
             ->add('areaSuccess', null, ['label' => 'Establishement'])
             ->add('VectorName', null, ['label' => 'Pathways'])
+            ->add(
+                'status',
+                null,
+                ['label' => 'Data Status ', 'show_filter' => true],
+                ChoiceType::class,
+                [
+                    'choices' => [
+                        'Validated' => 'Validated',
+                        'Non Validated' => 'Non Validated',
+                        'Information requested' => 'Information requested'
+                    ],
+                ]
+            )
             //->add('areaNote',null, array('label' => 'Note'))
             //->add('createdAt', null, array('label' => 'Created At'))
             ->add('updatedAt', null, ['label' => 'updated At']);

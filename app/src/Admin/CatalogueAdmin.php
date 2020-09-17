@@ -42,7 +42,7 @@ final class CatalogueAdmin extends AbstractAdmin
     {
         $list = parent::configureActionButtons($action, $object);
 
-        $list['import']['template'] = 'admin/catalogue/import_button.html.twig';
+        $list['import']['template'] = 'admin/import/import_buttonc.html.twig';
 
         return $list;
     }

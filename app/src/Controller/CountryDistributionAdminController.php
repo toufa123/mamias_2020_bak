@@ -36,6 +36,8 @@ final class CountryDistributionAdminController extends CRUDController
         $session = $request->getSession();
         //$tmp_name = $_FILES['catalogue']['tmp_name'];
         //dump($request);die;
+        $fp = fopen($_SERVER['DOCUMENT_ROOT'] . "/cd-import-" . date('d-m-y-H_i') . ".txt", "wb");
+        $url = '/cd-import-' . date('d-m-y-H_i') . '.txt';
         $request->request->set('_sonata_admin', 'admin.template');
         if (isset($_POST["submit"])) {
             $tmp_name = $_FILES['nc']['tmp_name'];
@@ -63,31 +65,43 @@ final class CountryDistributionAdminController extends CRUDController
             } elseif ('xlsx' == $extension) {
                 $reader = new XlsxReader();
                 $spreadsheet = $reader->load($tmp_name);
-                $sheetData = $spreadsheet->getActiveSheet()->toArray();
-
                 $worksheet = $spreadsheet->getActiveSheet();
-                // Get the highest row number and column letter referenced in the worksheet
+                $sheetData = $worksheet->toArray();
                 $highestRow = $worksheet->getHighestRow() - 1; // e.g. 10
-                $highestColumn = $worksheet->getHighestColumn();
-                $highestColumn++;
-                $fp = fopen($_SERVER['DOCUMENT_ROOT'] . "/nc-import-" . date('d-m-y') . ".txt", "wb");
+                //$highestColumn = $worksheet->getHighestColumn();
+                //$highestColumnIndex = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($highestColumn); // e.g. 5
+                //$highestColumn++;
                 fwrite($fp, $_FILES['nc']['name'] . "\n");
+                for ($row = 1; $row <= $highestRow; ++$row) {
+                    //dd($sheetData[$row][0],$sheetData[$row][1], $sheetData[$row][2], $sheetData[$row][3], $sheetData[$row][4] );
+                    $species = $this->getDoctrine()->getManager()->getRepository(Catalogue::class)->findOneBy(['Species' => $sheetData[$row][0]]);
+                    if ($species) {
+                        $species_id = $species->getId();
+                        $em = $this->getDoctrine()->getManager()->getRepository(CountryDistribution::class);
+                        $s = $em->findOneBy(['mamias' => $species_id]);
+                        fwrite($fp, $species_id . '-' . $sheetData[$row][2] . '-' . $sheetData[$row][5] . "\n");
+                        if ($s) {
+                            $CD = new CountryDistribution();
+                            $CD->setMamias($species_id);
+                            $CD->setAreaSighting($sheetData[$row][2]);
+                            $CD->setStatus('Non Validated');
+                            $CD->setCertainty($sheetData[$row][5]);
 
-
+                            //$CD->setCreatedAt(datetime('now'));
+                            //$em->persist($CD);
+                            //$em->flush();
+                            //dd($CD);
+                        }
+                    }
+                }
+                $request->getSession()->getFlashBag()->add('success', 'File is valid, and was successfully processed.!' . '<br>' . "<a href=" . $url . ">Log Link</a>");
                 fclose($fp);
-
-
-                $request->getSession()
-                    ->getFlashBag()
-                    ->add('success', 'File is valid, and was successfully uploaded.!');
                 return $this->redirect($this->generateUrl('CountryD_list'));
             } else {
                 $request->getSession()
                     ->getFlashBag()
                     ->add('error', 'File is not valid.!');
                 return $this->render('admin/import/importn.html.twig');
-                //return $this->redirect($this->generateUrl('importcatalogue'));
-
             }
 
 
