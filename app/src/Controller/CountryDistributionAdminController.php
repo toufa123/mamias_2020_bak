@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\Catalogue;
+use App\Entity\Country;
 use App\Entity\CountryDistribution;
 use App\Entity\Mamias;
-
+use App\Entity\Status;
+use App\Entity\SuccessType;
+use App\Entity\VectorName;
 use Sonata\AdminBundle\Controller\CRUDController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -73,24 +76,36 @@ final class CountryDistributionAdminController extends CRUDController
                 //$highestColumn++;
                 fwrite($fp, $_FILES['nc']['name'] . "\n");
                 for ($row = 1; $row <= $highestRow; ++$row) {
-                    //dd($sheetData[$row][0],$sheetData[$row][1], $sheetData[$row][2], $sheetData[$row][3], $sheetData[$row][4] );
+                    //dd($sheetData[$row][0],$sheetData[$row][1], $sheetData[$row][2], $sheetData[$row][3], $sheetData[$row][4], $sheetData[$row][5], $sheetData[$row][6]  );
                     $species = $this->getDoctrine()->getManager()->getRepository(Catalogue::class)->findOneBy(['Species' => $sheetData[$row][0]]);
+                    //dd($species);
                     if ($species) {
                         $species_id = $species->getId();
-                        $em = $this->getDoctrine()->getManager()->getRepository(CountryDistribution::class);
-                        $s = $em->findOneBy(['mamias' => $species_id]);
-                        fwrite($fp, $species_id . '-' . $sheetData[$row][2] . '-' . $sheetData[$row][5] . "\n");
+                        //dd($species_id);
+                        $em1 = $this->getDoctrine()->getManager()->getRepository(Mamias::class);
+                        $s = $em1->findOneBy(['relation' => $species_id]);
+                        $country = $this->getDoctrine()->getManager()->getRepository(Country::class)->findOneBy(['country' => $sheetData[$row][9]]);
+                        $v = $this->getDoctrine()->getManager()->getRepository(VectorName::class)->findOneBy(['vectorName' => $sheetData[$row][3]]);
+                        $as = $this->getDoctrine()->getManager()->getRepository(SuccessType::class)->findOneBy(['successType' => $sheetData[$row][6]]);
+                        $ns = $this->getDoctrine()->getManager()->getRepository(Status::class)->findOneBy(['status' => $sheetData[$row][5]]);
+                        //dd($ns);
                         if ($s) {
+                            //dd($s);
+                            $em2 = $this->getDoctrine()->getManager();
                             $CD = new CountryDistribution();
-                            $CD->setMamias($species_id);
-                            $CD->setAreaSighting($sheetData[$row][2]);
+                            $CD->setMamias($s->setRelation($species));
+                            $CD->setCountry($country);
+                            $CD->setAreaSighting((string)$sheetData[$row][2]);
+                            $CD->setNationalstatus($ns);
+                            $CD->setAreaSuccess($as);
                             $CD->setStatus('Non Validated');
-                            $CD->setCertainty($sheetData[$row][5]);
 
-                            //$CD->setCreatedAt(datetime('now'));
-                            //$em->persist($CD);
-                            //$em->flush();
+
+                            $em2->persist($CD);
+                            $em2->flush();
                             //dd($CD);
+                        } else {
+                            $request->getSession()->getFlashBag()->add('error', 'no records to add' . '<br>' . "<a href=" . $url . ">Log Link</a>");
                         }
                     }
                 }

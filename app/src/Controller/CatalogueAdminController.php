@@ -28,7 +28,6 @@ final class CatalogueAdminController extends CRUDController
 
     public function importcatalogueAction(Request $request)
     {
-
         $session = $request->getSession();
         $fp = fopen($_SERVER['DOCUMENT_ROOT'] . "/catalogue-import-" . date('d-m-y-H_i') . ".txt", "wb");
         $url = '/catalogue-import-' . date('d-m-y-H_i') . '.txt';
