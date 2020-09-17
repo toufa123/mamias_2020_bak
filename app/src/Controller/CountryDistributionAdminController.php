@@ -7,6 +7,7 @@ namespace App\Controller;
 use App\Entity\Catalogue;
 use App\Entity\Country;
 use App\Entity\CountryDistribution;
+use App\Entity\GeoOccurence;
 use App\Entity\Mamias;
 use App\Entity\Status;
 use App\Entity\SuccessType;
@@ -99,8 +100,14 @@ final class CountryDistributionAdminController extends CRUDController
                             $CD->setNationalstatus($ns);
                             $CD->setAreaSuccess($as);
                             $CD->setStatus('Non Validated');
-
-
+                            if ($sheetData[$row][7] != '' & $sheetData[$row][8] != '') {
+                                $GO = new GeoOccurence();
+                                $GO->setCountry($country);
+                                $GO->setMamias($s->setRelation($species));
+                                $GO->setDateOccurence(\DateTime::createFromFormat('Y', (string)$sheetData[$row][2]));
+                                $GO->setStatus('Validated');
+                                $em2->persist($GO);
+                            }
                             $em2->persist($CD);
                             $em2->flush();
                             //dd($CD);
