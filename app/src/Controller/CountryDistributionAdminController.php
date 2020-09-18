@@ -25,6 +25,9 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use CrEOF\Geo\WKT\Parser;
+use CrEOF\Spatial\PHP\Types\Geometry\Point;
+use CrEOF\Spatial\PHP\Types\Geometry\GeometryInterface;
 
 final class CountryDistributionAdminController extends CRUDController
 {
@@ -105,8 +108,12 @@ final class CountryDistributionAdminController extends CRUDController
                                 $GO->setCountry($country);
                                 $GO->setMamias($s->setRelation($species));
                                 $GO->setDateOccurence(\DateTime::createFromFormat('Y', (string)$sheetData[$row][2]));
-                                $GO->setLocation($sheetData[$row][7] . '' . $sheetData[$row][8]);
-                                $GO->setStatus('Validated');
+                                $parser = new Parser('Point(' . $sheetData[$row][7] . ' ' . $sheetData[$row][8] . ')');
+                                //dd($parser);
+                                $geo = $parser->parse();
+                                $g = new \CrEOF\Spatial\PHP\Types\Geometry\Point($geo['value'], '4326');
+                                $GO->setLocation($g);
+                                $GO->setStatus('Submitted');
                                 $em2->persist($GO);
                             }
                             $em2->persist($CD);
