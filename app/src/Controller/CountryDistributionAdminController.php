@@ -105,11 +105,13 @@ final class CountryDistributionAdminController extends CRUDController
                                 $GO->setCountry($country);
                                 $GO->setMamias($s->setRelation($species));
                                 $GO->setDateOccurence(\DateTime::createFromFormat('Y', (string)$sheetData[$row][2]));
+                                $GO->setLocation($sheetData[$row][7] . '' . $sheetData[$row][8]);
                                 $GO->setStatus('Validated');
                                 $em2->persist($GO);
                             }
                             $em2->persist($CD);
                             $em2->flush();
+                            fwrite($fp, $sheetData[$row][0] . '----added' . "\n");
                             //dd($CD);
                         } else {
                             $request->getSession()->getFlashBag()->add('error', 'no records to add' . '<br>' . "<a href=" . $url . ">Log Link</a>");
