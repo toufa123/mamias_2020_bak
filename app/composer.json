@@ -65,7 +65,8 @@
         "symfony/yaml": "4.4.*",
         "symfonycasts/reset-password-bundle": "*",
         "twig/twig": "^2.13.1",
-        "vich/uploader-bundle": "1.11.*"
+        "vich/uploader-bundle": "1.11.*",
+        "rollerworks/password-strength-bundle": "2.2.0"
     },
     "require-dev": {
         "symfony/debug-pack": "*",

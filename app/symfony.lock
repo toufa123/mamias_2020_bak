@@ -185,6 +185,12 @@
     "redcode/tree-bundle": {
         "version": "0.1-alpha"
     },
+    "rollerworks/password-strength-bundle": {
+        "version": "v2.2.0"
+    },
+    "rollerworks/password-strength-validator": {
+        "version": "v1.3.0"
+    },
     "sensiolabs/security-checker": {
         "version": "4.0",
         "recipe": {

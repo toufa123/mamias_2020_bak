@@ -15,6 +15,7 @@ use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\IsTrue;
+use Rollerworks\Component\PasswordStrength\Validator\Constraints\PasswordStrength;
 
 class RegistrationFormType extends AbstractType
 {
@@ -38,12 +39,15 @@ class RegistrationFormType extends AbstractType
                     new NotBlank([
                         'message' => 'Please enter a password',
                     ]),
-                    new Length([
-                        'min' => 6,
-                        'minMessage' => 'Your password should be at least {{ limit }} characters',
-                        // max length allowed by Symfony for security reasons
-                        'max' => 4096,
-                    ]), 'first_options' => ['label' => 'Password'],
+                    //new Length([
+                    //    'min' => 6,
+                    //    'minMessage' => 'Your password should be at least {{ limit }} characters',
+                    // max length allowed by Symfony for security reasons
+                    //     'max' => 4096,
+
+                    //]),
+                    new PasswordStrength(['message' => 'password_too_weak', 'minLength' => 8, 'minStrength' => 3]),
+                    'first_options' => ['label' => 'Password'],
                     'second_options' => ['label' => 'Confirm Password'],
                     'invalid_message' => 'Your password does not match the confirmation.'
                 ],
@@ -77,6 +81,8 @@ class RegistrationFormType extends AbstractType
                 // an arbitrary string used to generate the value of the token
                 // using a different string for each form improves its security
                 'csrf_token_id' => 'registration_item',
+                //'validation_groups' => false
+                //'validation_groups' => ['Default', 'registration']
             ]
         );
     }

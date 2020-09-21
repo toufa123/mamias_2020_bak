@@ -35,7 +35,7 @@ fos_user:
         form:
             type: App\Form\RegistrationFormType
             name: fos_user_registration_form
-            validation_groups:  [Registration, Default]
+            #validation_groups:  ['Default', 'registration']
 
     resetting:
         token_ttl: 0
@@ -47,6 +47,7 @@ fos_user:
         form:
             type: App\Form\RestFormType
             name: fos_user_reset_form
+            #validation_groups:  [Resetting, Default]
 
 
 
