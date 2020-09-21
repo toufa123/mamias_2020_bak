@@ -47,6 +47,7 @@ services:
         class: App\Form\RegistrationFormType
         tags:
             - { name: form.type, alias: app_user_registration }
+        #arguments: {$class: 'FOS\UserBundle\Form\Type\RegistrationFormType'}
 
     App\Form\ProfileFormType:
         tags: [form.type]

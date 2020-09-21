@@ -39,14 +39,14 @@ class RegistrationFormType extends AbstractType
                     new NotBlank([
                         'message' => 'Please enter a password',
                     ]),
-                    //new Length([
-                    //    'min' => 6,
-                    //    'minMessage' => 'Your password should be at least {{ limit }} characters',
-                    // max length allowed by Symfony for security reasons
-                    //     'max' => 4096,
+                    new Length([
+                        'min' => 6,
+                        'minMessage' => 'Your password should be at least {{ limit }} characters',
+                        //   max length allowed by Symfony for security reasons
+                        'max' => 4096,
 
-                    //]),
-                    new PasswordStrength(['message' => 'password_too_weak', 'minLength' => 8, 'minStrength' => 3]),
+                    ]),
+                    //new PasswordStrength(['message' => 'password_too_weak', 'minLength' => 8, 'minStrength' => 3]),
                     'first_options' => ['label' => 'Password'],
                     'second_options' => ['label' => 'Confirm Password'],
                     'invalid_message' => 'Your password does not match the confirmation.'
@@ -77,12 +77,12 @@ class RegistrationFormType extends AbstractType
                 'data_class' => User::class,
                 'csrf_protection' => true,
                 // the name of the hidden HTML field that stores the token
-                'csrf_field_name' => '_token',
+                //'csrf_field_name' => '_token',
                 // an arbitrary string used to generate the value of the token
                 // using a different string for each form improves its security
-                'csrf_token_id' => 'registration_item',
+                //'csrf_token_id' => 'registration_item',
                 //'validation_groups' => false
-                //'validation_groups' => ['Default', 'registration']
+                'validation_groups' => ['Default', 'registration']
             ]
         );
     }
