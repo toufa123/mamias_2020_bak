@@ -301,6 +301,20 @@ class MedlevelController extends AbstractController
         $ob9->credits->href('http://www.mamias.org _target="blank"');
         //$ob5->legend->enabled(true);
         $ob9->labels->enabled(true);
+        $ob9->plotOptions->pie(
+            [
+                'allowPointSelect' => true,
+                'cursor' => 'pointer',
+                'depth' => '40',
+                'dataLabels' => [
+                    'enabled' => true,
+                    'connectorShape' => 'crookedLine',
+                    'crookDistance' => '70%',
+                    'format' => '<b>{point.name}</b>: {point.percentage:.1f} %'
+                ],
+                'showInLegend' => false,
+            ]
+        );
         //$data = array($status,$results2);
         $ob9->series([['type' => 'pie', 'name' => 'Number of NIS', 'color' => '#00AEEF', 'data' => $pdatac]]);
 
