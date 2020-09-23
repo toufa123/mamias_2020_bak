@@ -16,6 +16,10 @@ fos_user_profile:
     resource: "@FOSUserBundle/Resources/config/routing/profile.xml"
     prefix: /user/profile
 
+fos_user_register:
+    resource: "@FOSUserBundle/Resources/config/routing/registration.xml"
+    prefix: /user/register
+
 news:
     resource: '@SonataNewsBundle/Resources/config/routing/news.xml'
     prefix: /news

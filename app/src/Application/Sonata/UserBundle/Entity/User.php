@@ -57,6 +57,22 @@ class User extends BaseUser
      */
     protected $literature;
 
+    /**
+     * @Assert\NotBlank
+     * @Assert\Length(
+     *     min=8,
+     *     max=100,
+     *     minMessage="user.password.short",
+     *     groups={"Profile", "ResetPassword", "Registration", "ChangePassword"}
+     * )
+     * @Assert\Regex(
+     *     pattern="/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*\s).{8,100}$/",
+     *     message="user.password.difficulty",
+     *     groups={"Profile", "ResetPassword", "Registration", "ChangePassword"}
+     * )
+     */
+    protected $plainPassword;
+
     public function __construct()
     {
         parent::__construct();

@@ -7,7 +7,7 @@ fos_user:
         form:
             type:               App\Form\ProfileFormType
             name:               fos_user_profile
-            validation_groups:  [Authentication] # Please note : this is not the default value
+            #validation_groups:  [Authentication] # Please note : this is not the default value
 
     group:
         group_class:    App\Application\Sonata\UserBundle\Entity\Group
@@ -35,7 +35,7 @@ fos_user:
         form:
             type: App\Form\RegistrationFormType
             name: fos_user_registration_form
-            validation_groups:  ['Default', 'registration']
+            #validation_groups:  ['Default', 'registration']
 
     resetting:
         token_ttl: 0
