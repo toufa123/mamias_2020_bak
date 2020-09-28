@@ -86,8 +86,8 @@ final class CountryDistributionAdminController extends CRUDController
                     if ($species) {
                         $species_id = $species->getId();
                         //dd($species_id);
-                        $em1 = $this->getDoctrine()->getManager()->getRepository(Mamias::class);
-                        $s = $em1->findOneBy(['relation' => $species_id]);
+                        $em1 = $this->getDoctrine()->getManager();
+                        $s = $em1->getRepository(Mamias::class)->findOneBy(['relation' => $species_id]);
                         $country = $this->getDoctrine()->getManager()->getRepository(Country::class)->findOneBy(['country' => $sheetData[$row][9]]);
                         $v = $this->getDoctrine()->getManager()->getRepository(VectorName::class)->findOneBy(['vectorName' => $sheetData[$row][3]]);
                         $as = $this->getDoctrine()->getManager()->getRepository(SuccessType::class)->findOneBy(['successType' => $sheetData[$row][6]]);
@@ -103,6 +103,7 @@ final class CountryDistributionAdminController extends CRUDController
                             $CD->setNationalstatus($ns);
                             $CD->setAreaSuccess($as);
                             $CD->setStatus('Non Validated');
+                            fwrite($fp, $sheetData[$row][0] . '----added' . "\n");
                             if ($sheetData[$row][7] != '' & $sheetData[$row][8] != '') {
                                 $GO = new GeoOccurence();
                                 $GO->setCountry($country);
@@ -115,14 +116,42 @@ final class CountryDistributionAdminController extends CRUDController
                                 $GO->setLocation($g);
                                 $GO->setStatus('Submitted');
                                 $em2->persist($GO);
+                                //}
+                                $em2->persist($CD);
+
+
+                            } else {
+                                fwrite($fp, $sheetData[$row][0] . '----not added' . "\n");
+                                $sp = new Mamias();
+                                $sp->setRelation($species);
+                                $em1->persist($sp);
+                                $CD = new CountryDistribution();
+                                $CD->setMamias($s->setRelation($species));
+                                $CD->setCountry($country);
+                                $CD->setAreaSighting((string)$sheetData[$row][2]);
+                                $CD->setNationalstatus($ns);
+                                $CD->setAreaSuccess($as);
+                                $CD->setStatus('Non Validated');
+                                if ($sheetData[$row][7] != '' & $sheetData[$row][8] != '') {
+                                    $GO = new GeoOccurence();
+                                    $GO->setCountry($country);
+                                    $GO->setMamias($s->setRelation($species));
+                                    $GO->setDateOccurence(\DateTime::createFromFormat('Y', (string)$sheetData[$row][2]));
+                                    $parser = new Parser('Point(' . $sheetData[$row][7] . ' ' . $sheetData[$row][8] . ')');
+                                    //dd($parser);
+                                    $geo = $parser->parse();
+                                    $g = new \CrEOF\Spatial\PHP\Types\Geometry\Point($geo['value'], '4326');
+                                    $GO->setLocation($g);
+                                    $GO->setStatus('Submitted');
+                                    $em2->persist($GO);
+                                    //}
+                                    $em2->persist($CD);
+                                }
                             }
-                            $em2->persist($CD);
-                            $em2->flush();
-                            fwrite($fp, $sheetData[$row][0] . '----added' . "\n");
-                            //dd($CD);
-                        } else {
-                            $request->getSession()->getFlashBag()->add('error', 'no records to add' . '<br>' . "<a href=" . $url . ">Log Link</a>");
                         }
+                        $em1->flush();
+                        $em2->flush();
+                        $request->getSession()->getFlashBag()->add('error', "<a href=" . $url . ">Log Link</a>");
                     }
                 }
                 $request->getSession()->getFlashBag()->add('success', 'File is valid, and was successfully processed.!' . '<br>' . "<a href=" . $url . ">Log Link</a>");
@@ -134,8 +163,6 @@ final class CountryDistributionAdminController extends CRUDController
                     ->add('error', 'File is not valid.!');
                 return $this->render('admin/import/importn.html.twig');
             }
-
-
         } else {
             return $this->render('admin/import/importn.html.twig');
             //return $this->renderWithExtraParams('admin/catalogue/importc.html.twig');
