@@ -31,15 +31,12 @@ use CrEOF\Spatial\PHP\Types\Geometry\GeometryInterface;
 
 final class CountryDistributionAdminController extends CRUDController
 {
-
     /**
      * @Route("countrydistribution/importn", name="importnd")
      * @Security("is_granted('ROLE_ADMIN')")
      */
-
     public function importnAction(Request $request)
     {
-
         $session = $request->getSession();
         //$tmp_name = $_FILES['catalogue']['tmp_name'];
         //dump($request);die;
@@ -57,14 +54,10 @@ final class CountryDistributionAdminController extends CRUDController
                 $reader = new XlsReader();
                 $spreadsheet = $reader->load($tmp_name);
                 $sheetData = $spreadsheet->getActiveSheet()->toArray();
-                //dump($sheetData);
-                die;
                 $worksheet = $spreadsheet->getActiveSheet();
                 // Get the highest row number and column letter referenced in the worksheet
                 $highestRow = $worksheet->getHighestRow() - 1; // e.g. 10
                 $highestColumn = $worksheet->getHighestColumn();
-
-
                 $request->getSession()
                     ->getFlashBag()
                     ->add('success', 'File is valid, and was successfully uploaded.!');
@@ -95,6 +88,7 @@ final class CountryDistributionAdminController extends CRUDController
                         //dd($ns);
                         if ($s) {
                             //dd($s);
+
                             $em2 = $this->getDoctrine()->getManager();
                             $CD = new CountryDistribution();
                             $CD->setMamias($s->setRelation($species));
@@ -103,7 +97,8 @@ final class CountryDistributionAdminController extends CRUDController
                             $CD->setNationalstatus($ns);
                             $CD->setAreaSuccess($as);
                             $CD->setStatus('Non Validated');
-                            fwrite($fp, $sheetData[$row][0] . '----added' . "\n");
+                            fwrite($fp, $sheetData[$row][0] . '::::::exits in MAMIAS geodatabase and data added' . "\n");
+                            //fwrite($fp, $sheetData[$row][0] . '----added' . "\n");
                             if ($sheetData[$row][7] != '' & $sheetData[$row][8] != '') {
                                 $GO = new GeoOccurence();
                                 $GO->setCountry($country);
@@ -116,43 +111,42 @@ final class CountryDistributionAdminController extends CRUDController
                                 $GO->setLocation($g);
                                 $GO->setStatus('Submitted');
                                 $em2->persist($GO);
-                                //}
-                                $em2->persist($CD);
-
-
-                            } else {
-                                fwrite($fp, $sheetData[$row][0] . '----not added' . "\n");
-                                $sp = new Mamias();
-                                $sp->setRelation($species);
-                                $em1->persist($sp);
-                                $CD = new CountryDistribution();
-                                $CD->setMamias($s->setRelation($species));
-                                $CD->setCountry($country);
-                                $CD->setAreaSighting((string)$sheetData[$row][2]);
-                                $CD->setNationalstatus($ns);
-                                $CD->setAreaSuccess($as);
-                                $CD->setStatus('Non Validated');
-                                if ($sheetData[$row][7] != '' & $sheetData[$row][8] != '') {
-                                    $GO = new GeoOccurence();
-                                    $GO->setCountry($country);
-                                    $GO->setMamias($s->setRelation($species));
-                                    $GO->setDateOccurence(\DateTime::createFromFormat('Y', (string)$sheetData[$row][2]));
-                                    $parser = new Parser('Point(' . $sheetData[$row][7] . ' ' . $sheetData[$row][8] . ')');
-                                    //dd($parser);
-                                    $geo = $parser->parse();
-                                    $g = new \CrEOF\Spatial\PHP\Types\Geometry\Point($geo['value'], '4326');
-                                    $GO->setLocation($g);
-                                    $GO->setStatus('Submitted');
-                                    $em2->persist($GO);
-                                    //}
-                                    $em2->persist($CD);
-                                }
                             }
+                            $em2->persist($CD);
+                        } else {
+                            fwrite($fp, $sheetData[$row][0] . ':::::::not in Mamias' . "\n");
+                            $em1 = $this->getDoctrine()->getManager();
+                            $sp = new Mamias();
+                            $sp->setRelation($species);
+                            $em1->persist($sp);
+                            $em1->flush();
+                            //$CD = new CountryDistribution();
+                            //$CD->setMamias($s->setRelation($species));
+                            //$CD->setCountry($country);
+                            //$CD->setAreaSighting((string)$sheetData[$row][2]);
+                            //$CD->setNationalstatus($ns);
+                            //$CD->setAreaSuccess($as);
+                            //$CD->setStatus('Non Validated');
+                            //if ($sheetData[$row][7] != '' & $sheetData[$row][8] != '') {
+                            //    $GO = new GeoOccurence();
+                            //    $GO->setCountry($country);
+                            //    $GO->setMamias($s->setRelation($species));
+                            //    $GO->setDateOccurence(\DateTime::createFromFormat('Y', (string)$sheetData[$row][2]));
+                            //   $parser = new Parser('Point(' . $sheetData[$row][7] . ' ' . $sheetData[$row][8] . ')');
+                            //dd($parser);
+                            //    $geo = $parser->parse();
+                            //    $g = new \CrEOF\Spatial\PHP\Types\Geometry\Point($geo['value'], '4326');
+                            //   $GO->setLocation($g);
+                            //   $GO->setStatus('Submitted');
+                            //   $em2->persist($GO);
+                            //}
+                            //    $em2->persist($CD);
                         }
-                        $em1->flush();
+                        // }
                         $em2->flush();
-                        $request->getSession()->getFlashBag()->add('error', "<a href=" . $url . ">Log Link</a>");
                     }
+
+
                 }
                 $request->getSession()->getFlashBag()->add('success', 'File is valid, and was successfully processed.!' . '<br>' . "<a href=" . $url . ">Log Link</a>");
                 fclose($fp);

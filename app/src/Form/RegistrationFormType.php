@@ -88,7 +88,7 @@ class RegistrationFormType extends AbstractType
                 // using a different string for each form improves its security
                 //'csrf_token_id' => 'registration_item',
                 //'validation_groups' => false
-                //'validation_groups' => ['Default', 'registration']
+                'validation_groups' => ['Default', 'registration']
             ]
         );
     }

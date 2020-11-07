@@ -42,7 +42,7 @@ services:
     volumes:
       #  - solr:/opt/solr/server/solr/data
       - postgres_data:/var/lib/postgresql/data
-      - ./backup/mamias24082020.sql:/docker-entrypoint-initdb.d/setup-db.sql
+      - ./backup/mamias29092020.sql:/docker-entrypoint-initdb.d/setup-db.sql
 
     environment:
       - ALLOW_IP_RANGE=0.0.0.0/0
