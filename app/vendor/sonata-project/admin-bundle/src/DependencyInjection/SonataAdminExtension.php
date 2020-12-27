@@ -15,10 +15,12 @@ namespace Sonata\AdminBundle\DependencyInjection;
 
 use Sonata\AdminBundle\DependencyInjection\Compiler\ModelManagerCompilerPass;
 use Sonata\AdminBundle\Model\ModelManagerInterface;
+// NEXT_MAJOR: Uncomment this line.
+//use Sonata\AdminBundle\Util\AdminAclUserManagerInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
-use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
+use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType as SymfonyChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType as SymfonyDateTimeType;
@@ -59,24 +61,24 @@ class SonataAdminExtension extends Extension implements PrependExtensionInterfac
             ]);
         }
 
-        $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
-        $loader->load('actions.xml');
-        $loader->load('block.xml');
-        $loader->load('commands.xml');
-        $loader->load('core.xml');
-        $loader->load('event_listener.xml');
-        $loader->load('form_types.xml');
-        $loader->load('menu.xml');
-        $loader->load('route.xml');
-        $loader->load('twig.xml');
-        $loader->load('validator.xml');
+        $loader = new PhpFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+        $loader->load('actions.php');
+        $loader->load('block.php');
+        $loader->load('commands.php');
+        $loader->load('core.php');
+        $loader->load('event_listener.php');
+        $loader->load('form_types.php');
+        $loader->load('menu.php');
+        $loader->load('route.php');
+        $loader->load('twig.php');
+        $loader->load('validator.php');
 
         if (isset($bundles['MakerBundle'])) {
-            $loader->load('makers.xml');
+            $loader->load('makers.php');
         }
 
         if (isset($bundles['SonataExporterBundle'])) {
-            $loader->load('exporter.xml');
+            $loader->load('exporter.php');
         }
 
         $configuration = $this->getConfiguration($configs, $container);
@@ -90,10 +92,16 @@ class SonataAdminExtension extends Extension implements PrependExtensionInterfac
         $config['options']['role_super_admin'] = $config['security']['role_super_admin'];
         $config['options']['search'] = $config['search'];
 
+        // NEXT_MAJOR: Remove this Pool configuration.
         $pool = $container->getDefinition('sonata.admin.pool');
         $pool->replaceArgument(1, $config['title']);
         $pool->replaceArgument(2, $config['title_logo']);
         $pool->replaceArgument(3, $config['options']);
+
+        $sonataConfiguration = $container->getDefinition('sonata.admin.configuration');
+        $sonataConfiguration->replaceArgument(0, $config['title']);
+        $sonataConfiguration->replaceArgument(1, $config['title_logo']);
+        $sonataConfiguration->replaceArgument(2, $config['options']);
 
         if (false === $config['options']['lock_protection']) {
             $container->removeDefinition('sonata.admin.lock.extension');
@@ -115,11 +123,20 @@ class SonataAdminExtension extends Extension implements PrependExtensionInterfac
         $container->setParameter('sonata.admin.configuration.default_icon', $config['options']['default_icon']);
         $container->setParameter('sonata.admin.configuration.breadcrumbs', $config['breadcrumbs']);
 
+        // NEXT_MAJOR: Remove this block and uncomment the one below.
         if (null === $config['security']['acl_user_manager'] && isset($bundles['FOSUserBundle'])) {
+            $container->setParameter('sonata.admin.security.fos_user_autoconfigured', true);
             $container->setParameter('sonata.admin.security.acl_user_manager', 'fos_user.user_manager');
         } else {
+            $container->setParameter('sonata.admin.security.fos_user_autoconfigured', false);
             $container->setParameter('sonata.admin.security.acl_user_manager', $config['security']['acl_user_manager']);
         }
+
+        // NEXT_MAJOR: Uncomment this code.
+        //if (null !== $config['security']['acl_user_manager']) {
+        //    $container->setAlias('sonata.admin.security.acl_user_manager', $config['security']['acl_user_manager']);
+        //    $container->setAlias(AdminAclUserManagerInterface::class, 'sonata.admin.security.acl_user_manager');
+        //}
 
         $container->setAlias('sonata.admin.security.handler', $config['security']['handler']);
 
@@ -157,7 +174,7 @@ class SonataAdminExtension extends Extension implements PrependExtensionInterfac
         $container->setParameter('sonata.admin.configuration.security.admin_permissions', $config['security']['admin_permissions']);
         $container->setParameter('sonata.admin.configuration.security.object_permissions', $config['security']['object_permissions']);
 
-        $loader->load('security.xml');
+        $loader->load('security.php');
 
         $container->setParameter('sonata.admin.extension.map', $config['extensions']);
 
@@ -226,6 +243,11 @@ class SonataAdminExtension extends Extension implements PrependExtensionInterfac
 
     private function buildStylesheets(array $config): array
     {
+        $config['assets']['stylesheets'][] = sprintf(
+            'bundles/sonataadmin/vendor/admin-lte/dist/css/skins/%s.min.css',
+            $config['options']['skin']
+        );
+
         return $this->mergeArray(
             $config['assets']['stylesheets'],
             $config['assets']['extra_stylesheets'],
@@ -272,10 +294,10 @@ class SonataAdminExtension extends Extension implements PrependExtensionInterfac
     /**
      * NEXT_MAJOR: remove this method.
      */
-    private function configureTwigTextExtension(ContainerBuilder $container, XmlFileLoader $loader, array $config): void
+    private function configureTwigTextExtension(ContainerBuilder $container, PhpFileLoader $loader, array $config): void
     {
         $container->setParameter('sonata.admin.configuration.legacy_twig_text_extension', $config['options']['legacy_twig_text_extension']);
-        $loader->load('twig_string.xml');
+        $loader->load('twig_string.php');
 
         if (false !== $config['options']['legacy_twig_text_extension']) {
             $container

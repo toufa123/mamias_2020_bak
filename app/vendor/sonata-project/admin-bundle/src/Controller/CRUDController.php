@@ -32,7 +32,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormRenderer;
 use Symfony\Component\Form\FormView;
+use Symfony\Component\HttpFoundation\InputBag;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -45,6 +47,8 @@ use Symfony\Component\Security\Csrf\CsrfToken;
 
 /**
  * @author Thomas Rabaix <thomas.rabaix@sonata-project.org>
+ *
+ * @phpstan-template T of object
  */
 class CRUDController implements ContainerAwareInterface
 {
@@ -54,7 +58,7 @@ class CRUDController implements ContainerAwareInterface
     }
 
     /**
-     * @var ContainerInterface
+     * @var \Symfony\Component\DependencyInjection\ContainerInterface
      */
     protected $container;
 
@@ -62,6 +66,8 @@ class CRUDController implements ContainerAwareInterface
      * The related Admin class.
      *
      * @var AdminInterface
+     *
+     * @phpstan-var AdminInterface<T>
      */
     protected $admin;
 
@@ -217,7 +223,7 @@ class CRUDController implements ContainerAwareInterface
             return $preResponse;
         }
 
-        if (Request::METHOD_DELETE === $this->getRestMethod()) {
+        if (Request::METHOD_DELETE === $request->getMethod()) {
             // check the csrf token
             $this->validateCsrfToken('sonata.delete');
 
@@ -323,6 +329,7 @@ class CRUDController implements ContainerAwareInterface
 
             // persist if the form was valid and if in preview mode the preview was approved
             if ($isFormValid && (!$this->isInPreviewMode() || $this->isPreviewApproved())) {
+                /** @phpstan-var T $submittedObject */
                 $submittedObject = $form->getData();
                 $this->admin->setSubject($submittedObject);
 
@@ -405,7 +412,7 @@ class CRUDController implements ContainerAwareInterface
     public function batchAction()
     {
         $request = $this->getRequest();
-        $restMethod = $this->getRestMethod();
+        $restMethod = $request->getMethod();
 
         if (Request::METHOD_POST !== $restMethod) {
             throw $this->createNotFoundException(sprintf(
@@ -424,18 +431,26 @@ class CRUDController implements ContainerAwareInterface
 
         if ($data = json_decode((string) $request->get('data'), true)) {
             $action = $data['action'];
-            $idx = $data['idx'];
-            $allElements = (bool) $data['all_elements'];
+            $idx = (array) ($data['idx'] ?? []);
+            $allElements = (bool) ($data['all_elements'] ?? false);
             $forwardedRequest->request->replace(array_merge($forwardedRequest->request->all(), $data));
         } else {
             $action = $forwardedRequest->request->get('action');
-            $idx = $request->request->get('idx', []);
+            /** @var InputBag|ParameterBag $bag */
+            $bag = $request->request;
+            if ($bag instanceof InputBag) {
+                // symfony 5.1+
+                $idx = $bag->all('idx');
+            } else {
+                $idx = (array) $bag->get('idx', []);
+            }
             $allElements = $forwardedRequest->request->getBoolean('all_elements');
 
             $forwardedRequest->request->set('idx', $idx);
             $forwardedRequest->request->set('all_elements', $allElements);
 
             $data = $forwardedRequest->request->all();
+            $data['all_elements'] = $allElements;
 
             unset($data['_sonata_csrf_token']);
         }
@@ -584,6 +599,7 @@ class CRUDController implements ContainerAwareInterface
 
             // persist if the form was valid and if in preview mode the preview was approved
             if ($isFormValid && (!$this->isInPreviewMode() || $this->isPreviewApproved())) {
+                /** @phpstan-var T $submittedObject */
                 $submittedObject = $form->getData();
                 $this->admin->setSubject($submittedObject);
                 $this->admin->checkAccess('create', $submittedObject);
@@ -968,6 +984,15 @@ class CRUDController implements ContainerAwareInterface
             throw $this->createNotFoundException('ACL are not enabled for this admin');
         }
 
+        if ($this->container->hasParameter('sonata.admin.security.fos_user_autoconfigured')
+            && $this->getParameter('sonata.admin.security.fos_user_autoconfigured')) {
+            @trigger_error(sprintf(
+                'Not configuring "acl_user_manager" and using ACL security handler is deprecated since'
+                .' sonata-project/admin-bundle 3.78 and will not work on 4.0. You MUST specify the service name'
+                .' under "sonata_admin.security.acl_user_manager" option.'
+            ), E_USER_DEPRECATED);
+        }
+
         $request = $this->getRequest();
         $id = $request->get($this->admin->getIdParameter());
         $object = $this->admin->getObject($id);
@@ -1098,20 +1123,25 @@ class CRUDController implements ContainerAwareInterface
     }
 
     /**
+     * NEXT_MAJOR: Remove this method.
+     *
      * Returns the correct RESTful verb, given either by the request itself or
      * via the "_method" parameter.
+     *
+     * @deprecated since sonata-project/admin-bundle 3.78, to be removed in 4.0. Use `Request::getMethod()` instead.
      *
      * @return string HTTP method, either
      */
     protected function getRestMethod()
     {
-        $request = $this->getRequest();
+        @trigger_error(sprintf(
+            'Method "%s()" is deprecated since sonata-project/admin-bundle 3.78'
+            .', to be removed in 4.0. Use `%s::getMethod()` instead.',
+            __METHOD__,
+            Request::class
+        ), E_USER_DEPRECATED);
 
-        if (Request::getHttpMethodParameterOverride() || !$request->request->has('_method')) {
-            return $request->getMethod();
-        }
-
-        return $request->request->get('_method');
+        return $this->getRequest()->getMethod();
     }
 
     /**
@@ -1222,6 +1252,8 @@ class CRUDController implements ContainerAwareInterface
      * @param object $object
      *
      * @return RedirectResponse
+     *
+     * @phpstan-param T $object
      */
     protected function redirectTo($object)
     {
@@ -1244,7 +1276,7 @@ class CRUDController implements ContainerAwareInterface
             $url = $this->admin->generateUrl('create', $params);
         }
 
-        if ('DELETE' === $this->getRestMethod()) {
+        if ('DELETE' === $request->getMethod()) {
             return $this->redirectToList();
         }
 
@@ -1344,6 +1376,7 @@ class CRUDController implements ContainerAwareInterface
      */
     protected function getAclUsers()
     {
+        // NEXT_MAJOR: Remove this code until the commented code and uncomment it;
         $aclUsers = [];
 
         $userManagerServiceName = $this->container->getParameter('sonata.admin.security.acl_user_manager');
@@ -1356,6 +1389,14 @@ class CRUDController implements ContainerAwareInterface
         }
 
         return \is_array($aclUsers) ? new \ArrayIterator($aclUsers) : $aclUsers;
+
+//        if (!$this->has('sonata.admin.security.acl_user_manager')) {
+//            return new \ArrayIterator([]);
+//        }
+//
+//        $aclUsers = $this->get('sonata.admin.security.acl_user_manager')->findUsers();
+//
+//        return \is_array($aclUsers) ? new \ArrayIterator($aclUsers) : $aclUsers;
     }
 
     /**
@@ -1451,6 +1492,8 @@ class CRUDController implements ContainerAwareInterface
      * @param object $object
      *
      * @return Response|null
+     *
+     * @phpstan-param T $object
      */
     protected function preCreate(Request $request, $object)
     {
@@ -1464,6 +1507,8 @@ class CRUDController implements ContainerAwareInterface
      * @param object $object
      *
      * @return Response|null
+     *
+     * @phpstan-param T $object
      */
     protected function preEdit(Request $request, $object)
     {
@@ -1477,6 +1522,8 @@ class CRUDController implements ContainerAwareInterface
      * @param object $object
      *
      * @return Response|null
+     *
+     * @phpstan-param T $object
      */
     protected function preDelete(Request $request, $object)
     {
@@ -1490,6 +1537,8 @@ class CRUDController implements ContainerAwareInterface
      * @param object $object
      *
      * @return Response|null
+     *
+     * @phpstan-param T $object
      */
     protected function preShow(Request $request, $object)
     {
@@ -1523,11 +1572,61 @@ class CRUDController implements ContainerAwareInterface
         return $this->get('translator')->trans($id, $parameters, $domain, $locale);
     }
 
+    protected function handleXmlHttpRequestErrorResponse(Request $request, FormInterface $form): ?JsonResponse
+    {
+        if (empty(array_intersect(['application/json', '*/*'], $request->getAcceptableContentTypes()))) {
+            @trigger_error(sprintf(
+                'None of the passed values ("%s") in the "Accept" header when requesting %s %s is supported since sonata-project/admin-bundle 3.82.'
+                .' It will result in a response with the status code 406 (Not Acceptable) in 4.0. You must add "application/json".',
+                implode('", "', $request->getAcceptableContentTypes()),
+                $request->getMethod(),
+                $request->getUri()
+            ), E_USER_DEPRECATED);
+
+            return null;
+        }
+
+        $errors = [];
+        foreach ($form->getErrors(true) as $error) {
+            $errors[] = $error->getMessage();
+        }
+
+        return $this->renderJson([
+            'result' => 'error',
+            'errors' => $errors,
+        ], Response::HTTP_BAD_REQUEST);
+    }
+
+    /**
+     * @phpstan-param T $object
+     */
+    protected function handleXmlHttpRequestSuccessResponse(Request $request, object $object): JsonResponse
+    {
+        if (empty(array_intersect(['application/json', '*/*'], $request->getAcceptableContentTypes()))) {
+            @trigger_error(sprintf(
+                'None of the passed values ("%s") in the "Accept" header when requesting %s %s is supported since sonata-project/admin-bundle 3.82.'
+                .' It will result in a response with the status code 406 (Not Acceptable) in 4.0. You must add "application/json".',
+                implode('", "', $request->getAcceptableContentTypes()),
+                $request->getMethod(),
+                $request->getUri()
+            ), E_USER_DEPRECATED);
+        }
+
+        return $this->renderJson([
+            'result' => 'ok',
+            'objectId' => $this->admin->getNormalizedIdentifier($object),
+            'objectName' => $this->escapeHtml($this->admin->toString($object)),
+        ], Response::HTTP_OK);
+    }
+
     private function getSelectedTab(Request $request): array
     {
         return array_filter(['_tab' => $request->request->get('_tab')]);
     }
 
+    /**
+     * @phpstan-param T $object
+     */
     private function checkParentChildAssociation(Request $request, object $object): void
     {
         if (!$this->admin->isChild()) {
@@ -1562,40 +1661,5 @@ class CRUDController implements ContainerAwareInterface
         $twig = $this->get('twig');
 
         $twig->getRuntime(FormRenderer::class)->setTheme($formView, $theme);
-    }
-
-    private function handleXmlHttpRequestErrorResponse(Request $request, FormInterface $form): ?JsonResponse
-    {
-        if (empty(array_intersect(['application/json', '*/*'], $request->getAcceptableContentTypes()))) {
-            @trigger_error('In next major version response will return 406 NOT ACCEPTABLE without `Accept: application/json` or `Accept: */*`', E_USER_DEPRECATED);
-
-            return null;
-        }
-
-        $errors = [];
-        foreach ($form->getErrors(true) as $error) {
-            $errors[] = $error->getMessage();
-        }
-
-        return $this->renderJson([
-            'result' => 'error',
-            'errors' => $errors,
-        ], Response::HTTP_BAD_REQUEST);
-    }
-
-    /**
-     * @param object $object
-     */
-    private function handleXmlHttpRequestSuccessResponse(Request $request, $object): JsonResponse
-    {
-        if (empty(array_intersect(['application/json', '*/*'], $request->getAcceptableContentTypes()))) {
-            @trigger_error('In next major version response will return 406 NOT ACCEPTABLE without `Accept: application/json` or `Accept: */*`', E_USER_DEPRECATED);
-        }
-
-        return $this->renderJson([
-            'result' => 'ok',
-            'objectId' => $this->admin->getNormalizedIdentifier($object),
-            'objectName' => $this->escapeHtml($this->admin->toString($object)),
-        ], Response::HTTP_OK);
     }
 }

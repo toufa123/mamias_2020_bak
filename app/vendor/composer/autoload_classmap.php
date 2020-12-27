@@ -6,7 +6,9 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
+    'Attribute' => $vendorDir . '/symfony/polyfill-php80/Resources/stubs/Attribute.php',
     'Collator' => $vendorDir . '/symfony/intl/Resources/stubs/Collator.php',
+    'Composer\\InstalledVersions' => $vendorDir . '/composer/InstalledVersions.php',
     'IntlDateFormatter' => $vendorDir . '/symfony/intl/Resources/stubs/IntlDateFormatter.php',
     'JsonException' => $vendorDir . '/symfony/polyfill-php73/Resources/stubs/JsonException.php',
     'Locale' => $vendorDir . '/symfony/intl/Resources/stubs/Locale.php',
@@ -52,6 +54,7 @@ return array(
     'PhpCsFixer\\Diff\\v3_0\\Output\\UnifiedDiffOutputBuilder' => $vendorDir . '/php-cs-fixer/diff/src/v3_0/Output/UnifiedDiffOutputBuilder.php',
     'PhpCsFixer\\Diff\\v3_0\\Parser' => $vendorDir . '/php-cs-fixer/diff/src/v3_0/Parser.php',
     'PhpCsFixer\\Diff\\v3_0\\TimeEfficientLongestCommonSubsequenceCalculator' => $vendorDir . '/php-cs-fixer/diff/src/v3_0/TimeEfficientLongestCommonSubsequenceCalculator.php',
+    'PhpCsFixer\\Tests\\InterimTestCase' => $vendorDir . '/friendsofphp/php-cs-fixer/tests/TestCase.php',
     'PhpCsFixer\\Tests\\TestCase' => $vendorDir . '/friendsofphp/php-cs-fixer/tests/TestCase.php',
     'PhpCsFixer\\Tests\\Test\\AbstractFixerTestCase' => $vendorDir . '/friendsofphp/php-cs-fixer/tests/Test/AbstractFixerTestCase.php',
     'PhpCsFixer\\Tests\\Test\\AbstractIntegrationCaseFactory' => $vendorDir . '/friendsofphp/php-cs-fixer/tests/Test/AbstractIntegrationCaseFactory.php',

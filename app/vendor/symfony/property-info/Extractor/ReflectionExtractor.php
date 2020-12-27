@@ -158,6 +158,18 @@ class ReflectionExtractor implements PropertyListExtractorInterface, PropertyTyp
             return $fromDefaultValue;
         }
 
+        if (\PHP_VERSION_ID >= 70400) {
+            try {
+                $reflectionProperty = new \ReflectionProperty($class, $property);
+                $type = $reflectionProperty->getType();
+                if (null !== $type) {
+                    return $this->extractFromReflectionType($type, $reflectionProperty->getDeclaringClass());
+                }
+            } catch (\ReflectionException $e) {
+                // noop
+            }
+        }
+
         return null;
     }
 
@@ -170,7 +182,7 @@ class ReflectionExtractor implements PropertyListExtractorInterface, PropertyTyp
             return true;
         }
 
-        list($reflectionMethod) = $this->getAccessorMethod($class, $property);
+        [$reflectionMethod] = $this->getAccessorMethod($class, $property);
 
         return null !== $reflectionMethod;
     }
@@ -184,7 +196,7 @@ class ReflectionExtractor implements PropertyListExtractorInterface, PropertyTyp
             return true;
         }
 
-        list($reflectionMethod) = $this->getMutatorMethod($class, $property);
+        [$reflectionMethod] = $this->getMutatorMethod($class, $property);
 
         return null !== $reflectionMethod;
     }
@@ -222,7 +234,7 @@ class ReflectionExtractor implements PropertyListExtractorInterface, PropertyTyp
      */
     private function extractFromMutator(string $class, string $property): ?array
     {
-        list($reflectionMethod, $prefix) = $this->getMutatorMethod($class, $property);
+        [$reflectionMethod, $prefix] = $this->getMutatorMethod($class, $property);
         if (null === $reflectionMethod) {
             return null;
         }
@@ -233,7 +245,7 @@ class ReflectionExtractor implements PropertyListExtractorInterface, PropertyTyp
         if (!$reflectionType = $reflectionParameter->getType()) {
             return null;
         }
-        $type = $this->extractFromReflectionType($reflectionType, $reflectionMethod);
+        $type = $this->extractFromReflectionType($reflectionType, $reflectionMethod->getDeclaringClass());
 
         if (1 === \count($type) && \in_array($prefix, $this->arrayMutatorPrefixes)) {
             $type = [new Type(Type::BUILTIN_TYPE_ARRAY, false, null, true, new Type(Type::BUILTIN_TYPE_INT), $type[0])];
@@ -249,13 +261,13 @@ class ReflectionExtractor implements PropertyListExtractorInterface, PropertyTyp
      */
     private function extractFromAccessor(string $class, string $property): ?array
     {
-        list($reflectionMethod, $prefix) = $this->getAccessorMethod($class, $property);
+        [$reflectionMethod, $prefix] = $this->getAccessorMethod($class, $property);
         if (null === $reflectionMethod) {
             return null;
         }
 
         if ($reflectionType = $reflectionMethod->getReturnType()) {
-            return $this->extractFromReflectionType($reflectionType, $reflectionMethod);
+            return $this->extractFromReflectionType($reflectionType, $reflectionMethod->getDeclaringClass());
         }
 
         if (\in_array($prefix, ['is', 'can', 'has'])) {
@@ -290,7 +302,7 @@ class ReflectionExtractor implements PropertyListExtractorInterface, PropertyTyp
             }
             $reflectionType = $parameter->getType();
 
-            return $reflectionType ? $this->extractFromReflectionType($reflectionType, $constructor) : null;
+            return $reflectionType ? $this->extractFromReflectionType($reflectionType, $constructor->getDeclaringClass()) : null;
         }
 
         if ($parentClass = $reflectionClass->getParentClass()) {
@@ -319,14 +331,14 @@ class ReflectionExtractor implements PropertyListExtractorInterface, PropertyTyp
         return [new Type(static::MAP_TYPES[$type] ?? $type)];
     }
 
-    private function extractFromReflectionType(\ReflectionType $reflectionType, \ReflectionMethod $reflectionMethod): array
+    private function extractFromReflectionType(\ReflectionType $reflectionType, \ReflectionClass $declaringClass): array
     {
         $types = [];
         $nullable = $reflectionType->allowsNull();
 
         foreach ($reflectionType instanceof \ReflectionUnionType ? $reflectionType->getTypes() : [$reflectionType] as $type) {
             $phpTypeOrClass = $reflectionType instanceof \ReflectionNamedType ? $reflectionType->getName() : (string) $type;
-            if ('null' === $phpTypeOrClass) {
+            if ('null' === $phpTypeOrClass || 'mixed' === $phpTypeOrClass) {
                 continue;
             }
 
@@ -337,19 +349,19 @@ class ReflectionExtractor implements PropertyListExtractorInterface, PropertyTyp
             } elseif ($type->isBuiltin()) {
                 $types[] = new Type($phpTypeOrClass, $nullable);
             } else {
-                $types[] = new Type(Type::BUILTIN_TYPE_OBJECT, $nullable, $this->resolveTypeName($phpTypeOrClass, $reflectionMethod));
+                $types[] = new Type(Type::BUILTIN_TYPE_OBJECT, $nullable, $this->resolveTypeName($phpTypeOrClass, $declaringClass));
             }
         }
 
         return $types;
     }
 
-    private function resolveTypeName(string $name, \ReflectionMethod $reflectionMethod): string
+    private function resolveTypeName(string $name, \ReflectionClass $declaringClass): string
     {
         if ('self' === $lcName = strtolower($name)) {
-            return $reflectionMethod->getDeclaringClass()->name;
+            return $declaringClass->name;
         }
-        if ('parent' === $lcName && $parent = $reflectionMethod->getDeclaringClass()->getParentClass()) {
+        if ('parent' === $lcName && $parent = $declaringClass->getParentClass()) {
             return $parent->name;
         }
 

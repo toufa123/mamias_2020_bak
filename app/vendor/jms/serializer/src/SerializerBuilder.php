@@ -34,6 +34,7 @@ use JMS\Serializer\Handler\HandlerRegistry;
 use JMS\Serializer\Handler\HandlerRegistryInterface;
 use JMS\Serializer\Handler\IteratorHandler;
 use JMS\Serializer\Handler\StdClassHandler;
+use JMS\Serializer\Metadata\Driver\DocBlockDriverFactory;
 use JMS\Serializer\Naming\CamelCaseNamingStrategy;
 use JMS\Serializer\Naming\PropertyNamingStrategyInterface;
 use JMS\Serializer\Naming\SerializedNameAnnotationStrategy;
@@ -166,6 +167,11 @@ final class SerializerBuilder
     private $metadataCache;
 
     /**
+     * @var bool
+     */
+    private $docBlockTyperResolver;
+
+    /**
      * @param mixed ...$args
      *
      * @return SerializerBuilder
@@ -186,6 +192,7 @@ final class SerializerBuilder
         if ($handlerRegistry) {
             $this->handlersConfigured = true;
         }
+
         if ($eventDispatcher) {
             $this->listenersConfigured = true;
         }
@@ -194,6 +201,7 @@ final class SerializerBuilder
     public function setAccessorStrategy(AccessorStrategyInterface $accessorStrategy): self
     {
         $this->accessorStrategy = $accessorStrategy;
+
         return $this;
     }
 
@@ -202,6 +210,7 @@ final class SerializerBuilder
         if (!$this->accessorStrategy) {
             $this->accessorStrategy = new DefaultAccessorStrategy($this->expressionEvaluator);
         }
+
         return $this->accessorStrategy;
     }
 
@@ -238,6 +247,7 @@ final class SerializerBuilder
         if (!is_dir($dir)) {
             $this->createDir($dir);
         }
+
         if (!is_writable($dir)) {
             throw new InvalidArgumentException(sprintf('The cache directory "%s" is not writable.', $dir));
         }
@@ -496,6 +506,14 @@ final class SerializerBuilder
     public function setMetadataCache(CacheInterface $cache): self
     {
         $this->metadataCache = $cache;
+
+        return $this;
+    }
+
+    public function setDocBlockTypeResolver(bool $docBlockTypeResolver): self
+    {
+        $this->docBlockTyperResolver = $docBlockTypeResolver;
+
         return $this;
     }
 
@@ -519,6 +537,10 @@ final class SerializerBuilder
                 $this->typeParser,
                 $this->expressionEvaluator instanceof CompilableExpressionEvaluatorInterface ? $this->expressionEvaluator : null
             );
+        }
+
+        if ($this->docBlockTyperResolver) {
+            $this->driverFactory = new DocBlockDriverFactory($this->driverFactory, $this->typeParser);
         }
 
         $metadataDriver = $this->driverFactory->createDriver($this->metadataDirs, $annotationReader);
@@ -545,6 +567,7 @@ final class SerializerBuilder
             $this->addDefaultSerializationVisitors();
             $this->addDefaultDeserializationVisitors();
         }
+
         $navigatorFactories = [
             GraphNavigatorInterface::DIRECTION_SERIALIZATION => $this->getSerializationNavigatorFactory($metadataFactory),
             GraphNavigatorInterface::DIRECTION_DESERIALIZATION => $this->getDeserializationNavigatorFactory($metadataFactory),

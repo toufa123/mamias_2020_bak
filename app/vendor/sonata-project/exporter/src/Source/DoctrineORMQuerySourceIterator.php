@@ -14,10 +14,9 @@ declare(strict_types=1);
 namespace Sonata\Exporter\Source;
 
 use Doctrine\ORM\Query;
-use Sonata\Exporter\Exception\InvalidMethodCallException;
 
 /**
- * @final since sonata-project/exporter 2.x.
+ * @final since sonata-project/exporter 2.4.
  */
 class DoctrineORMQuerySourceIterator extends AbstractPropertySourceIterator implements SourceIteratorInterface
 {
@@ -44,15 +43,15 @@ class DoctrineORMQuerySourceIterator extends AbstractPropertySourceIterator impl
     {
         $current = $this->iterator->current();
 
-        return $this->getCurrentData($current[0]);
+        $data = $this->getCurrentData($current[0]);
+
+        $this->query->getEntityManager()->clear();
+
+        return $data;
     }
 
     final public function rewind(): void
     {
-        if ($this->iterator) {
-            throw new InvalidMethodCallException('Cannot rewind a Doctrine\ORM\Query');
-        }
-
         $this->iterator = $this->query->iterate();
         $this->iterator->rewind();
     }

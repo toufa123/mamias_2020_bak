@@ -5,6 +5,7 @@ namespace App\Form;
 use App\Application\Sonata\UserBundle\Entity\User;
 use FOS\UserBundle\Form\Type\RegistrationFormType as BaseRegistrationFormType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
@@ -15,13 +16,18 @@ use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\IsTrue;
+use Rollerworks\Component\PasswordStrength\Validator\Constraints\PasswordStrength;
 
 class RegistrationFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('username')
+            ->add('username',TextType::class, [
+                'constraints' => [
+                    new NotBlank (['message' => 'Please enter a valid email address.'])
+                ]
+            ])
             ->add('email', EmailType::class, [
                 'constraints' => [
                     new Email(['message' => 'Please enter a valid email address.'])
@@ -40,11 +46,12 @@ class RegistrationFormType extends AbstractType
                 'required' => true,
                 // instead of being set onto the object directly,
                 // this is read and encoded in the controller
-                'mapped' => false,
+                'mapped' => true,
+                'first_options' => ['label' => 'Password'],
+                'second_options' => ['label' => 'Confirm Password'],
+                'invalid_message' => 'Your password does not match the confirmation.',
                 'constraints' => [
-                    //   new NotBlank([
-                    //        'message' => 'Please enter a password',
-                    //    ]),
+
                     new Length([
                         'min' => 8,
                         'minMessage' => 'Your password should be at least {{ limit }} characters',
@@ -52,12 +59,8 @@ class RegistrationFormType extends AbstractType
                         'max' => 4096,
 
                     ]),
-                    //new PasswordStrength(['message' => 'password_too_weak', 'minLength' => 8, 'minStrength' => 3]),
-                    'first_options' => ['label' => 'Password'],
-                    'second_options' => ['label' => 'Confirm Password'],
-                    //'invalid_message' => 'Your password does not match the confirmation.'
-                ],
-            ])
+
+            ]])
             ->add(
                 'country',
                 null,

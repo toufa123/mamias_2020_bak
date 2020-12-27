@@ -105,7 +105,7 @@ final class DocumentationNormalizer implements NormalizerInterface, CacheableSup
      * @param mixed|null                                                 $jsonSchemaTypeFactory
      * @param int[]                                                      $swaggerVersions
      */
-    public function __construct(ResourceMetadataFactoryInterface $resourceMetadataFactory, PropertyNameCollectionFactoryInterface $propertyNameCollectionFactory, PropertyMetadataFactoryInterface $propertyMetadataFactory, $jsonSchemaFactory = null, $jsonSchemaTypeFactory = null, OperationPathResolverInterface $operationPathResolver, UrlGeneratorInterface $urlGenerator = null, $filterLocator = null, NameConverterInterface $nameConverter = null, bool $oauthEnabled = false, string $oauthType = '', string $oauthFlow = '', string $oauthTokenUrl = '', string $oauthAuthorizationUrl = '', array $oauthScopes = [], array $apiKeys = [], SubresourceOperationFactoryInterface $subresourceOperationFactory = null, bool $paginationEnabled = true, string $paginationPageParameterName = 'page', bool $clientItemsPerPage = false, string $itemsPerPageParameterName = 'itemsPerPage', $formats = [], bool $paginationClientEnabled = false, string $paginationClientEnabledParameterName = 'pagination', array $defaultContext = [], array $swaggerVersions = [2, 3])
+    public function __construct(ResourceMetadataFactoryInterface $resourceMetadataFactory, PropertyNameCollectionFactoryInterface $propertyNameCollectionFactory, PropertyMetadataFactoryInterface $propertyMetadataFactory, $jsonSchemaFactory = null, $jsonSchemaTypeFactory = null, OperationPathResolverInterface $operationPathResolver = null, UrlGeneratorInterface $urlGenerator = null, $filterLocator = null, NameConverterInterface $nameConverter = null, bool $oauthEnabled = false, string $oauthType = '', string $oauthFlow = '', string $oauthTokenUrl = '', string $oauthAuthorizationUrl = '', array $oauthScopes = [], array $apiKeys = [], SubresourceOperationFactoryInterface $subresourceOperationFactory = null, bool $paginationEnabled = true, string $paginationPageParameterName = 'page', bool $clientItemsPerPage = false, string $itemsPerPageParameterName = 'itemsPerPage', $formats = [], bool $paginationClientEnabled = false, string $paginationClientEnabledParameterName = 'pagination', array $defaultContext = [], array $swaggerVersions = [2, 3])
     {
         if ($jsonSchemaTypeFactory instanceof OperationMethodResolverInterface) {
             @trigger_error(sprintf('Passing an instance of %s to %s() is deprecated since version 2.5 and will be removed in 3.0.', OperationMethodResolverInterface::class, __METHOD__), E_USER_DEPRECATED);
@@ -192,7 +192,8 @@ final class DocumentationNormalizer implements NormalizerInterface, CacheableSup
             }
 
             foreach ($this->subresourceOperationFactory->create($resourceClass) as $operationId => $subresourceOperation) {
-                $paths[$this->getPath($subresourceOperation['shortNames'][0], $subresourceOperation['route_name'], $subresourceOperation, OperationType::SUBRESOURCE)] = $this->addSubresourceOperation($v3, $subresourceOperation, $definitions, $operationId, $resourceMetadata);
+                $method = $resourceMetadata->getTypedOperationAttribute(OperationType::SUBRESOURCE, $subresourceOperation['operation_name'], 'method', 'GET');
+                $paths[$this->getPath($subresourceOperation['shortNames'][0], $subresourceOperation['route_name'], $subresourceOperation, OperationType::SUBRESOURCE)][strtolower($method)] = $this->addSubresourceOperation($v3, $subresourceOperation, $definitions, $operationId, $resourceMetadata);
             }
         }
 
@@ -322,24 +323,26 @@ final class DocumentationNormalizer implements NormalizerInterface, CacheableSup
         }
 
         if (OperationType::COLLECTION === $operationType) {
-            $pathOperation['summary'] ?? $pathOperation['summary'] = sprintf('Retrieves the collection of %s resources.', $resourceShortName);
+            $outputResourseShortName = $resourceMetadata->getCollectionOperations()[$operationName]['output']['name'] ?? $resourceShortName;
+            $pathOperation['summary'] ?? $pathOperation['summary'] = sprintf('Retrieves the collection of %s resources.', $outputResourseShortName);
 
-            $successResponse = ['description' => sprintf('%s collection response', $resourceShortName)];
+            $successResponse = ['description' => sprintf('%s collection response', $outputResourseShortName)];
             [$successResponse] = $this->addSchemas($v3, $successResponse, $definitions, $resourceClass, $operationType, $operationName, $mimeTypes);
 
             $pathOperation['responses'] ?? $pathOperation['responses'] = [$successStatus => $successResponse];
             $pathOperation['parameters'] ?? $pathOperation['parameters'] = $this->getFiltersParameters($v3, $resourceClass, $operationName, $resourceMetadata);
 
-            $this->addPaginationParameters($v3, $resourceMetadata, $operationName, $pathOperation);
+            $this->addPaginationParameters($v3, $resourceMetadata, OperationType::COLLECTION, $operationName, $pathOperation);
 
             return $pathOperation;
         }
 
-        $pathOperation['summary'] ?? $pathOperation['summary'] = sprintf('Retrieves a %s resource.', $resourceShortName);
+        $outputResourseShortName = $resourceMetadata->getItemOperations()[$operationName]['output']['name'] ?? $resourceShortName;
+        $pathOperation['summary'] ?? $pathOperation['summary'] = sprintf('Retrieves a %s resource.', $outputResourseShortName);
 
         $pathOperation = $this->addItemOperationParameters($v3, $pathOperation);
 
-        $successResponse = ['description' => sprintf('%s resource response', $resourceShortName)];
+        $successResponse = ['description' => sprintf('%s resource response', $outputResourseShortName)];
         [$successResponse] = $this->addSchemas($v3, $successResponse, $definitions, $resourceClass, $operationType, $operationName, $mimeTypes);
 
         $pathOperation['responses'] ?? $pathOperation['responses'] = [
@@ -350,9 +353,9 @@ final class DocumentationNormalizer implements NormalizerInterface, CacheableSup
         return $pathOperation;
     }
 
-    private function addPaginationParameters(bool $v3, ResourceMetadata $resourceMetadata, string $operationName, \ArrayObject $pathOperation)
+    private function addPaginationParameters(bool $v3, ResourceMetadata $resourceMetadata, string $operationType, string $operationName, \ArrayObject $pathOperation)
     {
-        if ($this->paginationEnabled && $resourceMetadata->getCollectionOperationAttribute($operationName, 'pagination_enabled', true, true)) {
+        if ($this->paginationEnabled && $resourceMetadata->getTypedOperationAttribute($operationType, $operationName, 'pagination_enabled', true, true)) {
             $paginationParameter = [
                 'name' => $this->paginationPageParameterName,
                 'in' => 'query',
@@ -365,7 +368,7 @@ final class DocumentationNormalizer implements NormalizerInterface, CacheableSup
             ] : $paginationParameter['type'] = 'integer';
             $pathOperation['parameters'][] = $paginationParameter;
 
-            if ($resourceMetadata->getCollectionOperationAttribute($operationName, 'pagination_client_items_per_page', $this->clientItemsPerPage, true)) {
+            if ($resourceMetadata->getTypedOperationAttribute($operationType, $operationName, 'pagination_client_items_per_page', $this->clientItemsPerPage, true)) {
                 $itemPerPageParameter = [
                     'name' => $this->itemsPerPageParameterName,
                     'in' => 'query',
@@ -375,15 +378,15 @@ final class DocumentationNormalizer implements NormalizerInterface, CacheableSup
                 if ($v3) {
                     $itemPerPageParameter['schema'] = [
                         'type' => 'integer',
-                        'default' => $resourceMetadata->getCollectionOperationAttribute($operationName, 'pagination_items_per_page', 30, true),
+                        'default' => $resourceMetadata->getTypedOperationAttribute($operationType, $operationName, 'pagination_items_per_page', 30, true),
                         'minimum' => 0,
                     ];
 
-                    $maxItemsPerPage = $resourceMetadata->getCollectionOperationAttribute($operationName, 'maximum_items_per_page', null, true);
+                    $maxItemsPerPage = $resourceMetadata->getTypedOperationAttribute($operationType, $operationName, 'maximum_items_per_page', null, true);
                     if (null !== $maxItemsPerPage) {
                         @trigger_error('The "maximum_items_per_page" option has been deprecated since API Platform 2.5 in favor of "pagination_maximum_items_per_page" and will be removed in API Platform 3.', E_USER_DEPRECATED);
                     }
-                    $maxItemsPerPage = $resourceMetadata->getCollectionOperationAttribute($operationName, 'pagination_maximum_items_per_page', $maxItemsPerPage, true);
+                    $maxItemsPerPage = $resourceMetadata->getTypedOperationAttribute($operationType, $operationName, 'pagination_maximum_items_per_page', $maxItemsPerPage, true);
 
                     if (null !== $maxItemsPerPage) {
                         $itemPerPageParameter['schema']['maximum'] = $maxItemsPerPage;
@@ -396,7 +399,7 @@ final class DocumentationNormalizer implements NormalizerInterface, CacheableSup
             }
         }
 
-        if ($this->paginationEnabled && $resourceMetadata->getCollectionOperationAttribute($operationName, 'pagination_client_enabled', $this->paginationClientEnabled, true)) {
+        if ($this->paginationEnabled && $resourceMetadata->getTypedOperationAttribute($operationType, $operationName, 'pagination_client_enabled', $this->paginationClientEnabled, true)) {
             $paginationEnabledParameter = [
                 'name' => $this->paginationClientEnabledParameterName,
                 'in' => 'query',
@@ -467,10 +470,10 @@ final class DocumentationNormalizer implements NormalizerInterface, CacheableSup
         }
 
         if ($subresourceOperation['collection']) {
-            $this->addPaginationParameters($v3, $resourceMetadata, $operationName, $pathOperation);
+            $this->addPaginationParameters($v3, $subResourceMetadata, OperationType::SUBRESOURCE, $subresourceOperation['operation_name'], $pathOperation);
         }
 
-        return new \ArrayObject(['get' => $pathOperation]);
+        return $pathOperation;
     }
 
     private function updatePostOperation(bool $v3, \ArrayObject $pathOperation, array $requestMimeTypes, array $responseMimeTypes, string $operationType, ResourceMetadata $resourceMetadata, string $resourceClass, string $resourceShortName, string $operationName, \ArrayObject $definitions, \ArrayObject $links): \ArrayObject

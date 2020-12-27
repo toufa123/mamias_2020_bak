@@ -92,13 +92,11 @@ final class QueryParameterValidateListener
         }
 
         if (\is_array($matches[$rootName])) {
-            $keyName = array_keys($matches[$rootName])[0];
+            $queryParameter = $request->query->all()[$rootName] ?? null;
 
-            $queryParameter = $request->query->get($rootName);
-
-            return \is_array($queryParameter) && isset($queryParameter[$keyName]);
+            return \is_array($queryParameter) && isset($queryParameter[array_keys($matches[$rootName])[0]]);
         }
 
-        return null !== $request->query->get($rootName);
+        return isset($request->query->all()[$rootName]);
     }
 }

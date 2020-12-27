@@ -28,6 +28,9 @@ use Sonata\AdminBundle\Mapper\BaseGroupedMapper;
  */
 class ShowMapper extends BaseGroupedMapper
 {
+    /**
+     * @var FieldDescriptionCollection
+     */
     protected $list;
 
     /**
@@ -47,10 +50,11 @@ class ShowMapper extends BaseGroupedMapper
     /**
      * @param FieldDescriptionInterface|string $name
      * @param string|null                      $type
+     * @param array<string, mixed>             $fieldDescriptionOptions
      *
      * @throws \LogicException
      *
-     * @return $this
+     * @return static
      */
     public function add($name, $type = null, array $fieldDescriptionOptions = [])
     {
@@ -81,7 +85,7 @@ class ShowMapper extends BaseGroupedMapper
         } else {
             throw new \TypeError(
                 'Unknown field name in show mapper.'
-                .' Field name should be either of FieldDescriptionInterface interface or string.'
+                    .' Field name should be either of FieldDescriptionInterface interface or string.'
             );
         }
 
@@ -126,7 +130,7 @@ class ShowMapper extends BaseGroupedMapper
      * @param bool   $deleteEmptyTab Whether or not the parent Tab should be deleted too,
      *                               when the deleted group leaves the tab empty after deletion
      *
-     * @return $this
+     * @return static
      */
     public function removeGroup($group, $tab = 'default', $deleteEmptyTab = false)
     {

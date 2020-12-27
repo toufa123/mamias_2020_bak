@@ -13,10 +13,15 @@ declare(strict_types=1);
 
 namespace Sonata\MediaBundle\DependencyInjection;
 
+use Aws\CloudFront\CloudFrontClient;
+use Aws\S3\S3Client;
+use Aws\Sdk;
 use Sonata\ClassificationBundle\Model\CategoryInterface;
 use Sonata\Doctrine\Mapper\Builder\OptionsBuilder;
 use Sonata\Doctrine\Mapper\DoctrineCollector;
 use Sonata\EasyExtendsBundle\Mapper\DoctrineCollector as DeprecatedDoctrineCollector;
+use Sonata\MediaBundle\CDN\CloudFront;
+use Sonata\MediaBundle\CDN\CloudFrontVersion3;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -68,10 +73,6 @@ class SonataMediaExtension extends Extension implements PrependExtensionInterfac
 
         if (isset($bundles['SonataNotificationBundle'])) {
             $loader->load('consumer.xml');
-        }
-
-        if (isset($bundles['SonataFormatterBundle'])) {
-            $loader->load('formatter.xml');
         }
 
         if (isset($bundles['SonataBlockBundle'])) {
@@ -164,6 +165,7 @@ class SonataMediaExtension extends Extension implements PrependExtensionInterfac
         $this->configureParameterClass($container, $config);
         $this->configureExtra($container, $config);
         $this->configureBuzz($container, $config);
+        $this->configureHttpClient($container, $config);
         $this->configureProviders($container, $config);
         $this->configureAdapters($container, $config);
         $this->configureResizers($container, $config);
@@ -333,13 +335,42 @@ class SonataMediaExtension extends Extension implements PrependExtensionInterfac
         }
 
         if ($container->hasDefinition('sonata.media.cdn.cloudfront') && isset($config['cdn']['cloudfront'])) {
+            if (isset($config['cdn']['cloudfront']['region'])) {
+                $cloudFrontConfig['region'] = $config['cdn']['cloudfront']['region'];
+            }
+
+            if (isset($config['cdn']['cloudfront']['version'])) {
+                $cloudFrontConfig['version'] = $config['cdn']['cloudfront']['version'];
+            }
+
+            // @todo: Remove the following check and the `else` block when support for aws/aws-sdk-php < 3.0 is dropped.
+            if (class_exists(Sdk::class)) {
+                $cloudFrontConfig['credentials'] = [
+                    'key' => $config['cdn']['cloudfront']['key'],
+                    'secret' => $config['cdn']['cloudfront']['secret'],
+                ];
+
+                $cloudFrontClass = CloudFrontVersion3::class;
+            } else {
+                $cloudFrontConfig['key'] = $config['cdn']['cloudfront']['key'];
+                $cloudFrontConfig['secret'] = $config['cdn']['cloudfront']['secret'];
+
+                $cloudFrontClass = CloudFront::class;
+
+                $container->getDefinition('sonata.media.cdn.cloudfront.client')
+                    ->setFactory([CloudFrontClient::class, 'factory']);
+            }
+
+            $container->getDefinition('sonata.media.cdn.cloudfront.client')
+                    ->replaceArgument(0, $cloudFrontConfig);
+
             $container->getDefinition('sonata.media.cdn.cloudfront')
-                ->replaceArgument(0, $config['cdn']['cloudfront']['path'])
-                ->replaceArgument(1, $config['cdn']['cloudfront']['key'])
-                ->replaceArgument(2, $config['cdn']['cloudfront']['secret'])
-                ->replaceArgument(3, $config['cdn']['cloudfront']['distribution_id'])
-            ;
+                ->setClass($cloudFrontClass)
+                ->replaceArgument(0, new Reference('sonata.media.cdn.cloudfront.client'))
+                ->replaceArgument(1, $config['cdn']['cloudfront']['distribution_id'])
+                ->replaceArgument(2, $config['cdn']['cloudfront']['path']);
         } else {
+            $container->removeDefinition('sonata.media.cdn.cloudfront.client');
             $container->removeDefinition('sonata.media.cdn.cloudfront');
         }
 
@@ -389,6 +420,23 @@ class SonataMediaExtension extends Extension implements PrependExtensionInterfac
 
         // add the default configuration for the S3 filesystem
         if ($container->hasDefinition('sonata.media.adapter.filesystem.s3') && isset($config['filesystem']['s3'])) {
+            // @todo: Remove the following conditional block when support for aws/aws-sdk-php < 3.0 is dropped.
+            if (isset($config['filesystem']['s3']['sdk_version'])) {
+                if (3 === $config['filesystem']['s3']['sdk_version'] && !class_exists(Sdk::class)) {
+                    throw new \UnexpectedValueException(
+                        'The configuration "sonata_media.filesystem.s3.sdk_version" can not contain the value 3 since'.
+                        ' the installed version of aws/aws-sdk-php is not 3.x.'
+                    );
+                }
+
+                if (2 === $config['filesystem']['s3']['sdk_version'] && class_exists(Sdk::class)) {
+                    throw new \UnexpectedValueException(
+                        'The configuration "sonata_media.filesystem.s3.sdk_version" can not contain the value 2 since'.
+                        ' the installed version of aws/aws-sdk-php is not 2.x.'
+                    );
+                }
+            }
+
             $container->getDefinition('sonata.media.adapter.filesystem.s3')
                 ->replaceArgument(0, new Reference('sonata.media.adapter.service.s3'))
                 ->replaceArgument(1, $config['filesystem']['s3']['bucket'])
@@ -405,11 +453,16 @@ class SonataMediaExtension extends Extension implements PrependExtensionInterfac
                 ])
             ;
 
-            if (3 === $config['filesystem']['s3']['sdk_version']) {
+            // @todo: Remove the following check and the `else` block when support for aws/aws-sdk-php < 3.0 is dropped.
+            if (class_exists(Sdk::class)) {
                 $arguments = [
                     'region' => $config['filesystem']['s3']['region'],
                     'version' => $config['filesystem']['s3']['version'],
                 ];
+
+                if (isset($config['filesystem']['s3']['endpoint'])) {
+                    $arguments['endpoint'] = $config['filesystem']['s3']['endpoint'];
+                }
 
                 if (isset($config['filesystem']['s3']['secretKey'], $config['filesystem']['s3']['accessKey'])) {
                     $arguments['credentials'] = [
@@ -417,18 +470,30 @@ class SonataMediaExtension extends Extension implements PrependExtensionInterfac
                         'key' => $config['filesystem']['s3']['accessKey'],
                     ];
                 }
+            } else {
+                $arguments = [];
+
+                if (isset($config['filesystem']['s3']['region'])) {
+                    $arguments['region'] = $config['filesystem']['s3']['region'];
+                }
+
+                if (isset($config['filesystem']['s3']['version'])) {
+                    $arguments['version'] = $config['filesystem']['s3']['version'];
+                }
+
+                if (isset($config['filesystem']['s3']['endpoint'])) {
+                    $arguments['endpoint'] = $config['filesystem']['s3']['endpoint'];
+                }
+
+                $arguments['secret'] = $config['filesystem']['s3']['secretKey'];
+                $arguments['key'] = $config['filesystem']['s3']['accessKey'];
 
                 $container->getDefinition('sonata.media.adapter.service.s3')
-                    ->replaceArgument(0, $arguments)
-                ;
-            } else {
-                $container->getDefinition('sonata.media.adapter.service.s3')
-                    ->replaceArgument(0, [
-                        'secret' => $config['filesystem']['s3']['secretKey'],
-                        'key' => $config['filesystem']['s3']['accessKey'],
-                    ])
-                ;
+                    ->setFactory([S3Client::class, 'factory']);
             }
+
+            $container->getDefinition('sonata.media.adapter.service.s3')
+                ->replaceArgument(0, $arguments);
         } else {
             $container->removeDefinition('sonata.media.adapter.filesystem.s3');
             $container->removeDefinition('sonata.media.filesystem.s3');
@@ -624,5 +689,18 @@ class SonataMediaExtension extends Extension implements PrependExtensionInterfac
                     ])
             );
         }
+    }
+
+    private function configureHttpClient(ContainerBuilder $container, array $config): void
+    {
+        if (null === $config['http']['client'] || null === $config['http']['message_factory']) {
+            // NEXT_MAJOR: Remove this fallback service
+            $container->setAlias('sonata.media.http.client', 'sonata.media.buzz.browser');
+
+            return;
+        }
+
+        $container->setAlias('sonata.media.http.client', $config['http']['client']);
+        $container->setAlias('sonata.media.http.message_factory', $config['http']['message_factory']);
     }
 }

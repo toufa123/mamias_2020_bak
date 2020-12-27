@@ -11,7 +11,7 @@
 
 namespace Symfony\Component\Security\Core\Encoder;
 
-@trigger_error(sprintf('The "%s" class is deprecated since Symfony 4.3, use "%s" instead.', BCryptPasswordEncoder::class, NativePasswordEncoder::class), E_USER_DEPRECATED);
+@trigger_error(sprintf('The "%s" class is deprecated since Symfony 4.3, use "%s" instead.', BCryptPasswordEncoder::class, NativePasswordEncoder::class), \E_USER_DEPRECATED);
 
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 
@@ -23,7 +23,7 @@ use Symfony\Component\Security\Core\Exception\BadCredentialsException;
  */
 class BCryptPasswordEncoder extends BasePasswordEncoder implements SelfSaltingEncoderInterface
 {
-    const MAX_PASSWORD_LENGTH = 72;
+    public const MAX_PASSWORD_LENGTH = 72;
 
     private $cost;
 
@@ -74,7 +74,7 @@ class BCryptPasswordEncoder extends BasePasswordEncoder implements SelfSaltingEn
             // Ignore $salt, the auto-generated one is always the best
         }
 
-        return password_hash($raw, PASSWORD_BCRYPT, $options);
+        return password_hash($raw, \PASSWORD_BCRYPT, $options);
     }
 
     /**

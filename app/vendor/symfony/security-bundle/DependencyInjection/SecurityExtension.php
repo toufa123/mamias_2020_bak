@@ -239,7 +239,7 @@ class SecurityExtension extends Extension implements PrependExtensionInterface
 
             $configId = 'security.firewall.map.config.'.$name;
 
-            list($matcher, $listeners, $exceptionListener, $logoutListener) = $this->createFirewall($container, $name, $firewall, $authenticationProviders, $providerIds, $configId);
+            [$matcher, $listeners, $exceptionListener, $logoutListener] = $this->createFirewall($container, $name, $firewall, $authenticationProviders, $providerIds, $configId);
 
             $contextId = 'security.firewall.map.context.'.$name;
             $context = new ChildDefinition($firewall['stateless'] || empty($firewall['anonymous']['lazy']) ? 'security.firewall.context' : 'security.firewall.lazy_context');
@@ -397,7 +397,7 @@ class SecurityExtension extends Extension implements PrependExtensionInterface
         $configuredEntryPoint = isset($firewall['entry_point']) ? $firewall['entry_point'] : null;
 
         // Authentication listeners
-        list($authListeners, $defaultEntryPoint) = $this->createAuthenticationListeners($container, $id, $firewall, $authenticationProviders, $defaultProvider, $providerIds, $configuredEntryPoint, $contextListenerId);
+        [$authListeners, $defaultEntryPoint] = $this->createAuthenticationListeners($container, $id, $firewall, $authenticationProviders, $defaultProvider, $providerIds, $configuredEntryPoint, $contextListenerId);
 
         $config->replaceArgument(7, $configuredEntryPoint ?: $defaultEntryPoint);
 
@@ -479,7 +479,7 @@ class SecurityExtension extends Extension implements PrependExtensionInterface
                         throw new InvalidConfigurationException(sprintf('Not configuring explicitly the provider for the "%s" listener on "%s" firewall is ambiguous as there is more than one registered provider.', $key, $id));
                     }
 
-                    list($provider, $listenerId, $defaultEntryPoint) = $factory->create($container, $id, $firewall[$key], $userProvider, $defaultEntryPoint);
+                    [$provider, $listenerId, $defaultEntryPoint] = $factory->create($container, $id, $firewall[$key], $userProvider, $defaultEntryPoint);
 
                     $listeners[] = new Reference($listenerId);
                     $authenticationProviders[] = $provider;
@@ -545,7 +545,7 @@ class SecurityExtension extends Extension implements PrependExtensionInterface
         // bcrypt encoder
         if ('bcrypt' === $config['algorithm']) {
             $config['algorithm'] = 'native';
-            $config['native_algorithm'] = PASSWORD_BCRYPT;
+            $config['native_algorithm'] = \PASSWORD_BCRYPT;
 
             return $this->createEncoder($config);
         }
@@ -556,7 +556,7 @@ class SecurityExtension extends Extension implements PrependExtensionInterface
                 $config['algorithm'] = 'sodium';
             } elseif (\defined('PASSWORD_ARGON2I')) {
                 $config['algorithm'] = 'native';
-                $config['native_algorithm'] = PASSWORD_ARGON2I;
+                $config['native_algorithm'] = \PASSWORD_ARGON2I;
             } else {
                 throw new InvalidConfigurationException(sprintf('Algorithm "argon2i" is not available. Either use "%s" or upgrade to PHP 7.2+ instead.', \defined('SODIUM_CRYPTO_PWHASH_ALG_ARGON2ID13') ? 'argon2id", "auto' : 'auto'));
             }
@@ -569,7 +569,7 @@ class SecurityExtension extends Extension implements PrependExtensionInterface
                 $config['algorithm'] = 'sodium';
             } elseif (\defined('PASSWORD_ARGON2ID')) {
                 $config['algorithm'] = 'native';
-                $config['native_algorithm'] = PASSWORD_ARGON2ID;
+                $config['native_algorithm'] = \PASSWORD_ARGON2ID;
             } else {
                 throw new InvalidConfigurationException(sprintf('Algorithm "argon2id" is not available. Either use "%s", upgrade to PHP 7.3+ or use libsodium 1.0.15+ instead.', \defined('PASSWORD_ARGON2I') || $hasSodium ? 'argon2i", "auto' : 'auto'));
             }
@@ -793,7 +793,7 @@ class SecurityExtension extends Extension implements PrependExtensionInterface
         $cidrParts = explode('/', $cidr);
 
         if (1 === \count($cidrParts)) {
-            return false !== filter_var($cidrParts[0], FILTER_VALIDATE_IP);
+            return false !== filter_var($cidrParts[0], \FILTER_VALIDATE_IP);
         }
 
         $ip = $cidrParts[0];
@@ -803,11 +803,11 @@ class SecurityExtension extends Extension implements PrependExtensionInterface
             return false;
         }
 
-        if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+        if (filter_var($ip, \FILTER_VALIDATE_IP, \FILTER_FLAG_IPV4)) {
             return $netmask <= 32;
         }
 
-        if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
+        if (filter_var($ip, \FILTER_VALIDATE_IP, \FILTER_FLAG_IPV6)) {
             return $netmask <= 128;
         }
 

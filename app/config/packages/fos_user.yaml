@@ -43,7 +43,7 @@ fos_user:
             from_email:
                 address:        no-reply@mamias.org
                 sender_name:    Resetting Password
-            template: bundles/FOSUserBundle/Resetting/email.txt.twig
+            template: 'bundles/FOSUserBundle/Resetting/email.txt.twig'
         form:
             type: App\Form\RestFormType
             name: fos_user_reset_form

@@ -33,7 +33,7 @@ interface FieldDescriptionInterface
     /**
      * Returns the field name.
      *
-     * @return string the field name
+     * @return string|null the field name
      */
     public function getFieldName();
 
@@ -45,9 +45,11 @@ interface FieldDescriptionInterface
     public function setName($name);
 
     /**
+     * NEXT_MAJOR: Restrict return type to string.
+     *
      * Returns the name, the name can be used as a form label or table header.
      *
-     * @return string the name
+     * @return string|null the name
      */
     public function getName();
 
@@ -81,7 +83,7 @@ interface FieldDescriptionInterface
     /**
      * Returns options.
      *
-     * @return array options
+     * @return array<string, mixed> options
      */
     public function getOptions();
 
@@ -132,6 +134,8 @@ interface FieldDescriptionInterface
     /**
      * Define the association mapping definition.
      *
+     * @deprecated since sonata-project/admin-bundle 3.83 and will be removed in 4.0.
+     *
      * @param array $associationMapping
      */
     public function setAssociationMapping($associationMapping);
@@ -151,13 +155,20 @@ interface FieldDescriptionInterface
      * @deprecated since sonata-project/admin-bundle 3.69. Use `getTargetModel()` instead.
      *
      * @return string|null
+     *
+     * @phpstan-return class-string|null
      */
     public function getTargetEntity();
 
+    /**
+     * @phpstan-return class-string|null
+     */
     // public function getTargetModel(): ?string;
 
     /**
      * set the field mapping information.
+     *
+     * @deprecated since sonata-project/admin-bundle 3.83 and will be removed in 4.0.
      *
      * @param array $fieldMapping
      */
@@ -171,6 +182,8 @@ interface FieldDescriptionInterface
     public function getFieldMapping();
 
     /**
+     * @deprecated since sonata-project/admin-bundle 3.83 and will be removed in 4.0.
+     *
      * set the parent association mappings information.
      */
     public function setParentAssociationMappings(array $parentAssociationMappings);
@@ -243,7 +256,11 @@ interface FieldDescriptionInterface
     public function mergeOptions(array $options = []);
 
     /**
+     * NEXT_MAJOR: Remove this method.
+     *
      * set the original mapping type (only used if the field is linked to an entity).
+     *
+     * @deprecated since sonata-project/admin-bundle 3.83 and will be removed in 4.0.
      *
      * @param string|int $mappingType
      */

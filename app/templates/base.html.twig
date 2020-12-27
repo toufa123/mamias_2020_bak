@@ -17,6 +17,7 @@
     <link href="{{ asset('assets/css/core.css') }}" rel="stylesheet" type="text/css"/>
     <link href="{{ asset('assets/css/style.css') }}" rel="stylesheet" type="text/css"/>
     <link href="{{ asset('assets/css/icons.css') }}" rel="stylesheet" type="text/css"/>
+    <link href="{{ asset('assets/css/typicons.css') }}" rel="stylesheet" type="text/css"/>
     <link href="{{ asset('assets/plugins/switchery/switchery.min.css') }}" rel="stylesheet" type="text/css"/>
     <link href="{{ asset('assets/plugins/timepicker/bootstrap-timepicker.min.css') }}" rel="stylesheet"
           type="text/css"/>
@@ -154,13 +155,18 @@
                     {% if is_granted('ROLE_REGSITREDUSER') %}
 
                     <li class="dropdown navbar-c-items">
+                        {% if app.user.getFirstname() %}
                         <a href="" class="dropdown-toggle waves-effect waves-light profile" data-toggle="dropdown"
                            aria-expanded="true">
                             <img
                                 src="https://ui-avatars.com/api/?name={{ app.user.getFirstname() }}+{{ app.user.getLastname }}&background=00aeef&color=fff&rounded=true&bold=true&format=svg"
                                 alt="{{ app.user.username|default('undefined') }}" class="img-circle"> </a>
-                        <!--<img src="{{ asset('resources/logo/avatarb.png') }}"
-                                 alt="{{ app.user.username|default('undefined') }}" class="img-circle"> </a>-->
+                        {% else %}
+                            <a href="" class="dropdown-toggle waves-effect waves-light profile" data-toggle="dropdown"
+                               aria-expanded="true">
+                        <img src="{{ asset('resources/logo/avatarb.png') }}"
+                                 alt="{{ app.user.username|default('undefined') }}" class="img-circle"> </a>
+                        {% endif %}
                         <ul class="dropdown-menu dropdown-menu-right arrow-dropdown-menu arrow-menu-right user-list notify-list">
                             <li class="text-center">
                                 <h5>Hi {{ app.user.username|default('undefined') }}</h5>

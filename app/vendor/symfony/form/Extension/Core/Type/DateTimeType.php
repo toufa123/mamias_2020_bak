@@ -25,19 +25,20 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\Form\ReversedTransformer;
 use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
+use Symfony\Component\OptionsResolver\Exception\OptionDefinitionException;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class DateTimeType extends AbstractType
 {
-    const DEFAULT_DATE_FORMAT = \IntlDateFormatter::MEDIUM;
-    const DEFAULT_TIME_FORMAT = \IntlDateFormatter::MEDIUM;
+    public const DEFAULT_DATE_FORMAT = \IntlDateFormatter::MEDIUM;
+    public const DEFAULT_TIME_FORMAT = \IntlDateFormatter::MEDIUM;
 
     /**
      * The HTML5 datetime-local format as defined in
      * http://w3c.github.io/html-reference/datatypes.html#form.data.datetime-local.
      */
-    const HTML5_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
+    public const HTML5_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
 
     private static $acceptedFormats = [
         \IntlDateFormatter::FULL,
@@ -344,14 +345,23 @@ class DateTimeType extends AbstractType
 
             return '';
         });
-        $resolver->setDeprecated('html5', function (Options $options, $html5) {
-            if ($html5 && self::HTML5_FORMAT !== $options['format']) {
-                return sprintf('Using a custom format when the "html5" option of %s is enabled is deprecated since Symfony 4.3 and will lead to an exception in 5.0.', self::class);
-                //throw new LogicException(sprintf('Cannot use the "format" option of "%s" when the "html5" option is disabled.', self::class));
-            }
+        foreach (['html5', 'format'] as $option) {
+            $resolver->setDeprecated($option, static function (Options $options, $value) use ($option): string {
+                try {
+                    $html5 = 'html5' === $option ? $value : $options['html5'];
+                    $format = 'format' === $option ? $value : $options['format'];
+                } catch (OptionDefinitionException $e) {
+                    return '';
+                }
 
-            return '';
-        });
+                if ($html5 && self::HTML5_FORMAT !== $format) {
+                    return sprintf('Using a custom format when the "html5" option of %s is enabled is deprecated since Symfony 4.3 and will lead to an exception in 5.0.', self::class);
+                    //throw new LogicException(sprintf('Cannot use the "format" option of "%s" when the "html5" option is disabled.', self::class));
+                }
+
+                return '';
+            });
+        }
     }
 
     /**

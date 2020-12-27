@@ -296,7 +296,7 @@ class FrameworkExtension extends Extension
         }
 
         if ($this->isConfigEnabled($container, $config['templating'])) {
-            @trigger_error('Enabling the Templating component is deprecated since version 4.3 and will be removed in 5.0; use Twig instead.', E_USER_DEPRECATED);
+            @trigger_error('Enabling the Templating component is deprecated since version 4.3 and will be removed in 5.0; use Twig instead.', \E_USER_DEPRECATED);
 
             if (!class_exists('Symfony\Component\Templating\PhpEngine')) {
                 throw new LogicException('Templating support cannot be enabled as the Templating component is not installed. Try running "composer require symfony/templating".');
@@ -470,6 +470,14 @@ class FrameworkExtension extends Extension
 
         $container->registerForAutoconfiguration(RouteLoaderInterface::class)
             ->addTag('routing.route_loader');
+
+        $container->setParameter('container.behavior_describing_tags', [
+            'container.service_locator',
+            'container.service_subscriber',
+            'kernel.event_subscriber',
+            'kernel.locale_aware',
+            'kernel.reset',
+        ]);
     }
 
     /**
@@ -589,7 +597,7 @@ class FrameworkExtension extends Extension
         $container->setParameter('profiler_listener.only_master_requests', $config['only_master_requests']);
 
         // Choose storage class based on the DSN
-        list($class) = explode(':', $config['dsn'], 2);
+        [$class] = explode(':', $config['dsn'], 2);
         if ('file' !== $class) {
             throw new \LogicException(sprintf('Driver "%s" is not supported for the profiler.', $class));
         }
@@ -1186,7 +1194,7 @@ class FrameworkExtension extends Extension
                 $nonExistingDirs[] = $dir;
             }
             if ($container->fileExists($dir = $rootDir.sprintf('/Resources/%s/translations', $name))) {
-                @trigger_error(sprintf('Translations directory "%s" is deprecated since Symfony 4.2, use "%s" instead.', $dir, $defaultDir), E_USER_DEPRECATED);
+                @trigger_error(sprintf('Translations directory "%s" is deprecated since Symfony 4.2, use "%s" instead.', $dir, $defaultDir), \E_USER_DEPRECATED);
                 $dirs[] = $dir;
             } else {
                 $nonExistingDirs[] = $dir;
@@ -1217,7 +1225,7 @@ class FrameworkExtension extends Extension
 
         if ($container->fileExists($dir = $rootDir.'/Resources/translations')) {
             if ($dir !== $defaultDir) {
-                @trigger_error(sprintf('Translations directory "%s" is deprecated since Symfony 4.2, use "%s" instead.', $dir, $defaultDir), E_USER_DEPRECATED);
+                @trigger_error(sprintf('Translations directory "%s" is deprecated since Symfony 4.2, use "%s" instead.', $dir, $defaultDir), \E_USER_DEPRECATED);
             }
 
             $dirs[] = $dir;
@@ -2009,9 +2017,12 @@ class FrameworkExtension extends Extension
             unset($scopeConfig['scope']);
 
             if (null === $scope) {
+                $baseUri = $scopeConfig['base_uri'];
+                unset($scopeConfig['base_uri']);
+
                 $container->register($name, ScopingHttpClient::class)
                     ->setFactory([ScopingHttpClient::class, 'forBaseUri'])
-                    ->setArguments([new Reference($httpClientId), $scopeConfig['base_uri'], $scopeConfig])
+                    ->setArguments([new Reference($httpClientId), $baseUri, $scopeConfig])
                     ->addTag('http_client.client')
                 ;
             } else {

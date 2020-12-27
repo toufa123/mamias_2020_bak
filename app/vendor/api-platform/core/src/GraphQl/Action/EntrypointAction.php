@@ -16,6 +16,7 @@ namespace ApiPlatform\Core\GraphQl\Action;
 use ApiPlatform\Core\GraphQl\ExecutorInterface;
 use ApiPlatform\Core\GraphQl\Type\SchemaBuilderInterface;
 use GraphQL\Error\Debug;
+use GraphQL\Error\DebugFlag;
 use GraphQL\Error\Error;
 use GraphQL\Error\UserError;
 use GraphQL\Executor\ExecutionResult;
@@ -46,7 +47,11 @@ final class EntrypointAction
         $this->executor = $executor;
         $this->graphiQlAction = $graphiQlAction;
         $this->graphQlPlaygroundAction = $graphQlPlaygroundAction;
-        $this->debug = $debug ? Debug::INCLUDE_DEBUG_MESSAGE | Debug::INCLUDE_TRACE : false;
+        if (class_exists(Debug::class)) {
+            $this->debug = $debug ? Debug::INCLUDE_DEBUG_MESSAGE | Debug::INCLUDE_TRACE : false;
+        } else {
+            $this->debug = $debug ? DebugFlag::INCLUDE_DEBUG_MESSAGE | DebugFlag::INCLUDE_TRACE : DebugFlag::NONE;
+        }
         $this->graphiqlEnabled = $graphiqlEnabled;
         $this->graphQlPlaygroundEnabled = $graphQlPlaygroundEnabled;
         $this->defaultIde = $defaultIde;
@@ -87,9 +92,10 @@ final class EntrypointAction
      */
     private function parseRequest(Request $request): array
     {
-        $query = $request->query->get('query');
-        $operation = $request->query->get('operation');
-        if ($variables = $request->query->get('variables', [])) {
+        $queryParameters = $request->query->all();
+        $query = $queryParameters['query'] ?? null;
+        $operation = $queryParameters['operation'] ?? null;
+        if ($variables = $queryParameters['variables'] ?? []) {
             $variables = $this->decodeVariables($variables);
         }
 
@@ -210,7 +216,7 @@ final class EntrypointAction
 
     private function buildExceptionResponse(\Exception $e, int $statusCode): JsonResponse
     {
-        $executionResult = new ExecutionResult(null, [new Error($e->getMessage(), null, null, null, null, $e)]);
+        $executionResult = new ExecutionResult(null, [new Error($e->getMessage(), null, null, [], null, $e)]);
 
         return new JsonResponse($executionResult->toArray($this->debug), $statusCode);
     }

@@ -31,13 +31,11 @@ class ProxyPost implements RequestMethod
      */
     private $timeout;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private $cache;
 
     /**
-     * Constructor
+     * Constructor.
      *
      * @param array    $httpProxy
      * @param string   $recaptchaVerifyServer

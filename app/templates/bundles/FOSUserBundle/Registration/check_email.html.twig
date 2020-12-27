@@ -1,38 +1,42 @@
 {% extends "auth.html.twig" %}
-{% block title %}Authentification{% endblock %}
+{% block title %}Email Confirmation{% endblock %}
 {% trans_default_domain 'FOSUserBundle' %}
-
 {% block body %}
-
-    <section>
-        <div class="container-alt">
-            <div class="row">
-                <div class="col-sm-12">
-                    <div class="wrapper-page">
-                        <div class="m-t-40 account-pages">
-                            <div class="text-center account-logo-box">
-                                <h2 class="text-uppercase">
-                                    <a href="index.html" class="text-success">
-                                        <span><img src="{{ asset('resources/logo/Logo-Mamias-web.png') }}"
-                                                   alt="MAMIAS 3.0"></span>
-                                    </a>
-                                </h2>
-                                <!--<h4 class="text-uppercase font-bold m-b-0">Sign In</h4>-->
-                            </div>
-                            <div class="account-content">
-                                <div class="form-group m-b-10 ">
-                                    <div class="col-xs-12">
-                                        <p class="text-custom">{{ 'registration.check_email'|trans({'%email%': user.email}) }}</p>
-                                    </div>
-                                </div>
-                                <div class="clearfix"></div>
-                            </div>
-                        </div>
-                        <!-- end card-box-->
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="wrapper-page2">
+             <span><img src="{{ asset('resources/images/undraw_message_sent_1030.svg') }}"
+                        alt="MAMIAS 3.0" style="width:100%;height:auto"></span>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="wrapper-page">
+                <div class="property-card">
+                    <div class="text-center account-logo-box">
+                        <h2 class="text-uppercase">
+                            <a href="{{ path('home') }}" class="text-success">
+                                            <span><img src="{{ asset('resources/logo/Logo-Mamias-web.png') }}"
+                                                       alt="MAMIAS 3.0"></span>
+                            </a>
+                        </h2>
+                        <!--<h4 class="text-uppercase font-bold m-b-0">Sign In</h4>-->
                     </div>
-                    <!-- end wrapper -->
+                    <div class="property-content">
+                        <p class="text-custom">{{ 'registration.check_email'|trans({'%email%': user.email}) }}</p>
+                    </div>
+                </div>
+                <div class="row m-t-20">
+                    <div class="col-sm-12 text-center">
+                            <p class="text-light-blue"><a
+                                    href="{{ path('home') }}"
+                                    class=" text-primary m-l-5"><b><i class="fa fa-home"></i> Home</b></a>
+                            </p>
+                    </div>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+
+
+
 {% endblock %}

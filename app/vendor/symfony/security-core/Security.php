@@ -22,10 +22,10 @@ use Symfony\Component\Security\Core\User\UserInterface;
  */
 class Security
 {
-    const ACCESS_DENIED_ERROR = '_security.403_error';
-    const AUTHENTICATION_ERROR = '_security.last_error';
-    const LAST_USERNAME = '_security.last_username';
-    const MAX_USERNAME_LENGTH = 4096;
+    public const ACCESS_DENIED_ERROR = '_security.403_error';
+    public const AUTHENTICATION_ERROR = '_security.last_error';
+    public const LAST_USERNAME = '_security.last_username';
+    public const MAX_USERNAME_LENGTH = 4096;
 
     private $container;
 
@@ -49,7 +49,7 @@ class Security
         }
 
         if (!$user instanceof UserInterface) {
-            @trigger_error(sprintf('Accessing the user object "%s" that is not an instance of "%s" from "%s()" is deprecated since Symfony 4.2, use "getToken()->getUser()" instead.', \get_class($user), UserInterface::class, __METHOD__), E_USER_DEPRECATED);
+            @trigger_error(sprintf('Accessing the user object "%s" that is not an instance of "%s" from "%s()" is deprecated since Symfony 4.2, use "getToken()->getUser()" instead.', \get_class($user), UserInterface::class, __METHOD__), \E_USER_DEPRECATED);
             //return null; // 5.0 behavior
         }
 

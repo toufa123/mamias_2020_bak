@@ -3,11 +3,13 @@
     "type": "library",
     "description": "Lightweight Exporter library",
     "keywords": [
-        "export",
+        "bundle",
+        "client",
         "csv",
-        "xls",
         "data",
-        "client"
+        "export",
+        "symfony-bundle",
+        "xls"
     ],
     "homepage": "https://github.com/sonata-project/Exporter",
     "license": "MIT",
@@ -21,19 +23,23 @@
     "require": {
         "php": "^7.2"
     },
+    "conflict": {
+        "doctrine/mongodb-odm": "<2.0"
+    },
     "require-dev": {
         "doctrine/dbal": "^2.5",
+        "doctrine/mongodb-odm": "^2.0",
         "doctrine/orm": "^2.4.5",
         "matthiasnoback/symfony-config-test": "^4.0",
         "matthiasnoback/symfony-dependency-injection-test": "^4.0",
         "propel/propel1": "^1.6",
-        "symfony/config": "^3.4 || ^4.3 || ^5.0",
-        "symfony/dependency-injection": "^3.4 || ^4.3 || ^5.0",
-        "symfony/http-foundation": "^3.4 || ^4.3 || ^5.0",
-        "symfony/http-kernel": "^3.4 || ^4.3 || ^5.0",
-        "symfony/phpunit-bridge": "^4.3.8 || ^5.0",
-        "symfony/property-access": "^3.4 || ^4.3 || ^5.0",
-        "symfony/routing": "^3.4 || ^4.3 || ^5.0"
+        "symfony/config": "^4.4 || ^5.1",
+        "symfony/dependency-injection": "^4.4 || ^5.1",
+        "symfony/http-foundation": "^4.4 || ^5.1",
+        "symfony/http-kernel": "^4.4 || ^5.1",
+        "symfony/phpunit-bridge": "^5.1.1",
+        "symfony/property-access": "^4.4 || ^5.1",
+        "symfony/routing": "^4.4 || ^5.1"
     },
     "suggest": {
         "propel/propel1": "To export propel collections",
@@ -50,7 +56,8 @@
     },
     "autoload": {
         "psr-4": {
-            "Sonata\\Exporter\\": "src/"
+            "Sonata\\Exporter\\": "src/",
+            "Sonata\\Exporter\\Bridge\\Symfony\\": "src/Bridge/Symfony/"
         }
     },
     "autoload-dev": {

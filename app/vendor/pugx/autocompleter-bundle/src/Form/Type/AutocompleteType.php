@@ -2,7 +2,7 @@
 
 namespace PUGX\AutocompleterBundle\Form\Type;
 
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ManagerRegistry;
 use PUGX\AutocompleterBundle\Form\Transformer\ObjectToIdTransformer;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -21,6 +21,10 @@ class AutocompleteType extends AbstractType
         $this->registry = $registry;
     }
 
+    /**
+     * @param FormBuilderInterface<AbstractType> $builder
+     * @param array<string, mixed>               $options
+     */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $transformer = new ObjectToIdTransformer($this->registry, $options['class']);

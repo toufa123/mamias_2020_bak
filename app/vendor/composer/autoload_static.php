@@ -7,15 +7,16 @@ namespace Composer\Autoload;
 class ComposerStaticInit90ef26209efe7016e2806ec81e31f83c
 {
     public static $files = array (
+        'a4a119a56e50fbb293281d9a48007e0e' => __DIR__ . '/..' . '/symfony/polyfill-php80/bootstrap.php',
         '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
         '25072dd6e2470089de65ae7bf11d3109' => __DIR__ . '/..' . '/symfony/polyfill-php72/bootstrap.php',
         'e69f7f6ee287b969198c3c9d6777bd38' => __DIR__ . '/..' . '/symfony/polyfill-intl-normalizer/bootstrap.php',
         'f598d06aa772fa33d905e87be6398fb1' => __DIR__ . '/..' . '/symfony/polyfill-intl-idn/bootstrap.php',
-        'a4a119a56e50fbb293281d9a48007e0e' => __DIR__ . '/..' . '/symfony/polyfill-php80/bootstrap.php',
         '0d59ee240a4cd96ddbb4ff164fccea4d' => __DIR__ . '/..' . '/symfony/polyfill-php73/bootstrap.php',
+        '6e3fae29631ef280660b3cdad06f25a8' => __DIR__ . '/..' . '/symfony/deprecation-contracts/function.php',
         '92c8763cd6170fce6fcfe7e26b4e8c10' => __DIR__ . '/..' . '/symfony/phpunit-bridge/bootstrap.php',
-        '667aeda72477189d0494fecd327c3641' => __DIR__ . '/..' . '/symfony/var-dumper/Resources/functions/dump.php',
         'c964ee0ededf28c96ebd9db5099ef910' => __DIR__ . '/..' . '/guzzlehttp/promises/src/functions_include.php',
+        '667aeda72477189d0494fecd327c3641' => __DIR__ . '/..' . '/symfony/var-dumper/Resources/functions/dump.php',
         '6a47392539ca2329373e0d33e1dba053' => __DIR__ . '/..' . '/symfony/polyfill-intl-icu/bootstrap.php',
         '8825ede83f2f289127722d4e842cf7e8' => __DIR__ . '/..' . '/symfony/polyfill-intl-grapheme/bootstrap.php',
         'b6b991a57620e2fb6b2f66f03fe9ddc2' => __DIR__ . '/..' . '/symfony/string/Resources/functions.php',
@@ -24,6 +25,7 @@ class ComposerStaticInit90ef26209efe7016e2806ec81e31f83c
         'a0edc8309cc5e1d60e3047b5df6b7052' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/functions_include.php',
         '2c102faa651ef8ea5874edb585946bce' => __DIR__ . '/..' . '/swiftmailer/swiftmailer/lib/swift_required.php',
         '37a3dc5111fe8f707ab4c132ef1dbc62' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/functions_include.php',
+        '7e9bd612cc444b3eed788ebbe46263a0' => __DIR__ . '/..' . '/laminas/laminas-zendframework-bridge/src/autoload.php',
         'abede361264e2ae69ec1eee813a101af' => __DIR__ . '/..' . '/markbaker/complex/classes/src/functions/abs.php',
         '21a5860fbef5be28db5ddfbc3cca67c4' => __DIR__ . '/..' . '/markbaker/complex/classes/src/functions/acos.php',
         '1546e3f9d127f2a9bb2d1b6c31c26ef1' => __DIR__ . '/..' . '/markbaker/complex/classes/src/functions/acosh.php',
@@ -82,7 +84,6 @@ class ComposerStaticInit90ef26209efe7016e2806ec81e31f83c
         'aa53dcba601214d17ad405b7c291b7e8' => __DIR__ . '/..' . '/markbaker/matrix/classes/src/operations/multiply.php',
         '75c79eb1b25749b05a47976f32b0d8a2' => __DIR__ . '/..' . '/markbaker/matrix/classes/src/operations/divideby.php',
         '6ab8ad87a734f276a6bcd5a0fe1289be' => __DIR__ . '/..' . '/markbaker/matrix/classes/src/operations/divideinto.php',
-        '7e9bd612cc444b3eed788ebbe46263a0' => __DIR__ . '/..' . '/laminas/laminas-zendframework-bridge/src/autoload.php',
     );
 
     public static $prefixLengthsPsr4 = array (
@@ -192,6 +193,7 @@ class ComposerStaticInit90ef26209efe7016e2806ec81e31f83c
             'Sonata\\IntlBundle\\' => 18,
             'Sonata\\FormatterBundle\\' => 23,
             'Sonata\\Form\\' => 12,
+            'Sonata\\Exporter\\Bridge\\Symfony\\' => 31,
             'Sonata\\Exporter\\' => 16,
             'Sonata\\EasyExtendsBundle\\' => 25,
             'Sonata\\Doctrine\\Bridge\\Symfony\\' => 31,
@@ -209,6 +211,8 @@ class ComposerStaticInit90ef26209efe7016e2806ec81e31f83c
         ),
         'R' => 
         array (
+            'Rollerworks\\Component\\PasswordStrength\\' => 39,
+            'Rollerworks\\Bundle\\PasswordStrengthBundle\\' => 42,
             'ReCaptcha\\' => 10,
         ),
         'P' => 
@@ -254,8 +258,6 @@ class ComposerStaticInit90ef26209efe7016e2806ec81e31f83c
         ),
         'K' => 
         array (
-            'KunicMarko\\SonataImporterBundle\\' => 32,
-            'KunicMarko\\Importer\\' => 20,
             'Knp\\Menu\\' => 9,
             'Knp\\Bundle\\MenuBundle\\' => 22,
             'Knp\\Bundle\\MarkdownBundle\\' => 26,
@@ -686,6 +688,10 @@ class ComposerStaticInit90ef26209efe7016e2806ec81e31f83c
         array (
             0 => __DIR__ . '/..' . '/sonata-project/form-extensions/src',
         ),
+        'Sonata\\Exporter\\Bridge\\Symfony\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/sonata-project/exporter/src/Bridge/Symfony',
+        ),
         'Sonata\\Exporter\\' => 
         array (
             0 => __DIR__ . '/..' . '/sonata-project/exporter/src',
@@ -742,6 +748,14 @@ class ComposerStaticInit90ef26209efe7016e2806ec81e31f83c
         array (
             0 => __DIR__ . '/..' . '/sensiolabs/security-checker/SensioLabs/Security',
         ),
+        'Rollerworks\\Component\\PasswordStrength\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/rollerworks/password-strength-validator/src',
+        ),
+        'Rollerworks\\Bundle\\PasswordStrengthBundle\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/rollerworks/password-strength-bundle/src',
+        ),
         'ReCaptcha\\' => 
         array (
             0 => __DIR__ . '/..' . '/google/recaptcha/src/ReCaptcha',
@@ -793,7 +807,7 @@ class ComposerStaticInit90ef26209efe7016e2806ec81e31f83c
         ),
         'PackageVersions\\' => 
         array (
-            0 => __DIR__ . '/..' . '/ocramius/package-versions/src/PackageVersions',
+            0 => __DIR__ . '/..' . '/composer/package-versions-deprecated/src/PackageVersions',
         ),
         'PUGX\\AutocompleterBundle\\' => 
         array (
@@ -851,14 +865,6 @@ class ComposerStaticInit90ef26209efe7016e2806ec81e31f83c
         array (
             0 => __DIR__ . '/..' . '/laminas/laminas-json/src',
         ),
-        'KunicMarko\\SonataImporterBundle\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/kunicmarko/sonata-importer-bundle/src',
-        ),
-        'KunicMarko\\Importer\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/kunicmarko/importer/src',
-        ),
         'Knp\\Menu\\' => 
         array (
             0 => __DIR__ . '/..' . '/knplabs/knp-menu/src/Knp/Menu',
@@ -901,7 +907,7 @@ class ComposerStaticInit90ef26209efe7016e2806ec81e31f83c
         ),
         'Gedmo\\' => 
         array (
-            0 => __DIR__ . '/..' . '/gedmo/doctrine-extensions/lib/Gedmo',
+            0 => __DIR__ . '/..' . '/gedmo/doctrine-extensions/src',
         ),
         'Fig\\Link\\' => 
         array (
@@ -1033,7 +1039,7 @@ class ComposerStaticInit90ef26209efe7016e2806ec81e31f83c
         array (
             'WhiteOctober\\BreadcrumbsBundle' => 
             array (
-                0 => __DIR__ . '/..' . '/whiteoctober/breadcrumbs-bundle',
+                0 => __DIR__ . '/..' . '/mhujer/breadcrumbs-bundle',
             ),
         ),
         'T' => 
@@ -1094,7 +1100,9 @@ class ComposerStaticInit90ef26209efe7016e2806ec81e31f83c
     );
 
     public static $classMap = array (
+        'Attribute' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/Attribute.php',
         'Collator' => __DIR__ . '/..' . '/symfony/intl/Resources/stubs/Collator.php',
+        'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
         'IntlDateFormatter' => __DIR__ . '/..' . '/symfony/intl/Resources/stubs/IntlDateFormatter.php',
         'JsonException' => __DIR__ . '/..' . '/symfony/polyfill-php73/Resources/stubs/JsonException.php',
         'Locale' => __DIR__ . '/..' . '/symfony/intl/Resources/stubs/Locale.php',
@@ -1140,6 +1148,7 @@ class ComposerStaticInit90ef26209efe7016e2806ec81e31f83c
         'PhpCsFixer\\Diff\\v3_0\\Output\\UnifiedDiffOutputBuilder' => __DIR__ . '/..' . '/php-cs-fixer/diff/src/v3_0/Output/UnifiedDiffOutputBuilder.php',
         'PhpCsFixer\\Diff\\v3_0\\Parser' => __DIR__ . '/..' . '/php-cs-fixer/diff/src/v3_0/Parser.php',
         'PhpCsFixer\\Diff\\v3_0\\TimeEfficientLongestCommonSubsequenceCalculator' => __DIR__ . '/..' . '/php-cs-fixer/diff/src/v3_0/TimeEfficientLongestCommonSubsequenceCalculator.php',
+        'PhpCsFixer\\Tests\\InterimTestCase' => __DIR__ . '/..' . '/friendsofphp/php-cs-fixer/tests/TestCase.php',
         'PhpCsFixer\\Tests\\TestCase' => __DIR__ . '/..' . '/friendsofphp/php-cs-fixer/tests/TestCase.php',
         'PhpCsFixer\\Tests\\Test\\AbstractFixerTestCase' => __DIR__ . '/..' . '/friendsofphp/php-cs-fixer/tests/Test/AbstractFixerTestCase.php',
         'PhpCsFixer\\Tests\\Test\\AbstractIntegrationCaseFactory' => __DIR__ . '/..' . '/friendsofphp/php-cs-fixer/tests/Test/AbstractIntegrationCaseFactory.php',

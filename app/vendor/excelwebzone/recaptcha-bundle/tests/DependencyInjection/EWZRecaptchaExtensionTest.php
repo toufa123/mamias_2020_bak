@@ -13,9 +13,7 @@ use Symfony\Component\Yaml\Parser;
  */
 class EWZRecaptchaExtensionTest extends TestCase
 {
-    /**
-     * @var ContainerBuilder
-     */
+    /** @var ContainerBuilder */
     private $configuration;
 
     protected function tearDown()
@@ -57,6 +55,23 @@ class EWZRecaptchaExtensionTest extends TestCase
             1,
             'ewz_recaptcha.extension.recaptcha.request_method.post'
         );
+    }
+
+    public function testSimpleV3Configuration()
+    {
+        $this->configuration = new ContainerBuilder();
+        $loader = new EWZRecaptchaExtension();
+        $config = $this->getSimpleConfig();
+        $loader->load([$config], $this->configuration);
+
+        $this->assertParameter(true, 'ewz_recaptcha.enabled');
+        $this->assertParameter('foo_public_key', 'ewz_recaptcha.public_key');
+        $this->assertParameter('bar_private_key', 'ewz_recaptcha.private_key');
+
+        $this->assertHasDefinition('ewz_recaptcha.v3.form.type');
+        $this->assertHasDefinition('ewz_recaptcha.validator.v3.true');
+        $this->assertHasDefinition('ewz_recaptcha.recaptcha');
+
     }
 
     public function testFullConfiguration()
@@ -140,12 +155,17 @@ EOF;
         $this->assertTrue(($this->configuration->hasDefinition($id) ?: $this->configuration->hasAlias($id)));
     }
 
+    private function assertNotHasDefinition($id)
+    {
+        $this->assertFalse(($this->configuration->hasDefinition($id) ?: $this->configuration->hasAlias($id)));
+    }
+
     private function assertDefinitionHasReferenceArgument($id, $index, $expectedArgumentValue)
     {
         $definition = $this->configuration->getDefinition($id);
         $argumentValue = $definition->getArgument($index);
 
         $this->assertInstanceOf(Reference::class, $argumentValue);
-        $this->assertSame($expectedArgumentValue, (string)$argumentValue);
+        $this->assertSame($expectedArgumentValue, (string) $argumentValue);
     }
 }

@@ -119,7 +119,7 @@ class RedirectController
         }
 
         // redirect if the path is a full URL
-        if (parse_url($path, PHP_URL_SCHEME)) {
+        if (parse_url($path, \PHP_URL_SCHEME)) {
             return new RedirectResponse($path, $statusCode);
         }
 
@@ -212,7 +212,7 @@ class RedirectController
             if (false === $i = strpos($k, '[')) {
                 $q[] = bin2hex($k).$v;
             } else {
-                $q[] = substr_replace($k, bin2hex(substr($k, 0, $i)), 0, $i).$v;
+                $q[] = bin2hex(substr($k, 0, $i)).rawurlencode(substr($k, $i)).$v;
             }
         }
 

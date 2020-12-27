@@ -1,5 +1,5 @@
 {% extends "auth.html.twig" %}
-{% block title %}Authentification{% endblock %}
+{% block title %}Email Verified{% endblock %}
 {% trans_default_domain 'FOSUserBundle' %}
 
 {% block body %}
@@ -14,7 +14,7 @@
                         <div class="m-t-40 account-pages">
                             <div class="text-center account-logo-box">
                                 <h2 class="text-uppercase">
-                                    <a href="index.html" class="text-success">
+                                    <a href="{{ path('home') }}" class="text-success">
                                         <span><img src="{{ asset('resources/logo/Logo-Mamias-web.png') }}"
                                                    alt="MAMIAS 3.0"></span>
                                     </a>

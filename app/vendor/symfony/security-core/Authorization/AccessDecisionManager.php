@@ -22,9 +22,9 @@ use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
  */
 class AccessDecisionManager implements AccessDecisionManagerInterface
 {
-    const STRATEGY_AFFIRMATIVE = 'affirmative';
-    const STRATEGY_CONSENSUS = 'consensus';
-    const STRATEGY_UNANIMOUS = 'unanimous';
+    public const STRATEGY_AFFIRMATIVE = 'affirmative';
+    public const STRATEGY_CONSENSUS = 'consensus';
+    public const STRATEGY_UNANIMOUS = 'unanimous';
 
     private $voters;
     private $strategy;
@@ -63,7 +63,7 @@ class AccessDecisionManager implements AccessDecisionManagerInterface
 
         // Special case for AccessListener, do not remove the right side of the condition before 6.0
         if (\count($attributes) > 1 && !$allowMultipleAttributes) {
-            @trigger_error(sprintf('Passing more than one Security attribute to "%s()" is deprecated since Symfony 4.4. Use multiple "decide()" calls or the expression language (e.g. "is_granted(...) or is_granted(...)") instead.', __METHOD__), E_USER_DEPRECATED);
+            @trigger_error(sprintf('Passing more than one Security attribute to "%s()" is deprecated since Symfony 4.4. Use multiple "decide()" calls or the expression language (e.g. "is_granted(...) or is_granted(...)") instead.', __METHOD__), \E_USER_DEPRECATED);
         }
 
         return $this->{$this->strategy}($token, $attributes, $object);

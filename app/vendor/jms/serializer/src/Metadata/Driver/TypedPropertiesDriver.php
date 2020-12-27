@@ -60,17 +60,16 @@ class TypedPropertiesDriver implements DriverInterface
 
     public function loadMetadataForClass(ReflectionClass $class): ?ClassMetadata
     {
-        /** @var SerializerClassMetadata $classMetadata */
         $classMetadata = $this->delegate->loadMetadataForClass($class);
+        \assert($classMetadata instanceof SerializerClassMetadata);
 
         if (null === $classMetadata) {
             return null;
         }
+
         // We base our scan on the internal driver's property list so that we
         // respect any internal white/blacklisting like in the AnnotationDriver
         foreach ($classMetadata->propertyMetadata as $key => $propertyMetadata) {
-            /** @var $propertyMetadata PropertyMetadata */
-
             // If the inner driver provides a type, don't guess anymore.
             if ($propertyMetadata->type || $this->isVirtualProperty($propertyMetadata)) {
                 continue;
@@ -79,7 +78,9 @@ class TypedPropertiesDriver implements DriverInterface
             try {
                 $propertyReflection = $this->getReflection($propertyMetadata);
                 if ($this->shouldTypeHint($propertyReflection)) {
-                    $propertyMetadata->setType($this->typeParser->parse($propertyReflection->getType()->getName()));
+                    $type = $propertyReflection->getType()->getName();
+
+                    $propertyMetadata->setType($this->typeParser->parse($type));
                 }
             } catch (ReflectionException $e) {
                 continue;
@@ -87,6 +88,18 @@ class TypedPropertiesDriver implements DriverInterface
         }
 
         return $classMetadata;
+    }
+
+    private function isVirtualProperty(PropertyMetadata $propertyMetadata): bool
+    {
+        return $propertyMetadata instanceof VirtualPropertyMetadata
+            || $propertyMetadata instanceof StaticPropertyMetadata
+            || $propertyMetadata instanceof ExpressionPropertyMetadata;
+    }
+
+    private function getReflection(PropertyMetadata $propertyMetadata): ReflectionProperty
+    {
+        return new ReflectionProperty($propertyMetadata->class, $propertyMetadata->name);
     }
 
     private function shouldTypeHint(ReflectionProperty $propertyReflection): bool
@@ -99,22 +112,6 @@ class TypedPropertiesDriver implements DriverInterface
             return true;
         }
 
-        if (class_exists($propertyReflection->getType()->getName())) {
-            return true;
-        }
-
-        return false;
-    }
-
-    private function getReflection(PropertyMetadata $propertyMetadata): ReflectionProperty
-    {
-        return new ReflectionProperty($propertyMetadata->class, $propertyMetadata->name);
-    }
-
-    private function isVirtualProperty(PropertyMetadata $propertyMetadata): bool
-    {
-        return $propertyMetadata instanceof VirtualPropertyMetadata
-            || $propertyMetadata instanceof StaticPropertyMetadata
-            || $propertyMetadata instanceof ExpressionPropertyMetadata;
+        return class_exists($propertyReflection->getType()->getName());
     }
 }

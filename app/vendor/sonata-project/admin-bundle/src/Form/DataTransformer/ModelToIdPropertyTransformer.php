@@ -14,8 +14,10 @@ declare(strict_types=1);
 namespace Sonata\AdminBundle\Form\DataTransformer;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Util\ClassUtils;
 use Sonata\AdminBundle\Model\ModelManagerInterface;
+use Sonata\AdminBundle\Util\TraversableToCollection;
 use Symfony\Component\Form\DataTransformerInterface;
 
 /**
@@ -24,6 +26,8 @@ use Symfony\Component\Form\DataTransformerInterface;
  * @final since sonata-project/admin-bundle 3.52
  *
  * @author Andrej Hudec <pulzarraider@gmail.com>
+ *
+ * @phpstan-template T of object
  */
 class ModelToIdPropertyTransformer implements DataTransformerInterface
 {
@@ -34,6 +38,8 @@ class ModelToIdPropertyTransformer implements DataTransformerInterface
 
     /**
      * @var string
+     *
+     * @phpstan-var class-string<T>
      */
     protected $className;
 
@@ -57,6 +63,9 @@ class ModelToIdPropertyTransformer implements DataTransformerInterface
      * @param string        $property
      * @param bool          $multiple
      * @param callable|null $toStringCallback
+     *
+     * @phpstan-param class-string<T> $className
+     * @phpstan-param null|callable(object, string): string $toStringCallback
      */
     public function __construct(
         ModelManagerInterface $modelManager,
@@ -72,14 +81,18 @@ class ModelToIdPropertyTransformer implements DataTransformerInterface
         $this->toStringCallback = $toStringCallback;
     }
 
+    /**
+     * @param mixed $value
+     *
+     * @return Collection<int|string, object>|object|null
+     *
+     * @phpstan-return Collection<array-key, T>|T|null
+     */
     public function reverseTransform($value)
     {
-        /** @var ArrayCollection<array-key, object> $collection */
-        $collection = new ArrayCollection();
-
         if (empty($value)) {
             if ($this->multiple) {
-                return $collection;
+                return new ArrayCollection();
             }
 
             return null;
@@ -95,34 +108,47 @@ class ModelToIdPropertyTransformer implements DataTransformerInterface
 
         foreach ($value as $key => $id) {
             if ('_labels' === $key) {
+                unset($value[$key]);
+
                 continue;
             }
 
-            $collection->add($this->modelManager->find($this->className, $id));
+            $value[$key] = (string) $id;
         }
 
-        return $collection;
+        $query = $this->modelManager->createQuery($this->className);
+        $this->modelManager->addIdentifiersToQuery($this->className, $query, $value);
+        $result = $this->modelManager->executeQuery($query);
+
+        return TraversableToCollection::transform($result);
     }
 
-    public function transform($entityOrCollection)
+    /**
+     * @param object|object[]|null $value
+     *
+     * @return mixed[]
+     *
+     * @phpstan-param T|T[]|null $value
+     */
+    public function transform($value)
     {
         $result = [];
 
-        if (!$entityOrCollection) {
+        if (!$value) {
             return $result;
         }
 
         if ($this->multiple) {
-            $isArray = \is_array($entityOrCollection);
-            if (!$isArray && substr(\get_class($entityOrCollection), -1 * \strlen($this->className)) === $this->className) {
+            $isArray = \is_array($value);
+            if (!$isArray && substr(\get_class($value), -1 * \strlen($this->className)) === $this->className) {
                 throw new \InvalidArgumentException(
                     'A multiple selection must be passed a collection not a single value.'
                     .' Make sure that form option "multiple=false" is set for many-to-one relation and "multiple=true"'
                     .' is set for many-to-many or one-to-many relations.'
                 );
             }
-            if ($isArray || ($entityOrCollection instanceof \ArrayAccess)) {
-                $collection = $entityOrCollection;
+            if ($isArray || ($value instanceof \ArrayAccess)) {
+                $collection = $value;
             } else {
                 throw new \InvalidArgumentException(
                     'A multiple selection must be passed a collection not a single value.'
@@ -131,16 +157,16 @@ class ModelToIdPropertyTransformer implements DataTransformerInterface
                 );
             }
         } else {
-            if (substr(\get_class($entityOrCollection), -1 * \strlen($this->className)) === $this->className) {
-                $collection = [$entityOrCollection];
-            } elseif ($entityOrCollection instanceof \ArrayAccess) {
+            if (substr(\get_class($value), -1 * \strlen($this->className)) === $this->className) {
+                $collection = [$value];
+            } elseif ($value instanceof \ArrayAccess) {
                 throw new \InvalidArgumentException(
                     'A single selection must be passed a single value not a collection.'
                     .' Make sure that form option "multiple=false" is set for many-to-one relation and "multiple=true"'
                     .' is set for many-to-many or one-to-many relations.'
                 );
             } else {
-                $collection = [$entityOrCollection];
+                $collection = [$value];
             }
         }
 

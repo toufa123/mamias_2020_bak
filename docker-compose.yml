@@ -103,7 +103,7 @@ services:
   #######################################
   maildev:
     container_name: "maildev"
-    image: djfarrelly/maildev
+    image: maildev/maildev:latest
     restart: always
     ports:
       - "1081:80" # smtp server
@@ -111,6 +111,8 @@ services:
     labels:
       - "traefik.http.services.MAMIAS_mail.loadbalancer.server.port=1025"
       - "traefik.http.routers.MAMIAS_mail.rule=Host(`mail.mamias.localhost`)"
+
+
   #######################################
   # Portainer
   #######################################

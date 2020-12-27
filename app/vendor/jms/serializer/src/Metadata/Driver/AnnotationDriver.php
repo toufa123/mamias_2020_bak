@@ -162,6 +162,7 @@ class AnnotationDriver implements DriverInterface
                 if ($property->class !== $name || (isset($property->info) && $property->info['class'] !== $name)) {
                     continue;
                 }
+
                 $propertiesMetadata[] = new PropertyMetadata($name, $property->getName());
                 $propertiesAnnotations[] = $this->reader->getPropertyAnnotations($property);
             }
@@ -222,8 +223,6 @@ class AnnotationDriver implements DriverInterface
                     } elseif ($annot instanceof XmlValue) {
                         $propertyMetadata->xmlValue = true;
                         $propertyMetadata->xmlElementCData = $annot->cdata;
-                    } elseif ($annot instanceof XmlElement) {
-                        $propertyMetadata->xmlElementCData = $annot->cdata;
                     } elseif ($annot instanceof AccessType) {
                         $accessType = $annot->type;
                     } elseif ($annot instanceof ReadOnly) {
@@ -269,7 +268,8 @@ class AnnotationDriver implements DriverInterface
                     }
                 }
 
-                if ((ExclusionPolicy::NONE === $exclusionPolicy && !$isExclude)
+                if (
+                    (ExclusionPolicy::NONE === $exclusionPolicy && !$isExclude)
                     || (ExclusionPolicy::ALL === $exclusionPolicy && $isExpose)
                 ) {
                     $propertyMetadata->setAccessor($accessType, $accessor[0], $accessor[1]);

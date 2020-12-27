@@ -144,7 +144,8 @@ var Admin = {
         if (Admin.get_config('USE_ICHECK')) {
             Admin.log('[core|setup_icheck] configure iCheck on', subject);
 
-            jQuery('input[type="checkbox"]:not(label.btn > input, [data-sonata-icheck="false"]), input[type="radio"]:not(label.btn > input, [data-sonata-icheck="false"])', subject)
+            var inputs = jQuery('input[type="checkbox"]:not(label.btn > input, [data-sonata-icheck="false"]), input[type="radio"]:not(label.btn > input, [data-sonata-icheck="false"])', subject);
+            inputs
               .iCheck({
                 checkboxClass: 'icheckbox_square-blue',
                 radioClass: 'iradio_square-blue'
@@ -154,6 +155,10 @@ var Admin = {
                   $(e.target).trigger('change');
               });
 
+            // In case some checkboxes were already checked (for instance after moving back in the browser's session history), update iCheck checkboxes.
+            if (subject === window.document) {
+                setTimeout(function () { inputs.iCheck('update'); }, 0);
+            }
         }
     },
     /**
@@ -791,9 +796,6 @@ jQuery(window).resize(function() {
 
 jQuery(document).ready(function() {
     jQuery('html').removeClass('no-js');
-    if (Admin.get_config('CONFIRM_EXIT')) {
-        jQuery('.sonata-ba-form form').each(function () { jQuery(this).confirmExit(); });
-    }
 
     Admin.setup_per_page_switcher(document);
     Admin.setup_collection_buttons(document);
@@ -805,4 +807,12 @@ jQuery(document).on('sonata-admin-append-form-element', function(e) {
     Admin.setup_select2(e.target);
     Admin.setup_icheck(e.target);
     Admin.setup_collection_counter(e.target);
+});
+
+jQuery(window).on('load', function() {
+    if (Admin.get_config('CONFIRM_EXIT')) {
+        jQuery('.sonata-ba-form form').each(function() {
+            jQuery(this).confirmExit();
+        });
+    }
 });

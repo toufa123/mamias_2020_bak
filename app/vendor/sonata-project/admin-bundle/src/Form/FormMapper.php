@@ -58,12 +58,18 @@ class FormMapper extends BaseGroupedMapper
     /**
      * @param FormBuilderInterface|string $name
      * @param string|null                 $type
+     * @param array<string, mixed>        $options
+     * @param array<string, mixed>        $fieldDescriptionOptions
      *
-     * @return $this
+     * @return static
      */
     public function add($name, $type = null, array $options = [], array $fieldDescriptionOptions = [])
     {
         if (!$this->shouldApply()) {
+            return $this;
+        }
+
+        if (isset($fieldDescriptionOptions['role']) && !$this->admin->isGranted($fieldDescriptionOptions['role'])) {
             return $this;
         }
 
@@ -124,7 +130,10 @@ class FormMapper extends BaseGroupedMapper
             $name = $fieldDescription->getName();
 
             // Note that the builder var is actually the formContractor:
-            $options = array_replace_recursive($this->builder->getDefaultOptions($type, $fieldDescription) ?? [], $options);
+            $options = array_replace_recursive(
+                $this->builder->getDefaultOptions($type, $fieldDescription, $options),
+                $options
+            );
 
             // be compatible with mopa if not installed, avoid generating an exception for invalid option
             // force the default to false ...
@@ -137,10 +146,10 @@ class FormMapper extends BaseGroupedMapper
             }
 
             // NEXT_MAJOR: Remove this block.
-            if (isset($options['help'])) {
+            if (isset($options['help']) && !isset($options['help_html'])) {
                 $containsHtml = $options['help'] !== strip_tags($options['help']);
 
-                if (!isset($options['help_html']) && $containsHtml) {
+                if ($containsHtml) {
                     @trigger_error(
                         'Using HTML syntax within the "help" option and not setting the "help_html" option to "true" is deprecated'
                         .' since sonata-project/admin-bundle 3.74 and it will not work in version 4.0.',
@@ -153,10 +162,7 @@ class FormMapper extends BaseGroupedMapper
         }
 
         $this->admin->addFormFieldDescription($fieldName, $fieldDescription);
-
-        if (!isset($fieldDescriptionOptions['role']) || $this->admin->isGranted($fieldDescriptionOptions['role'])) {
-            $this->formBuilder->add($name, $type, $options);
-        }
+        $this->formBuilder->add($name, $type, $options);
 
         return $this;
     }
@@ -175,6 +181,9 @@ class FormMapper extends BaseGroupedMapper
         return $this->formBuilder->has($key);
     }
 
+    /**
+     * @return string[]
+     */
     final public function keys()
     {
         return array_keys($this->formBuilder->all());
@@ -197,7 +206,7 @@ class FormMapper extends BaseGroupedMapper
      * @param string $tab            The tab the group belongs to, defaults to 'default'
      * @param bool   $deleteEmptyTab Whether or not the Tab should be deleted, when the deleted group leaves the tab empty after deletion
      *
-     * @return $this
+     * @return static
      */
     public function removeGroup($group, $tab = 'default', $deleteEmptyTab = false)
     {
@@ -240,8 +249,9 @@ class FormMapper extends BaseGroupedMapper
     }
 
     /**
-     * @param string $name
-     * @param mixed  $type
+     * @param string               $name
+     * @param mixed                $type
+     * @param array<string, mixed> $options
      *
      * @return FormBuilderInterface
      */

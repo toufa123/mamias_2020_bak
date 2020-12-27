@@ -24,11 +24,11 @@ use ApiPlatform\Core\Exception\RuntimeException;
 use ApiPlatform\Core\Identifier\IdentifierConverterInterface;
 use ApiPlatform\Core\Metadata\Property\Factory\PropertyMetadataFactoryInterface;
 use ApiPlatform\Core\Metadata\Property\Factory\PropertyNameCollectionFactoryInterface;
-use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\ODM\MongoDB\Aggregation\Builder;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use Doctrine\ODM\MongoDB\Mapping\ClassMetadata;
 use Doctrine\ODM\MongoDB\Repository\DocumentRepository;
+use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * Subresource data provider for the Doctrine MongoDB ODM.
@@ -157,8 +157,8 @@ final class SubresourceDataProvider implements SubresourceDataProviderInterface
         $aggregation = $this->buildAggregation($identifiers, $context, $aggregation, --$remainingIdentifiers, $topAggregationBuilder);
 
         $results = $aggregation->execute()->toArray();
-        $in = array_reduce($results, function ($in, $result) use ($previousAssociationProperty) {
-            return $in + array_map(function ($result) {
+        $in = array_reduce($results, static function ($in, $result) use ($previousAssociationProperty) {
+            return $in + array_map(static function ($result) {
                 return $result['_id'];
             }, $result[$previousAssociationProperty] ?? []);
         }, []);

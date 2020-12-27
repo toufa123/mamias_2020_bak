@@ -1,20 +1,39 @@
 # Doctrine Behavioral Extensions
 
-[![Build Status](https://travis-ci.org/Atlantic18/DoctrineExtensions.svg?branch=v2.4.x)](https://travis-ci.org/Atlantic18/DoctrineExtensions)
+[![Build Status](https://travis-ci.org/Atlantic18/DoctrineExtensions.svg?branch=main)](https://travis-ci.org/Atlantic18/DoctrineExtensions)
 [![Latest Stable Version](https://poser.pugx.org/gedmo/doctrine-extensions/version)](https://packagist.org/packages/gedmo/doctrine-extensions)
 
 This package contains extensions for Doctrine ORM and MongoDB ODM that offer new functionality or tools to use Doctrine
 more efficiently. These behaviors can be easily attached to the event system of Doctrine and handle the records being
 flushed in a behavioral way.
 
+---
+
+## Doctrine Extensions 3.0 Released :tada:
+
+3.0 focuses on refreshing this package for today's PHP. This includes:
+
+- Bumping minimum version requirements of PHP, Doctrine, and other dependencies
+- Implementing support for the latest Doctrine MongoDB & Common packages
+- Updating the test suite, add code and style standards, and other needed build tools
+- Cleaning up documentation, code, comments, etc.
+
+[Read the Upgrade Doc for more info.](/doc/upgrading/upgrade-v2.4-to-v3.0.md)
+
+---
+
 ## Installation
 
-    $ composer require gedmo/doctrine-extensions
+    composer require gedmo/doctrine-extensions
 
 * [Symfony 2](/doc/symfony2.md)
 * [Symfony 4](/doc/symfony4.md)
 * [Laravel 5](https://www.laraveldoctrine.org/docs/1.3/extensions)
-* [Zend Framework 2](/doc/zendframework2.md)
+* [Laminas](/doc/laminas.md)
+
+### Upgrading
+
+* [From 2.4.x to 3.0](/doc/upgrading/upgrade-v2.4-to-v3.0.md)
 
 ## Extensions
 
@@ -74,15 +93,12 @@ XML mapping xsd schemas are also versioned and can be used by version suffix:
 
 ### Running Tests
 
-**pdo-sqlite** extension is necessary.
-
 To set up and run the tests, follow these steps:
 
-- go to the root directory of extensions
-- download composer: `wget https://getcomposer.org/composer.phar`
-- install dev libraries: `php composer.phar install`
-- run: `bin/phpunit -c tests`
-- optional - run mongodb service if targeting mongo tests
+- Install [Lando](https://docs.devwithlando.io/), a Docker-based dev environment tool
+- Run `lando start` from the project root
+- Make sure you `composer install` project dependencies
+- Run `lando php bin/phpunit -c tests`
 
 ### Running the Example
 

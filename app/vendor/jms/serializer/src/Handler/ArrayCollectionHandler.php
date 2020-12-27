@@ -17,7 +17,7 @@ final class ArrayCollectionHandler implements SubscribingHandlerInterface
     /**
      * @var bool
      */
-    private $initializeExcluded = true;
+    private $initializeExcluded;
 
     public function __construct(bool $initializeExcluded = true)
     {
@@ -78,9 +78,11 @@ final class ArrayCollectionHandler implements SubscribingHandlerInterface
                 return $visitor->visitArray([], $type, $context);
             }
         }
+
         $result = $visitor->visitArray($collection->toArray(), $type);
 
         $context->startVisiting($collection);
+
         return $result;
     }
 

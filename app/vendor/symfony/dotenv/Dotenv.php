@@ -25,9 +25,9 @@ use Symfony\Component\Process\Process;
  */
 final class Dotenv
 {
-    const VARNAME_REGEX = '(?i:[A-Z][A-Z0-9_]*+)';
-    const STATE_VARNAME = 0;
-    const STATE_VALUE = 1;
+    public const VARNAME_REGEX = '(?i:[A-Z][A-Z0-9_]*+)';
+    public const STATE_VARNAME = 0;
+    public const STATE_VALUE = 1;
 
     private $path;
     private $cursor;
@@ -45,7 +45,7 @@ final class Dotenv
     public function __construct(bool $usePutenv = true)
     {
         if (!\func_num_args()) {
-            @trigger_error(sprintf('The default value of "$usePutenv" argument of "%s" will be changed from "true" to "false" in Symfony 5.0. You should define its value explicitly.', __METHOD__), E_USER_DEPRECATED);
+            @trigger_error(sprintf('The default value of "$usePutenv" argument of "%s" will be changed from "true" to "false" in Symfony 5.0. You should define its value explicitly.', __METHOD__), \E_USER_DEPRECATED);
         }
 
         $this->usePutenv = $usePutenv;
@@ -401,7 +401,7 @@ final class Dotenv
 
             $process = method_exists(Process::class, 'fromShellCommandline') ? Process::fromShellCommandline('echo '.$matches[0]) : new Process('echo '.$matches[0]);
 
-            if (!method_exists(Process::class, 'fromShellCommandline')) {
+            if (!method_exists(Process::class, 'fromShellCommandline') && method_exists(Process::class, 'inheritEnvironmentVariables')) {
                 // Symfony 3.4 does not inherit env vars by default:
                 $process->inheritEnvironmentVariables();
             }
