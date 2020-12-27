@@ -20,7 +20,8 @@ git clone https://github.com/toufa123/mamias.git mamias
 cd mamias
 
 # copy favorite docker-compose.*.yml to docker-compose.yml
+if docker-compose.yml is not there
 cp docker-compose.development.yml docker-compose.yml
-
+othewise
 docker-compose up -d --build
 ```

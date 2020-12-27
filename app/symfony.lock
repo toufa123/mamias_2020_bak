@@ -164,6 +164,9 @@
     "picoss/sonata-extra-admin-bundle": {
         "version": "4.0"
     },
+    "presta/sitemap-bundle": {
+        "version": "v2.3.1"
+    },
     "psr/http-client": {
         "version": "1.0.1"
     },

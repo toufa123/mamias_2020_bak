@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 class MedlevelController extends AbstractController
 {
     /**
-     * @Route("services/dash/med", name="med")
+     * @Route("services/dash/med", name="med",  options={"sitemap" = true})
      */
     public function index(Request $request)
     {

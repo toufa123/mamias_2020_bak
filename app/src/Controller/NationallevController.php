@@ -17,7 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 class NationallevController extends AbstractController
 {
     /**
-     * @Route("services/dash/nat/", name="nat")
+     * @Route("services/dash/nat/", name="nat",  options={"sitemap" = true})
      */
     public function index(Request $request)
     {

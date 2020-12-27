@@ -224,6 +224,7 @@ class ComposerStaticInit90ef26209efe7016e2806ec81e31f83c
             'Psr\\Http\\Client\\' => 16,
             'Psr\\Container\\' => 14,
             'Psr\\Cache\\' => 10,
+            'Presta\\SitemapBundle\\' => 21,
             'Picoss\\SonataExtraAdminBundle\\' => 30,
             'PhpParser\\' => 10,
             'PhpOffice\\PhpSpreadsheet\\' => 25,
@@ -788,6 +789,10 @@ class ComposerStaticInit90ef26209efe7016e2806ec81e31f83c
         'Psr\\Cache\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/cache/src',
+        ),
+        'Presta\\SitemapBundle\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/presta/sitemap-bundle',
         ),
         'Picoss\\SonataExtraAdminBundle\\' => 
         array (

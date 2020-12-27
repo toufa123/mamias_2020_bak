@@ -27,7 +27,7 @@ use WhiteOctober\BreadcrumbsBundle\Model\Breadcrumbs;
 class SearchController extends AbstractController
 {
     /**
-     * @Route("services/search", name="search")
+     * @Route("services/search", name="search",  options={"sitemap" = true})
      */
     public function index(Request $request, Breadcrumbs $breadcrumbs)
     {

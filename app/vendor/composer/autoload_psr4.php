@@ -120,6 +120,7 @@ return array(
     'Psr\\Http\\Client\\' => array($vendorDir . '/psr/http-client/src'),
     'Psr\\Container\\' => array($vendorDir . '/psr/container/src'),
     'Psr\\Cache\\' => array($vendorDir . '/psr/cache/src'),
+    'Presta\\SitemapBundle\\' => array($vendorDir . '/presta/sitemap-bundle'),
     'Picoss\\SonataExtraAdminBundle\\' => array($vendorDir . '/picoss/sonata-extra-admin-bundle'),
     'PhpParser\\' => array($vendorDir . '/nikic/php-parser/lib/PhpParser'),
     'PhpOffice\\PhpSpreadsheet\\' => array($vendorDir . '/phpoffice/phpspreadsheet/src/PhpSpreadsheet'),

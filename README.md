@@ -6,14 +6,12 @@ Supports:
 
 - Nginx or Apache HTTPd
 - PHP-FPM (with Xdebug)
-- MySQL, MariaDB or PerconaDB
 - PostgreSQL with postGIS
 - Solr (disabled, without configuration)
 - Elasticsearch (disabled, without configuration)
 - Redis (disabled)
 - Memcached (disabled)
 - Maildev
-- FTP server (vsftpd)
 - pgAdmin
 - maybe more later...
 

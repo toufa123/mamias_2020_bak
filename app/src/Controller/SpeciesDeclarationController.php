@@ -45,7 +45,7 @@ class SpeciesDeclarationController extends Controller
     }
 
     /**
-     * @Route("admin/species/declaration", name="declaration")
+     * @Route("admin/species/declaration", name="declaration",  options={"sitemap" = true})
      * @Security("is_granted('ROLE_REGSITREDUSER')")
      *
      */

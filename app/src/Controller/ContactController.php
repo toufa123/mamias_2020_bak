@@ -27,7 +27,7 @@ class ContactController extends AbstractController
     }
 
     /**
-     * @Route("/contact", name="contact")
+     * @Route("/contact", name="contact",  options={"sitemap" = true})
      */
     public function index(Request $request, Swift_Mailer $mailer)
     {

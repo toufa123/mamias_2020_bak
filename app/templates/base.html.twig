@@ -445,10 +445,15 @@
                     <div class="col-12 text-center ">
                         © {{ "now"|date("Y") }} <a href="http://www.rac-spa.org/" class="card-link-f text-custom"
                                                    target="_blank">UNEP-MAP-SPA/RAC </a>
-                        |<a href="#disclaimer" data-toggle="modal" data-target=".disclaimer"
-                            class="card-link-f text-custom">Disclaimer </a>
+                        |<a href="{{ asset('sitemap.default.xml') }}"
+                            class="card-link-f text-custom">&nbsp;SiteMap </a>
+                        |<a href="#terms" data-toggle="modal" data-target=".terms"
+                            class="card-link-f text-custom">&nbsp;Terms&Conditions </a>
                         |<a href="#terms" data-toggle="modal" data-target=".privacy"
-                            class="card-link-f text-custom">Privacy</a>
+                            class="card-link-f text-custom">&nbsp;Privacy Policy</a>
+                        |<a href="#disclaimer" data-toggle="modal" data-target=".disclaimer"
+                            class="card-link-f text-custom">&nbsp;Disclaimer </a>
+
 
                     </div>
 
@@ -528,7 +533,7 @@
     <div class="modal-dialog modal-full-height modal-dialog-right modal-notify modal-info" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title text-custom mt-0">Privacy</h4>
+                <h4 class="modal-title text-custom mt-0">Privacy & Policy</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -546,6 +551,31 @@
         </div>
     </div>
 </div>
+
+<div id="terms" class="modal fade terms" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
+     aria-hidden="true" style="display: none;">
+    <div class="modal-dialog modal-lg" style="width:55%; max-width: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title text-custom mt-0">Terms & Conditions</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+
+
+            </div>
+            <div class="modal-body">
+
+
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-custom waves-effect" data-dismiss="modal">Close</button>
+
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
 
 <!-- jQuery  -->
 <script src="{{ asset('assets/js/jquery.min.js') }}"></script>

@@ -16,7 +16,7 @@ use WhiteOctober\BreadcrumbsBundle\Model\Breadcrumbs;
 class HomeController extends AbstractController
 {
     /**
-     * @Route("/", name="home")
+     * @Route("/", name="home",  options={"sitemap" = true})
      */
     public function index(Breadcrumbs $breadcrumbs)
     {

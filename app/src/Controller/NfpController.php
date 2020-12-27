@@ -18,7 +18,7 @@ use Symfony\Component\HttpFoundation\Response;
 class NfpController extends AbstractController
 {
     /**
-     * @Route("/nfp", name="nfp")
+     * @Route("/nfp", name="nfp",  options={"sitemap" = true})
      * @IsGranted("ROLE_FOCALPOINT")
      */
     public function index()

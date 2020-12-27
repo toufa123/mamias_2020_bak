@@ -36,4 +36,5 @@ redcode_tree:
     resource: "@RedCodeTreeBundle/Resources/config/routing.yml"
     prefix:   /admin
 
-
+presta_sitemap:
+    resource: "@PrestaSitemapBundle/Resources/config/routing.yml"
