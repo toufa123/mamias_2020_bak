@@ -34,6 +34,10 @@
     <link rel="stylesheet" href="{{ asset('assets/plugins/custombox/css/custombox.min.css') }}"/>
     <link rel="stylesheet" href="{{ asset('assets/plugins/jquery-fab/dist/css/jquery-fab.css') }}"/>
     <link rel="stylesheet" href="{{ asset('assets/css/fab-buttons.min.css') }}"/>
+    <!--Cookie consent -->
+
+    <link rel="stylesheet" href="{{ asset('bundles/chcookieconsent/css/cookie_consent.css') }}"/>
+
 
     <!-- HTML5 Shiv and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -409,7 +413,9 @@
         <!-- end page title end breadcrumb -->
 
         {% block body %}
+
         {% endblock %}
+
 
 
         <!-- /clickable menu -->
@@ -437,7 +443,10 @@
         </div>
         <!-- /clickable menu -->
 
+        <div class="row">
+            {{ render_esi(path('ch_cookie_consent.show_if_cookie_consent_not_set')) }}
 
+        </div>
         <!-- Footer -->
         <footer class="footer text-right">
             <div class="container-fluid">
@@ -448,7 +457,7 @@
                         |<a href="{{ asset('sitemap.default.xml') }}"
                             class="card-link-f text-custom">&nbsp;SiteMap </a>
                         |<a href="#terms" data-toggle="modal" data-target=".terms"
-                            class="card-link-f text-custom">&nbsp;Terms&Conditions </a>
+                            class="card-link-f text-custom">&nbsp;Terms & Conditions </a>
                         |<a href="#terms" data-toggle="modal" data-target=".privacy"
                             class="card-link-f text-custom">&nbsp;Privacy Policy</a>
                         |<a href="#disclaimer" data-toggle="modal" data-target=".disclaimer"
@@ -467,16 +476,16 @@
 </div>
 <!-- end wrapper -->
 
+
 <div id="disclaimer" class="modal fade disclaimer" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
      aria-hidden="true" style="display: none;">
-    <div class="modal-dialog modal-lg" style="width:55%; max-width: none;">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable" style="width:80%; max-width: none;">
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title text-custom mt-0">Disclaimer</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
-
 
             </div>
             <div class="modal-body">
@@ -492,7 +501,7 @@
                     preliminary in nature and must be submitted to a final review process.</p>
                 <p>This web application is developed in order to further enable the MAMIAS database, as an online
                     platform for the collection, exploitation, and dissemination of information on marine biological
-                    invasions in the Mediterranean Sea to support relevant regional and international policies.</p>
+                    invasions in the Mediterranean Sea, to support relevant regional and international policies.</p>
                 <p>The SPA/RAC makes every effort to provide and maintain accurate, complete, useable, and timely
                     information on the online database. However, these data and information are provided with the
                     understanding that they are not guaranteed to be correct or complete. Indeed, this information is
@@ -513,10 +522,20 @@
                     and we cannot guarantee that our service will not be interrupted or otherwise affected by such
                     problems. SPA/RAC accepts no responsibility regarding such problems incurred as a result of using
                     this database or any linked external sites. Usage of the system is monitored.</p>
-                <p> The designations employed and the presentation of the material in this document do not imply the
-                    expression of any opinion whatsoever on the part of SPA/RAC and UNEP concerning the legal status of
-                    any country, Territory, city or area, or of its authorities, or concerning the delimitation of its
-                    frontiers or boundaries.</p>
+
+                <p>SPA/RAC is not responsible for the content of any sites directly or indirectly linked to or
+                    linked from any pages on this Site. If you consider any linked pages to be inappropriate, illegal or
+                    offensive please <a href="{{ path('contact') }}">contact us</a>.
+
+                </p>
+
+                <p><strong>The designations employed and the presentation of the material in this document do not imply
+                        the
+                        expression of any opinion whatsoever on the part of SPA/RAC and UNEP concerning the legal status
+                        of
+                        any country, Territory, city or area, or of its authorities, or concerning the delimitation of
+                        its
+                        frontiers or boundaries.</strong></p>
 
 
             </div>
@@ -530,10 +549,10 @@
 
 <div class="modal fade privacy" id="help" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
      aria-hidden="true">
-    <div class="modal-dialog modal-full-height modal-dialog-right modal-notify modal-info" role="document">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable" style="width:80%; max-width: none;max-height: 50%">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title text-custom mt-0">Privacy & Policy</h4>
+                <h4 class="modal-title text-custom mt-0">Privacy & Cookie Policy</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -541,7 +560,408 @@
 
             </div>
             <div class="modal-body">
+                <p>
+                    When you view www.mamias.org your visit and any dispute over privacy is subject to this Privacy
+                    Statement, Disclaimer and the Terms and Conditions of Use. SPA/RAC recognises the importance of
+                    protecting the privacy of anyone who visits the Website. This Privacy Statement sets out the policy
+                    adopted by SPA/RAC towards the collection and use of information obtained from those visiting and
+                    using this site. SPA/RAC (referred to as "we", "us" or "our" in this privacy notice) is the data
+                    controller and as such is responsible for your personal data. By providing us with your information
+                    you confirm that you are over 13 years of age. If you have any queries, please get in touch
+                    <a href="{{ path('contact') }}">with us</a>.
+                </p>
+                <p>
+                <h5>1. Introduction</h5>
+                This notice informs you of our policy regarding information we hold and record about you.
+                It sets out the conditions under which we may process personal information that you provide to us.
+                It covers information that could identify you ("personal information") and information that could
+                not identify you. In the context of the law "process" means to collect, store, transfer, use or
+                otherwise act on information. We take the protection of your privacy and confidentiality seriously.
+                We understand that all visitors to our website are entitled to trust that their personal information
+                will not be used for any purpose unintended by them, and will not accidentally be transferred to a
+                third party. We undertake to preserve the confidentiality of all information you provide to us,
+                and trust that you reciprocate. It is very important that the information we hold about you is
+                accurate and up to date. Please let us know if at any time your personal information changes by
+                contacting us. Our policy complies with Tunisia <a
+                    href="http://www.inpdp.nat.tn/ressources/loi_2004.pdf">
+                    Organic Act n°2004-63 of July 27th 2004 on the protection of personal data</a> and with
+                The <a href="">General Data Protection Regulation (GDPR)</a>.
+                </p>
+                <p>
+                <h5>2. Who we are</h5>
+                <table class="table table-sm m-0">
+                    <tbody>
+                    <tr>
+                        <th style="text-align:left;vertical-align:top;">Legal name</th>
+                        <td style="text-align:left;vertical-align:top;">SPA/RAC</td>
+                    </tr>
+                    <tr>
+                        <th style="text-align:left;vertical-align:top;">Email address</th>
+                        <td style="text-align:left;vertical-align:top;"><a href="mailto:secretariat@ospar.org">car-asp@spa-rac.org</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th style="text-align:left;vertical-align:top;">Postal address</th>
+                        <td style="text-align:left;vertical-align:top;"> Boulevard du Leader Yasser Arafet - B.P. 337 -
+                            1080 - Tunis Cedex - Tunisie
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+                </p>
+                <p>
+                <h5>3. How we process information about you</h5>
+                The law requires that we process personal information under one of six defined bases and to notify
+                you of the basis for each category. If a basis on which we process your personal information is no
+                longer relevant then we shall immediately stop processing your data. If the basis changes then,
+                if required by law, we shall notify you of the change and of any new basis under which we have
+                determined that we can continue to process your information.
 
+                </p>
+                <p>
+                <h5>4. Information we process as a contractual obligation</h5>
+                When you contact us about a service we provide as part of our business, create an account on our
+                website (buy a product or service from us, or otherwise agree to our terms and conditions) a
+                contract is formed between you and us. Any processing of information that may lead to a
+                contract - e.g. contacting us to enquire about a service or product - is also processed in this
+                way as it may lead to a contractual obligation.
+
+                In order to carry out our obligations under that contract we must process the information you give us.
+                Some of this information may be personal information. We may use it in order to:
+                <ul>
+                    <li>verify your identity for security purposes</li>
+                    <li>sell products to you</li>
+                    <li>provide you with our services</li>
+                    <li>provide you with suggestions and advice on products, services and how to obtain the most from
+                        using our website
+                    </li>
+                </ul>
+                We process this information on the basis there is a contract between you and us, or that you have
+                requested we use the information before we enter into a legal contract.
+                Additionally, we may aggregate this information in a general way and use it to provide information
+                to monitor our performance with respect to a particular service we provide. If we use it for this
+                purpose, you as an individual are not personally identifiable.
+
+                </p>
+                <p>
+                <h5>5. Information we process with your consent</h5>
+                Through certain actions when there is no contractual relationship between us, such as when you browse
+                our website or ask us to provide you with more information about our business, products or services,
+                you are providing your consent to us to process information that may be personal information.
+
+                Wherever possible, we aim to obtain your explicit consent to process this information.
+                Sometimes you might give your consent implicitly, such as when you send us a message by email
+                to which you would reasonably expect us to reply.
+
+                Except where you have consented to our use of your information for a specific purpose,
+                we do not use your information in any way that would identify you personally. We may aggregate it in
+                a general way and use it to provide information, for example to monitor the performance of a
+                particular page on our website.
+
+                We continue to process your information on this basis until you withdraw your consent or it can be
+                reasonably assumed that your consent no longer exists.
+
+                You may withdraw your consent at any time by <a href="{{ path('contact') }}">instructing us</a>, or by
+                choosing to unsubscribe
+                from emails that we send you.
+                </p>
+                <p>
+                <h5> 6. Information we process for the purposes of legitimate interests</h5>
+                We may process information on the basis there is a legitimate interest, either to you or to us,
+                in doing so. Where we process your information on this basis, we do so after having given careful
+                consideration to:
+                <ul>
+                    <li>whether the same objective could be achieved through other means</li>
+                    <li>whether processing (or not processing) might cause you harm</li>
+                    <li>whether you would expect us to process your data, and whether you would consider it reasonable
+                        to do so.
+                    </li>
+                </ul>
+                For example, we may process your data on this basis for the purposes of:
+                <UL>
+                    <li>record-keeping for the proper and necessary administration of our organisation/business</li>
+                    <li>responding to unsolicited communication from you to which we believe you would expect a
+                        response
+                    </li>
+                    <li>protecting and asserting the legal rights of any party</li>
+                    <li>insuring against or obtaining professional advice that is required to manage
+                        organisational/business risk
+                    </li>
+                    <li>protecting your interests where we believe we have a duty to do so</li>
+                </UL>
+                </p>
+                <p>
+                <h5>7. Sending a message via our website or contacting our support team</h5>
+                When you contact us, whether by telephone, through our website or by email, we collect the data
+                you have given to us in order to reply with the information you need. We record your request and
+                our reply in order to increase the efficiency of our business. We keep personally identifiable
+                information associated with your message, such as your name and email address so as to be able
+                to track our communications with you to provide a high quality service.
+                </p>
+                <p>
+                <h5>8. Complaints regarding content on our website</h5>
+                If you complain about any of the content on our website, we shall investigate your complaint.
+                If we feel it is justified or if we believe the law requires us to do so, we shall remove
+                the content while we investigate.
+                </p>
+                <p>
+                <h5>9. Complaints received about our business</h5>
+                If we receive a complaint, we record all the information you have given to us. We use that
+                information to resolve your complaint. If your complaint reasonably requires us to contact
+                another party, we may decide to give that party some of the information contained in your
+                complaint. We do this as infrequently as possible, but it is a matter for our sole discretion
+                s to whether we do give information, and if we do, what that information is.
+
+                We may also compile statistics showing information obtained from this source to assess
+                the level of service we provide, but not in a way that could identify you or any other person.
+                </p>
+                <p>
+                <h3>Use of information we collect through automated systems when you visit our website</h3>
+                </p>
+                <p>
+                <h5>10. Cookies and Local Storage</h5>
+                <p class="text-warning">
+                    Cookies
+                </p>
+                Cookies are small text files that are placed on your computer's hard drive by your web browser
+                when you visit any website. They allow information gathered on one web page to be stored until
+                it is needed for use on another, allowing a website to provide you with a personalised experience
+                and the website owner with statistics about how you use the website so that it can be improved.
+
+                Some cookies may last for a defined period of time, such as one day or until you close your
+                browser. Others last indefinitely.
+
+                Our website uses cookies. They are placed by software that operates on our servers, and by
+                software operated by third parties whose services we use.
+
+                Some examples of how cookies may be used:
+                <ul>
+                    <li>to track how you use our website</li>
+                    <li>to record what is held in a shopping basket</li>
+                    <li>to record whether you have seen specific messages we display on our website</li>
+                    <li>to record your answers to surveys and questionnaires on our site while you complete them.</li>
+                </ul>
+                <p class="text-warning"> Local storage
+                <p>
+                <p> Local storage is a component of the Web storage application programming interface. It is a
+                    method by which Web pages locally store named key/value pairs inside a client's Web browser.
+                    Similar to cookies, this saved data exists even when you close a browser tab, surf away from
+                    the current website or close the main browser.</p>
+
+                <p class="text-warning"> What We Use and Why</p>
+                <p> You can find more information about the individual cookie and local storage data we use and
+                    the purposes for which we use them below:</p>
+                </p>
+                <p>
+                <table class="table table-sm m-0 table-bordered table-colored-bordered table-bordered-primary">
+                    <tbody>
+                    <tr>
+                        <th style="text-align:left;vertical-align:top;">Cookie / Local Storage</th>
+                        <th style="text-align:left;vertical-align:top;">Example Name(s)</th>
+                        <th style="text-align:left;vertical-align:top;">Purpose</th>
+                    </tr>
+                    <tr>
+                        <td style="text-align:left;vertical-align:top;">Content Management System</td>
+                        <td style="text-align:left;vertical-align:top;"></td>
+                        <td style="text-align:left;vertical-align:top;">This website uses a content management system,
+                            and uses cookies that are required for aspects of this website to work.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:left;vertical-align:top;">Cookie Consent</td>
+                        <td style="text-align:left;vertical-align:top;">cookieconsent_status</td>
+                        <td style="text-align:left;vertical-align:top;">This cookie stores the status of the cookie
+                            consent message that appears when you first use this website.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:left;vertical-align:top;">Google Analytics</td>
+                        <td style="text-align:left;vertical-align:top;">
+                            _ga<br>_gat<br>_gid<br>_utma<br>_utmb<br>_utmc<br>_utmt<br>_utmz
+                        </td>
+                        <td style="text-align:left;vertical-align:top;">This website uses Google Analytics, a web
+                            analytics service provided by Google Inc. ("Google"). Google Analytics uses cookies to help
+                            collect data on how users use this website. Information about the cookies set by Google, and
+                            their purpose, can be found at: <a
+                                href="https://developers.google.com/analytics/devguides/collection/analyticsjs/cookie-usage">https://developers.google.com/analytics/devguides/collection/analyticsjs/cookie-usage</a>.
+                            Google's Privacy Policy can be found at: <a
+                                href="https://policies.google.com/privacy?hl=en&amp;gl=uk" target="_blank"
+                                rel="noreferrer noopener">https://policies.google.com/privacy</a><br><br>To opt-out of
+                            analysis by Google Analytics, both on this website and other websites, please see <a
+                                href="https://tools.google.com/dlpage/gaoptout">https://tools.google.com/dlpage/gaoptout</a>.
+                        </td>
+                    </tr>
+
+                    </tbody>
+                </table>
+                </p>
+                <p>
+                    Your web browser should allow you to delete any cookies or local storage that you choose.
+                    It also should allow you to prevent or limit their use.
+                </p>
+                <p>
+                    If you choose to prevent the use of cookies through your browser settings,
+                    you will not be able to use all the functionality of our website.
+                </p>
+                <p>
+                <h5>11. Personal identifiers from your browsing activity</h5>
+                Requests by your web browser to our servers for web pages and other content on our website
+                are recorded. We record information such as your geographical location, your Internet service provider
+                and your IP address. We also record information about the software you are using to browse our
+                website, such as the type of computer or device and the screen resolution. We use this information
+                in aggregate to assess webpage popularity and server performance. If combined with other
+                information we know about you from previous visits, the data possibly could be used to identify
+                you personally, even if you are not signed in to our website.
+                </p>
+                <h3>Disclosure and sharing of your information</h3>
+                <p>
+                <h5>12. Information we obtain from third parties</h5>
+                Although we do not disclose your personal information to any third party
+                (except as set out in this notice), we sometimes receive data that is indirectly made up
+                from your personal information from third parties whose services we use. No such information
+                is personally identifiable to you.
+
+                <h5>13. Service Providers</h5>
+                We may use the following third-party service providers named below to process and store your data:
+                <table class="table-sm m-0 table-bordered table-colored-bordered table-bordered-primary">
+                    <tbody>
+                    <tr>
+                        <th style="text-align:left;vertical-align:top;">Provider</th>
+                        <th style="text-align:left;vertical-align:top;">Description</th>
+                    </tr>
+                    <tr>
+                        <td style="text-align:left;vertical-align:top;"><strong>Google Inc.</strong></td>
+                        <td style="text-align:left;vertical-align:top;">We may use services from Google Inc. to provide
+                            various services on this website, including 'Google Analytics' to help collect data on how
+                            users use this website, and 'Google Fonts' to provide hosting for font files. Their privacy
+                            policy can be found here: <a href="https://policies.google.com/privacy?hl=en&amp;gl=uk"
+                                                         target="_blank" rel="noreferrer noopener">https://policies.google.com/privacy</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:left;vertical-align:top;"><strong>ELB Tunisie </strong></td>
+                        <td style="text-align:left;vertical-align:top;">We use ELB Tunisie - <a href="#" target="_blank"
+                                                                                                rel="noreferrer noopener">ELB
+                                Tunisie</a> - to provide website hosting and marketing services on our behalf.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:left;vertical-align:top;"><strong>cdnjs.com</strong></td>
+                        <td style="text-align:left;vertical-align:top;">We use cdnjs - <a href="https://cdnjs.com/"
+                                                                                          target="_blank"
+                                                                                          rel="noreferrer noopener">https://cdnjs.com/</a>
+                            - to provide hosting for some code libraries used by this website.
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+                </p>
+                <p>
+                <h5>14. Data may be processed outside the European Union</h5>
+                This website is hosted in Tunisia. We may also use outsourced services in countries outside
+                the European Union from time to time in other aspects of our business. Accordingly, data obtained
+                within Tunisia or any other country could be processed outside the European Union.
+
+                For example, some of the software our website uses may have been developed in the United States
+                of America or in Australia.
+
+                We use the following safeguards with respect to data transferred outside the European Union:
+
+                the processor is bound to data protection requirements within their own country. the data
+                protection clauses in our contracts with data processors include transfer clauses
+                written by or approved by a supervisory authority in the European Union, specifically that
+                in the country of the United Kingdom
+                we comply with a code of conduct approved by a supervisory authority in the European Union,
+                specifically that in the country of the United Kingdom
+                </p>
+                <p>
+                <h3>Access to your own information</h3>
+                </p>
+                <p>
+                <h5>15. Your Rights</h5>
+                You have the right to ask us not to process your personal information for marketing purposes.
+                If you do not wish to receive further communication from us please <a href="{{ path('contact') }}">contact
+                    us</a>.
+                </p>
+                <p>
+                <h5>16. Access to your personal information</h5>
+                To obtain a copy of any information that is not provided on our website you may
+                <a href="{{ path('contact') }}">send us</a> a request.
+                After receiving the request, we will confirm we have received your request and will provide
+                you with the information within the 28 day period required.
+                </p>
+                <p>
+                <h5>17. Removal of your information</h5>
+                If you wish us to remove personally identifiable information from our website,
+                please <a href="{{ path('contact') }}">contact us</a>. This may limit the service we can provide to you.
+                </p>
+                <p>
+                <h5>18. Verification of your information</h5>
+                When we receive any request to access, edit or delete personal identifiable information we shall
+                first take reasonable steps to verify your identity before granting you access or otherwise taking
+                any action. This is important to safeguard your information.
+                </p>
+                <h3>Other matters</h3>
+                <p>
+                <h5>19. Links</h5>
+                When you click on links on our website, they may direct you away from our site.
+                We are not responsible for the privacy practices of other sites and encourage you to
+                read their privacy statements.
+                </p>
+                <p>
+                <h5>20. Use of site by children</h5>
+                We do not sell products or provide services for purchase by children, nor do we market
+                to children. If you are under 18, you may use our website only with consent from a
+                parent or guardian.
+                </p>
+                <p>
+                <h5>21. Encryption of data sent between us</h5>
+                We use Secure Sockets Layer (SSL) certificates to verify our identity to your browser and
+                to encrypt any data you give us. Whenever information is transferred between you and us, you
+                can check that it is done using SSL by looking for a closed padlock symbol or other trust mark
+                in your browser's URL bar or toolbar.
+                </p>
+                <p>
+                <h5>22. How you can complain</h5>
+                If you are not happy with our privacy policy or if have any complaint then you should
+                <a href="{{ path('contact') }}">contact us</a>. If a dispute is not settled then we hope you
+                will agree to attempt to resolve it by engaging in good faith with us in a process of mediation
+                or arbitration.
+
+                If you are in any way dissatisfied about how we process your personal information, you have a right
+                to lodge a complaint with Instance nationale de protection des données à caractère personnel (INPDP).
+                This can be done at <a href="">http://www.inpdp.nat.tn/formulaires.html</a>
+                </p>
+                <p>
+                <h5>23. Retention period for personal data</h5>
+                Except as otherwise mentioned in this privacy notice, we keep your personal information only
+                for as long as required by us:
+                <ul>
+                    <li>to provide you with the services you have requested;</li>
+                    <li>to support a claim or defence in court.</li>
+                </ul>
+                </p>
+                <p>
+                <h5>24. Compliance with the law</h5>
+                Our privacy policy has been compiled so as to comply with the law of every country or legal
+                jurisdiction in which we aim to do business. If you think it fails to satisfy the law of your
+                jurisdiction, we should like to hear from you. It is your choice as to whether you wish to use
+                our website.
+                </p>
+                <p>
+                <h5>25. Review of this privacy policy</h5>
+                We will update this privacy notice from time to time as necessary. The terms that apply to you
+                are those outlined here on our website on the day you use our website. If you have any questions
+                regarding our privacy policy, please <a href="{{ path('contact') }}">contact us</a>.
+                </p>
+                <p>
+                <h5>25. Further information on General Data Protection Regulations</h5>
+                For up to date information on your rights under the General Data Protection Regulations,
+                please check the website of Instance nationale de protection des données à caractère personnel (INPDP).
+                This can be done at <a href="">http://www.inpdp.nat.tn/</a>.
+
+                This privacy policy was last updated on July 31/12/2020.
+                </p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-custom waves-effect" data-dismiss="modal">Close</button>
@@ -565,7 +985,111 @@
 
             </div>
             <div class="modal-body">
+                <p>
+                    Thank you for visiting our site www.mamias.org ("the Site").</p>
 
+                <p>We hope that you enjoy your visit, but you should be aware that your use of the Site is regulated by
+                    these
+                    Terms and Conditions. Browsing the Site will constitute acceptance of the Terms and Conditions, so
+                    if you do not
+                    accept them either in whole or in part, you should stop using the Site immediately. You should also
+                    make yourself
+                    aware of our Disclaimer. We may vary the Terms and Conditions from time to time and any such changes
+                    will take
+                    effect from the date of posting on the Site. Your continued use of the Site indicates your
+                    acceptance of any changes
+                    which we may make to the Terms and Conditions.</p>
+
+                <p>Throughout the Terms and Conditions, when we refer to 'we', 'us', 'our' etc, we are referring to
+                    SPA/RAC.
+                    When we refer to 'you' we are referring to the user or browser of the Site.</p>
+
+                <p>We will be happy to answer any questions which you may have regarding these Terms and Conditions. You
+                    can contact us
+                    by completing <a href="{{ path('contact') }}">the contact form</a> or any of the other contact
+                    methods listed on
+                    the contact page of our Site. We are committed to protecting the privacy of anyone who uses the Site
+                    and any
+                    personal data which we obtain from you as a result of any enquiries will be processed in terms of
+                    our Privacy Policy.</p>
+
+                <h5>1. Agreement</h5>
+                Accessing or viewing the Site constitutes your acceptance to these Terms and Conditions. If you do not
+                accept these Terms and Conditions you should EXIT the Site immediately.
+
+                <h5>2. Copyright</h5>
+                The content of this Site (except where otherwise stated) is copyright © OSPAR Commission. This includes
+                any text, scripts, applets, images, and graphics. You may print or download the content of this site for
+                you own personal use only but all such prints and/or downloads should acknowledge that the material is
+                copyright © OSPAR Commission where appropriate. You may cache or store material from the Site for
+                private on - or off - line browsing purposes only.
+
+                The distribution or copying of the content of the Site or any part of the Site for any commercial
+                purpose is specifically prohibited other than with the express written consent of OSPAR Commission. A
+                written licence for commercial distribution or copying may be obtained on request on such terms and at
+                such costs as we may determine.
+
+                Any trade mark, service mark or other intellectual property contained in or relating to this site are,
+                unless otherwise explicitly stated, the property of OSPAR Commission. The use of such trade marks,
+                service marks or other intellectual property by users or viewers of this site is strictly forbidden.
+
+                <h5>3. Newsletters and Event Information</h5>
+                If you wish to be kept informed of forthcoming events and product releases, or if you wish to receive
+                our newsletter, please complete the contact form on our Site. All personal data which you provide to us
+                will be processed in accordance with our Privacy Policy.
+
+                <h5>4. Exclusions</h5>
+                SPA/RAC shall not be liable to you (whether directly or indirectly and whether as a result of negligence
+                or otherwise) in respect of any losses or damage which you may incur as a result of your use of the
+                Site. We would advise that you read the terms of our Disclaimer. We have taken, and will continue to
+                take, all reasonable steps to ensure that the Site and all information which is published on the Site
+                (including all newsletters) is accurate. We cannot however guarantee:
+                <ul>
+                    <li>that material, information or data obtained from or through this site is complete, accurate or
+                        not an infringement
+                        of any party's intellectual or other property rights.
+                    </li>
+                    <li>that material, information and data submitted via this site will be fully secure.</li>
+                    <li>that material, information and data obtained from or through this site will meet your
+                        requirements.
+                    </li>
+                    <li>that your access to or use of this site will be uninterrupted, timely or error-free or that
+                        defects in information contained on this site will be corrected.
+                    </li>
+                </ul>
+                Please <a href="{{ path('contact') }}">contact us</a> and let us know if you are aware of any
+                inaccuracies, and steps will be taken to correct them.
+
+                <h5>5. Hyperlinks</h5>
+                This Site may contain hyperlinks to websites operated by other parties. These links are suggested for
+                information only and our inclusion of hyperlinks to such websites does not imply any endorsement of
+                views, statements or information contained in such websites. Care is advised in visiting any external
+                sites linked from this Site. No liability is accepted for any information contained on any external
+                site. If you consider that the content of any external site linked from this Site is illegal, immoral or
+                offensive please advise OSPAR Commission using any of the contact methods listed on our contact page.
+
+                You should remember that when you link to another site, the terms of use of the external linked site
+                will apply and not the terms of use of this Site.
+
+                <h5>6. Alteration of Terms and Conditions</h5>
+                SPA/RAC reserves the right to update or modify these Terms and Conditions. Any changes to these terms
+                and Conditions will be posted on this Site.
+
+                <h5>7. Complaints</h5>
+                If you have any cause for complaint about this Site please <a href="{{ path('contact') }}">contact
+                    us</a>.
+
+                <h5>8. Severance</h5>
+                If any provision of this Agreement is held to be invalid or unenforceable, such provision shall be
+                struck out and the remaining provisions shall remain in force.
+
+                <h5>9. General</h5>
+                Your statutory rights are not affected.
+
+                <h5>10. Jurisdiction</h5>
+                This Agreement shall be governed by and construed in accordance with the law of Tunisia, and each of the
+                parties submits to the exclusive jurisdiction of the courts of Tunisia.
+                </p>
 
 
             </div>
@@ -613,16 +1137,11 @@
 <script src="{{ asset('assets/js/jquery.core.js') }}"></script>
 <script src="{{ asset('assets/js/jquery.app.js') }}"></script>
 <script src="{{ asset('assets/js/jquery.cookie.js') }}"></script>
+<script type="text/javascript" src="{{ asset('bundles/chcookieconsent/js/cookie_consent.js') }}"></script>
 
 <script>
     $(document).ready(function () {
-        if (document.cookie.indexOf('visited=true') == -1) {
-            // load the overlay
-            $('#disclaimer').modal({show: true});
-            var day = 1000 * 60 * 60 * 24;
-            var expires = new Date((new Date()).valueOf() + day);
-            document.cookie = "visited=true;expires=" + expires.toUTCString();
-        }
+
         var fab1 = new fabButton({
             selectorId: '#example1',
             position: 'bottom-right',
@@ -636,7 +1155,10 @@
         });
         $('#tooltip-hover1').tooltipster();
     });
+
+
 </script>
+
 {% block javascripts %}
 {% endblock %}
 </body>

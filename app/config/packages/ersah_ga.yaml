@@ -1,0 +1,25 @@
+ersah_ga:
+    view_id: ''
+    google_analytics_json_key: "%kernel.root_dir%/../Mamias-2021-7d35e6205d4f.json"
+    limit: 15 # results per page
+    from: "30daysAgo" # also YYYY-MM-DD
+    to: "today"       # also YYYY-MM-DD
+    sortBy: "ga:totalEvents"
+    sorting: "DESCENDING"
+    list:
+        dimensions:
+            - { value: 'ga:dimension1', label: 'Asset ID' }
+
+        metrics:
+            - { value: 'ga:totalEvents', label: 'Total Events' }
+
+    #ga metrics and dimensions :
+    main:
+        metrics:
+            - { value: 'ga:sessions', label: 'Sessions' }
+            - { value: 'ga:bounceRate', label: 'Bounce Rate' }
+            - { value: 'ga:avgTimeOnPage', label: 'Average Time On Page' }
+            - { value: 'ga:pageviewsPerSession', label: 'Page Views Per Session' }
+            - { value: 'ga:percentNewVisits', label: 'Percent New Visits' }
+            - { value: 'ga:pageviews', label: 'Page Views' }
+            - { value: 'ga:avgPageLoadTime', label: 'Average Page Load Time' }

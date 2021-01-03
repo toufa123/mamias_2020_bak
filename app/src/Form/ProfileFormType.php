@@ -34,15 +34,15 @@ class ProfileFormType extends BaseType
                 [
                     'label' => 'Gender',
                     'choices' => [
-                        'U' => 'U',
-                        'F' => 'F',
-                        'M' => 'M',
+                        'unknown' => 'u',
+                        'female' => 'f',
+                        'male' => 'm',
                     ], 'required' => false
                 ]
             )
-            ->add('email', EmailType::class, ['label' => 'Email'])
-            ->add('phone', TelType::class, ['label' => 'Phone'])
-            ->add('skype', null, ['label' => 'Skype'])
+            ->add('email', EmailType::class, ['label' => 'Email', 'required' => false])
+            ->add('phone', TelType::class, ['label' => 'Phone', 'required' => false])
+            ->add('skype', null, ['label' => 'Skype', 'required' => false])
             ->add('biography', TextType::class, ['label' => 'Biography', 'required' => false])
             ->add('facebookUid', TextType::class, ['label' => 'Facebook', 'required' => false])
             ->add('twitterUid', TextType::class, ['label' => 'Twitter', 'required' => false])

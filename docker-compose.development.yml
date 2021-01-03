@@ -4,116 +4,58 @@ services:
   # PHP application Docker container
   #######################################
   app:
-    container_name: "mamias_app"
+    container_name: "${name}_app"
     restart: always
     build:
       context: .
-      dockerfile: Dockerfile.production
+      dockerfile: Dockerfile.development
     links:
       #- mysql
       - postgres
       #- mail
-      #- solr
-      #- elasticsearch
       #- redis
       #- memcached
-      #- ftp
     ports:
-      - "8000:80"
-      - "8443:443"
-      #- "10022:22"
+      - "${ngnix80port}:80"
+      - "${ngnix443port}:443"
     volumes:
       - ./app/:/app/
     environment:
-      - DATABASE_URL=pgsql://admin:postgres@postgres:5432/db_mamias
+      - DATABASE_URL=pgsql://admin:postgres@postgres:5432/db_${name}
     env_file:
-
       - etc/environment.yml
       - etc/environment.development.yml
     labels:
-      - "traefik.http.routers.MAMIAS_app.rule=Host(`mamias.docker.localhost`)"
-
-      #######################################
-      # MySQL server
-      #######################################
-      #mysql:
-      #  build:
-      #    context: docker/mysql/
-      #dockerfile: MySQL-5.5.Dockerfile
-      #    dockerfile: MySQL-5.6.Dockerfile
-      #dockerfile: MySQL-5.7.Dockerfile
-      #dockerfile: MariaDB-5.5.Dockerfile
-      #dockerfile: MariaDB-10.Dockerfile
-      #dockerfile: Percona-5.5.Dockerfile
-      #dockerfile: Percona-5.6.Dockerfile
-      #dockerfile: Percona-5.7.Dockerfile
-  #  volumes:
-  #    - mysql:/var/lib/mysql
-  #  env_file:
-  #    - etc/environment.yml
-  #    - etc/environment.production.yml
-
+      - "traefik.http.routers.${name}.rule=Host(`${name}.docker.localhost`)"
   #######################################
   # PostgreSQL server
   #######################################
   postgres:
-    container_name: "mamias_database"
+    container_name: "${name}_database"
     restart: always
     build:
       context: docker/postgres/
       dockerfile: Postgres.Dockerfile
     #    dockerfile: Postgres-9.5.Dockerfile
     ports:
-      - 5432:5432
+      - 25432:5432
     volumes:
       #  - solr:/opt/solr/server/solr/data
-      - postgres_data:/var/lib/postgresql/data
-      - ./backup/mamias26062020.sql:/docker-entrypoint-initdb.d/setup-db.sql
+      - ${name}_data:/var/lib/postgresql/data
+      - ./backup/mamias29092020.sql:/docker-entrypoint-initdb.d/setup-db.sql
 
     environment:
       - ALLOW_IP_RANGE=0.0.0.0/0
       - DB_HOST=postgres
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=db_mamias
+      - POSTGRES_DB=db_{$name}
       - POSTGRES_MULTIPLE_EXTENSIONS=postgis
       - DEFAULT_ENCODING="UTF8"
     env_file:
       - etc/environment.yml
       - etc/environment.production.yml
     command: bash -c "while [ ! -f /docker-entrypoin-initdb.d/public.sql ]; do sleep 1; done && /docker-entrypoint.sh"
-
-    #######################################
-    # Solr server
-    #######################################
-    #solr:
-    #  build:
-    #    context: docker/solr/
-    #  ports:
-    #    - 18983:8983
-    #  volumes:
-    #    - solr:/opt/solr/server/solr/data
-    #  environment:
-    #    - SOLR_STORAGE=/opt/solr/server/solr/data
-    #  env_file:
-    #    - etc/environment.yml
-    #    - etc/environment.production.yml
-
-    #######################################
-    # Elasticsearch
-    #######################################
-    #elasticsearch:
-    #  build:
-    #    context: docker/elasticsearch/
-    #  ports:
-    #    - 19200:9200
-    #    - 19300:9300
-    #  volumes:
-    #    - elasticsearch:/usr/share/elasticsearch/data
-    #  env_file:
-    #    - etc/environment.yml
-    #    - etc/environment.production.yml
-
     #######################################
     # Redis
     #######################################
@@ -136,84 +78,76 @@ services:
     #    - etc/environment.yml
     #    - etc/environment.production.yml
 
-    #######################################
-    # FTP (vsftpd)
-    #######################################
-    #ftp:
-    #  build:
-    #    context: docker/vsftpd/
-    #  volumes:
-    #    - ./:/application/
-    #  env_file:
-    #    - etc/environment.yml
-    #    - etc/environment.production.yml
   #######################################
   # pgAdmin
   #######################################
   pgAdmin:
-
     restart: always
-    container_name: "pgadmin4"
+    container_name: "${name}_pgadmin4"
     image: dpage/pgadmin4
     ports:
-      - "9000:80"
+      - "${pgadmin_port}:80"
     environment:
       PGADMIN_DEFAULT_EMAIL: atef.ouerghi@spa-rac.org
       PGADMIN_DEFAULT_PASSWORD: toufa_2512
     volumes:
-      - pgadmin:/var/lib/pgadmin
+      - ${name}_pgadmin:/var/lib/pgadmin
     depends_on:
       - postgres
     links:
       - postgres
     labels:
-      - "traefik.http.routers.MAMIAS_portainer.rule=Host(`portainer.docker.localhost`)"
+      - "traefik.http.routers.${name}_portainer.rule=Host(`portainer.docker.localhost`)"
   #######################################
   # Mail
   #######################################
   maildev:
-    container_name: "maildev"
-    image: djfarrelly/maildev
+    container_name: "${name}_maildev"
+    image: maildev/maildev:latest
     restart: always
     ports:
-      - "1080:80" # smtp server
-      - "1025:25"
+      - "${maildev_port}:80" # smtp server
+      - "1026:25"
     labels:
-      - "traefik.http.services.MAMIAS_mail.loadbalancer.server.port=1025"
-      - "traefik.http.routers.MAMIAS_mail.rule=Host(`mail.mamias.localhost`)"
+      - "traefik.http.services.${name}_mail.loadbalancer.server.port=1025"
+      - "traefik.http.routers.${name}_mail.rule=Host(`mail.${name}.localhost`)"
+
+
   #######################################
   # Portainer
   #######################################
   portainer:
     image: portainer/portainer
-    container_name: "mamias_portainer"
+    container_name: "${name}_portainer"
     restart: always
     ports:
-      - "9001:80"
+      - "${portainer_port}:80"
     command: --no-auth -H unix:///var/run/docker.sock
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     labels:
-      - "traefik.http.routers.MAMIAS_portainer.rule=Host(`portainer.mamias.docker.localhost`)"
+      - "traefik.http.routers.${name}_portainer.rule=Host(`portainer.${name}.docker.localhost`)"
   #######################################
   # Traefik
   #######################################
   traefik:
     image: traefik:latest
-    container_name: "mamias_traefik"
+    container_name: "${name}_traefik"
     restart: always
     command: --api.insecure=true --providers.docker
     ports:
       #- '8000:80'
-      - '8080:8080' # Dashboard
+      - '${traefik_port}:8080' # Dashboard
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 
 volumes:
-  #mysql:
-  postgres_data:
-  pgadmin:
-  #solr:
-  #elasticsearch:
-  #redis:
-  #phpmyadmin:
+  #postgres_data:
+  #pgadmin:
+  ${name}_postgres:
+    name: ${name}_data # Real ending name
+    external: false
+  ${name}_pgadmin:
+    name: ${name}_pgadmin
+    external: false
+
